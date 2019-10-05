@@ -1,8 +1,8 @@
 %EXAMPLE4 Compares feedback strategies for the Lorenz equations 
 %  
   
-  fprintf('example4: setting degree to 3\n');
   degree=3;
+  fprintf('example4: setting degree to %d\n',degree);
   
   sigma = 10; rho = 28; beta = 8/3;
   
@@ -14,7 +14,7 @@
   N(2,3)=-0.5; N(2,7)=-0.5;  % -x1 x3 term
   N(3,2)= 0.5; N(3,4)= 0.5;  %  x1 x2 term
   
-  Q = eye(3); R = 1;
+  Q = eye(3); R = 100;
   
   [k,v] = AlbrechtQQR(A,B,Q,R,N,degree);
   
@@ -86,18 +86,30 @@
   
   figure(31)
   plot(t1,x1(:,1),'r',t2,x2(:,1),'b',t3,x3(:,1),'k')
+  legend('degree 1','degree 2','degree 3')
   figure(32)
   plot(t1,x1(:,2),'r',t2,x2(:,2),'b',t3,x3(:,2),'k')
+  legend('degree 1','degree 2','degree 3')
   figure(33)
   plot(t1,x1(:,3),'r',t2,x2(:,3),'b',t3,x3(:,3),'k')
+  legend('degree 1','degree 2','degree 3')
   
   figure(41)
-  u1 = k{1}*x1';
+  u1 = k{1}*x1.';
   
-  u2 = k{1}*x2';
+  u2 = k{1}*x2.';
   for i=1:length(u2)
-    u2(i) = u2(i) + k{2}*kron(x2(i,:)',x2(i,:)');
+    u2(i) = u2(i) + k{2}*kron(x2(i,:).',x2(i,:).');
   end
-  plot(t1,u1,'r',t2,u2,'b')
+  
+  u3 = k{1}*x3.';
+  for i=1:length(u3)
+    u3(i) = u3(i) + k{2}*kron(x3(i,:).',x3(i,:).') ...
+                  + k{3}*kron(x3(i,:).',kron(x3(i,:).',x3(i,:).'));
+  end
+  
+  plot(t1,u1,'r',t2,u2,'b',t3,u3,'k')
+  legend('degree 1','degree 2','degree 3')
+
 %end
 

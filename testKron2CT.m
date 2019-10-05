@@ -1,7 +1,7 @@
 %  test Kron2CT
 
 n = 6;
-d = 4;
+d = 5;
 
 x = sym('x',[n,1]);
 kk = x;
@@ -33,3 +33,4 @@ end
 % end
 % b=unique(b,'rows');
 % disp(b)
+

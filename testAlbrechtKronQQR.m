@@ -31,35 +31,38 @@
 
   testcase=2;
 
-  n      = 6;   % state dimension
+  n      = 6;  % state dimension
   m      = 1;   % control dimension
   degree = 4;   % degree of optimal feedback
 
   %  Flag those methods used for the current test (NST is reqd for errors)
-  testNST    = false;
-  testFull   = true;
+  testNST    = true;
+  testFull   = false;
   testTensor = true;
 
   if ( testcase==1 )
-%%
+  %%
 
-  example1
+    example1
   
   elseif ( testcase==2 )
-%%
-    
+  %%
+    %  For the ACC submission, we chose n=6:2:20, m=1, degree=2:4
+    %  the full Kronecker solution wasn't calculated for 16:2:20
     example2
 
   elseif ( testcase==3 )
-%%
-  
+  %%
+    %  For the ACC submission, we chose n=10:2:20, m=2, degree=2:3
+    %  the full Kronecker solution wasn't calculated for 16:2:20
     example3
     
   end
 
 %%
 if ( testNST )
-  addpath('NonlinearControlExamples/nst15')
+  %  adjust this to the path where you install nst15
+  setNSTpath
   tic
   x=sym('x',[n,1]); %  state variables 
   u=sym('u',[m,1]); %  control variables
@@ -78,7 +81,7 @@ if ( testNST )
   [ka,fk,py,lk]= hjb(ff,ll,n,m,degree);
   comp=toc;
 
-  fprintf('   NST solution required %g (%g) seconds\n\n',comp,comp+set_up);
+  fprintf('            NST solution required %g (%g) seconds\n\n',comp,comp+set_up);
 end % if testNST
 
 %%  Calculate via the Kronecker product formula
@@ -93,11 +96,11 @@ if ( testFull )
   disp('')
   fprintf('AlbrechtKronQQR solution required %g seconds\n',comp)
   
-else
-  [KK,PP] = lqr(full(A),full(B),full(Q),full(R));
-  
-  k1 = -KK;
-  v2 = PP(:);  if (testNST), v2=v2/2;  end
+% else
+%   [KK,PP] = lqr(full(A),full(B),full(Q),full(R));
+%   
+%   k1 =-KK;
+%   v2 = PP(:);  if (testNST), v2=v2/2;  end
 end
 
 
@@ -128,7 +131,7 @@ if ( degree>1 )
     comp = toc;
     
     disp('')
-    fprintf('AlbrechtQQR solution required %g seconds\n\n',comp)
+    fprintf('    AlbrechtQQR solution required %g seconds\n\n',comp)
     kk2 = kk{2};
     vv3 = vv{3};
     if ( testNST )
@@ -286,12 +289,14 @@ if ( degree>3 )
 end 
 
 if ( degree>3 )
-  fprintf('CT to Kron mappings (5) require %g seconds\n',CTtime)
+  fprintf('\n');
+  fprintf('CT to Kron mappings (5) require %g seconds\n\n',CTtime)
 end
 %  sometimes these errors are high, but the relative error is then low.
 %  possibly due to factors like nearly singular R, nearly uncontrollable
 %  (or extensions of this notion to the higher degree case?)
-  
+%  other times, we are computing a relative error for a quantity
+%  that should be zero.
   
   
   
