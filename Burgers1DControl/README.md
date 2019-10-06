@@ -1,6 +1,6 @@
 Burgers1DControl contains files that are used to provide an autonomous quadratic control system by discretizing 
-a distributed parameter control problem with finite elements.  The order of the system and the number of control
-inputs can be specified.  These correspond to the number of finite elements and the number of distributed source
+a distributed parameter control problem with finite elements.  The order of the system (n) and the number of control
+inputs (m) can be specified.  These correspond to the number of finite elements and the number of distributed source
 functions over the domain.  
 
 The mathematical description of the problem is
