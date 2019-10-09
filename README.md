@@ -22,3 +22,13 @@ The details of some of our functions and test examples are provided below.
 ### AlbrechtQQR
 
 ### AlbrechtKronQQR
+
+### References
+>  @misc{borggaard2019quadraticquadratic,
+>    title={The Quadratic-Quadratic Regulator Problem: Approximating feedback controls for quadratic-in-state nonlinear systems},
+>    author={Jeff Borggaard and Lizette Zietsman},
+>    year={2019},
+>    eprint={1910.03396},
+>    archivePrefix={arXiv},
+>    primaryClass={math.OC}
+>}
