@@ -20,9 +20,9 @@
 
   testcase=1;
 
-  n      = 6;  % state dimension
-  m      = 1;   % control dimension
-  degree = 5;   % degree of optimal feedback
+  n      = 5;  % state dimension
+  m      = 3;   % control dimension
+  degree = 3;   % degree of optimal feedback
 
   %  Flag whether or not NST is to be computed (reqd for error calculations)
   testNST = true;
@@ -73,6 +73,7 @@ if ( degree>1 )
   tic
   if ( testNST )
     [kk,vv] = AlbrechtQQR(A,B,Q,R,N,degree,true);
+    R = R/2;
   else
     [kk,vv] = AlbrechtQQR(A,B,Q,R,N,degree);
   end
@@ -95,9 +96,16 @@ if ( degree>1 )
     
     e_k2 = norm( ka2-kk2*S2' );
     e_p3 = norm( py3-(vv3*S3') );
-    fprintf('tensor:  The relative error in k^[2] is %g\n',e_k2/norm(ka2));
-    fprintf('tensor:  The relative error in v^[3] is %g\n',e_p3/norm(py3));
+    fprintf('testAlbrekhtQQR:  The relative error in k^[2] is %g\n',e_k2/norm(ka2));
+    fprintf('testAlbrekhtQQR:  The relative error in v^[3] is %g\n',e_p3/norm(py3));
   end 
+  
+  k2Rk1 = kk{2}.'*R*kk{1};  k1Rk2 = k2Rk1.';
+  HJB1_residual = LyapProduct((A+B*kk{1}).',vv{3}.',3) ...
+                + LyapProduct((N+B*kk{2}).',vv{2}.',2) ...
+                + k2Rk1(:) + k1Rk2(:);
+  fprintf('testAlbrekhtQQR:  The HJB residual for (k^[2],v^[3]) is %g\n\n',...
+     norm(HJB1_residual) )
 end
 
 %%
@@ -119,6 +127,11 @@ if ( degree>2 )
     e_p4 = norm( py4-(vv4*S4') );
     fprintf('tensor:  The relative error in k^[3] is %g\n',e_k3/norm(ka3));
     fprintf('tensor:  The relative error in v^[4] is %g\n',e_p4/norm(py4));
+  
+    k2Rk1 = kk{2}.'*R*kk{1};  k1Rk2 = k2Rk1.';
+    HJB1_residual = LyapProduct((A+B*kk{1}).',vv{3}.',3) ...
+                  + LyapProduct((N+B*kk{2}).',vv{2}.',2) ...
+                  + (kron(kk{1}.',kk{2}.')+kron(kk{2}.',kk{1}.'))*R(:);
   end
 end
 

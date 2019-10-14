@@ -1,10 +1,10 @@
-function [k,v] = AlbrechtKronQQR(A,B,Q,R,N,degree,compNST)
-%AlbrechtKronQQR Albrecht's approximation to the quadratic-quadratic-regulator
+function [k,v] = AlbrekhtKronQQR(A,B,Q,R,N,degree,compNST)
+%AlbrekhtKronQQR Albrekht's approximation to the quadratic-quadratic-regulator
 %   A quadratic system is provided in Kronecker product form
 %     \dot{x} = A*x + B*u + N*kron(x,x),  \ell(x,u) = x'*Q*x + u'*R*u
 %
 %   This function is inefficient, but used to test and develop the MUCH more
-%   efficient routine:  AlbrechtQQR
+%   efficient routine:  qqr
 %
 %   This function returns an approximation to the HJB equations for computing
 %   the optimal feedback control up to "degree" (a natural number < 5). 
@@ -18,14 +18,13 @@ function [k,v] = AlbrechtKronQQR(A,B,Q,R,N,degree,compNST)
 %   The elements of v and k are returned in a cell array:
 %      v{2} = v2, v{3} = v3, etc.   and   k{1} = k1, k{2} = k2, etc.
 %
-%   Usage:  [k,v] = AlbrechtQQR(A,B,Q,R,N,degree)
+%   Usage:  [k,v] = AlbrekhtKronQQR(A,B,Q,R,N,degree)
 %
 %   if A is (n \times n) and B is (n \times m), then for each 1<=l<=degree
 %    v{l+1} is (1 \times n^(l+1)) and k{l} is (m \times n^l).
 %
-%   The construction of the Kronecker system from Al'Brecht's expansion and 
-%   its solution using a recursive blocked algorithm by Chen and Kressner is
-%   detailed in
+%   The construction of the Kronecker system from Al'Brekht's expansion and 
+%   its solution using is detailed in
 %     Borggaard and Zietsman, The Quadratic-Quadratic Regulator: 
 %       Proc. American Conference on Control, Denver, CO, 2020.
 %

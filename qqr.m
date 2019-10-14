@@ -1,5 +1,5 @@
-function [k,v] = AlbrechtQQR(A,B,Q,R,N,degree,compNST)
-%AlbrechtQQR Albrecht's approximation to the quadratic-quadratic-regulator
+function [k,v] = qqr(A,B,Q,R,N,degree,compNST)
+%QQR Albrecht's approximation to the quadratic-quadratic-regulator problem
 %   A quadratic system is provided in Kronecker product form
 %     \dot{x} = A*x + B*u + N*kron(x,x),  \ell(x,u) = x'*Q*x + u'*R*u
 %
@@ -18,7 +18,7 @@ function [k,v] = AlbrechtQQR(A,B,Q,R,N,degree,compNST)
 %   The elements of v and k are returned in a cell array:
 %    v{2} = v2, v{3} = v3, etc.   and   k{1} = k1, k{2} = k2, etc.
 %
-%   Usage:  [k,v] = AlbrechtQQR(A,B,Q,R,N,degree)
+%   Usage:  [k,v] = qqr(A,B,Q,R,N,degree)
 %
 %   if A is (n \times n) and B is (n \times m), then for each 1<=l<=degree
 %    v{l+1} is (1 \times n^(l+1)) and k{l} is (m \times n^l).
@@ -33,7 +33,11 @@ function [k,v] = AlbrechtQQR(A,B,Q,R,N,degree,compNST)
 %   and example scripts, can be found at https://github.com/jborggaard/QQR
 %%
 
-  addpath('./kronecker/tensor_recursive')
+  if ( exist('./kronecker/tensor_recursive','dir') )
+    addpath('./kronecker/tensor_recursive')
+  else
+    error('qqr: the tensor_recursive software must be installed')
+  end
 
   % some input consistency checks: A nxn, B nxm, Q nxn SPSD, R mxm SPD, N nxn^2
   n = size(A,1);
@@ -47,7 +51,7 @@ function [k,v] = AlbrechtQQR(A,B,Q,R,N,degree,compNST)
     attributesR = {'size',[m,m]};     validateattributes(R,classes,attributesR);
     attributesN = {'size',[n,n*n]};   validateattributes(N,classes,attributesN);
   else
-    error('AlbrechtQQR: expecting at least 5 inputs');
+    error('qqr: expecting at least 5 inputs');
   end
 
   if ( nargin==5 )
@@ -94,8 +98,11 @@ function [k,v] = AlbrechtQQR(A,B,Q,R,N,degree,compNST)
     Al{1} = ABKT; Al{2} = ABKT; Al{3} = ABKT;
     bb = -LyapProduct(N.',v2,2);
     
-%    v3 = laplace_recursive(Al,reshape(bb,n,n,n));
-    v3 = lyapunov_recursive(Al,reshape(bb,n,n,n));
+    if ( exist('./kronecker/tensor_recursive/lyapunov_recursive.m','file') )
+      v3 = lyapunov_recursive(Al,reshape(bb,n,n,n));
+    else
+      v3 = laplace_recursive(Al,reshape(bb,n,n,n));
+    end
     v3 = real(v3(:));
        
     S = Kron2CT(n,2);
@@ -139,8 +146,11 @@ function [k,v] = AlbrechtQQR(A,B,Q,R,N,degree,compNST)
     bb = -LyapProduct((B*K2+N).',v3,3) ...
          -kron(K2.',K2.')*r2;
        
-%    v4 = laplace_recursive(Al,reshape(bb,n,n,n,n));
-    v4 = lyapunov_recursive(Al,reshape(bb,n,n,n,n));
+    if ( exist('./kronecker/tensor_recursive/lyapunov_recursive.m','file') )
+      v4 = lyapunov_recursive(Al,reshape(bb,n,n,n,n));
+    else
+      v4 = laplace_recursive(Al,reshape(bb,n,n,n,n));
+    end
     v4 = real(v4(:));
       
     S = Kron2CT(n,3);
@@ -194,8 +204,11 @@ function [k,v] = AlbrechtQQR(A,B,Q,R,N,degree,compNST)
          -LyapProduct((B*K3  ).',v3,3) ...
          -( kron(K2.',K3.') + kron(K3.',K2.') )*r2;
        
-%    v5 = laplace_recursive(Al,reshape(bb,n,n,n,n,n));
-    v5 = lyapunov_recursive(Al,reshape(bb,n,n,n,n,n));
+    if ( exist('./kronecker/tensor_recursive/lyapunov_recursive.m','file') )
+      v5 = lyapunov_recursive(Al,reshape(bb,n,n,n,n,n));
+    else
+      v5 = laplace_recursive(Al,reshape(bb,n,n,n,n,n));
+    end
     v5 = real(v5(:));
     
     S = Kron2CT(n,4);
@@ -257,8 +270,11 @@ function [k,v] = AlbrechtQQR(A,B,Q,R,N,degree,compNST)
          -LyapProduct((B*K4  ).',v3,3) ...
          -( kron(K2.',K4.') +  kron(K3.',K3.') + kron(K4.',K2.') )*r2;
        
-%    v6 = laplace_recursive(Al,reshape(bb,n,n,n,n,n,n));
-    v6 = lyapunov_recursive(Al,reshape(bb,n,n,n,n,n,n));
+    if ( exist('./kronecker/tensor_recursive/lyapunov_recursive.m','file') )
+      v6 = lyapunov_recursive(Al,reshape(bb,n,n,n,n,n,n));
+    else
+      v6 = laplace_recursive(Al,reshape(bb,n,n,n,n,n,n));
+    end
     v6 = real(v6(:));
     
     S = Kron2CT(n,5);

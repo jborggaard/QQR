@@ -1,5 +1,5 @@
-%  This is the script used to run the testcases for AlbrechtQQR and
-%  AlbrechtKronQQR that were reported in
+%  This is the script used to run the testcases for qqr and
+%  the full Kronecker form in AlbrekhtKronQQR that were reported in
 %
 %     Borggaard and Zietsman, The Quadratic-Quadratic Regulator: 
 %       Proc. American Conference on Control, Denver, CO, 2020 (submitted).
@@ -18,18 +18,18 @@
 %  if testNST==true
 %  - solutions from NST are provided in the ka and py arrays.
 %
-%  if testAlbrechtQQR==true
-%  - solutions from AlbrechtQQR are provided in the kk and vv arrays.
+%  if testAlbrekhtQQR==true
+%  - solutions from qqr are provided in the kk and vv arrays.
 %
-%  if testAlbrechtKronQQR==true
-%  - solutions from AlbrechtKronQQR are provided in the k and v arrays.
+%  if testAlbrekhtKronQQR==true
+%  - solutions from AlbrekhtKronQQR are provided in the k and v arrays.
 %  - this can require a lot of memory and CPU time, so keep n, m, and the 
 %    degree variables small.
 %%
 %  Set up test examples, problem dimensions (order), and degree of feedback
 
 
-  testcase=2;
+  testcase=3;
 
   n      = 6;  % state dimension
   m      = 1;   % control dimension
@@ -84,17 +84,17 @@ if ( testNST )
   fprintf('            NST solution required %g (%g) seconds\n\n',comp,comp+set_up);
 end % if testNST
 
-%%  Calculate via the Kronecker product formula
+%%  Calculate via the full Kronecker product formula
 if ( testFull )
   tic
     if ( testNST )
-      [k,v] = AlbrechtKronQQR(A,B,Q,R,N,degree,true);
+      [k,v] = AlbrekhtKronQQR(A,B,Q,R,N,degree,true);
     else
-      [k,v] = AlbrechtKronQQR(A,B,Q,R,N,degree);
+      [k,v] = AlbrekhtKronQQR(A,B,Q,R,N,degree);
     end
   comp = toc;
   disp('')
-  fprintf('AlbrechtKronQQR solution required %g seconds\n',comp)
+  fprintf('AlbrekhtKronQQR solution required %g seconds\n',comp)
   
 % else
 %   [KK,PP] = lqr(full(A),full(B),full(Q),full(R));
@@ -124,14 +124,14 @@ if ( degree>1 )
   if ( testTensor )
     tic
       if ( testNST )
-        [kk,vv] = AlbrechtQQR(A,B,Q,R,N,degree,true);
+        [kk,vv] = qqr(A,B,Q,R,N,degree,true);
       else
-        [kk,vv] = AlbrechtQQR(A,B,Q,R,N,degree);
+        [kk,vv] = qqr(A,B,Q,R,N,degree);
       end
     comp = toc;
     
     disp('')
-    fprintf('    AlbrechtQQR solution required %g seconds\n\n',comp)
+    fprintf('    qqr solution required %g seconds\n\n',comp)
     kk2 = kk{2};
     vv3 = vv{3};
     if ( testNST )
