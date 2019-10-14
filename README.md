@@ -14,12 +14,19 @@ Then get the Matlab functions for efficiently solving linear systems with Kronec
 The installation can be tested in Matlab (we used R2019b) by typing
 > tests_ACC
 
-Optionally, tests to match our Quadratic-Quadratic Regulator paper can be performed by requesting the Nonlinear Systems Toolbox from Art Krener.  If this is the case, set testNST=true inside the testAlbrechtKronQQR.m script.
+Optionally, tests to match our Quadratic-Quadratic Regulator paper can be performed by requesting the Nonlinear Systems Toolbox from Art Krener.  If this is the case, adjust the path in **setNSTpath.m** and set _testNST=true_ inside the **tests_ACC.m** script.
 
 The details of some of our functions and test examples are provided below.  
 
 
-### AlbrechtQQR
+### qqr
+type
+> help qqr
+
+for more details and see
+> tests_ACC
+
+for examples on how **qqr** can be used.
 
 ### AlbrechtKronQQR
 
