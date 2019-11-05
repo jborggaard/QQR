@@ -12,8 +12,14 @@ function [k,v] = qqr(A,B,Q,R,N,degree,compNST)
 %   The output is a polynomial approximation to the value function v
 %   and the feedback control k.  Generally,
 %
-%    v(x) = v2*kron(x,x) + v3*kron(kron(x,x),x) + v4*kron(kron(kron(x,x),x),x) + ...     
-%    k(x) = k1*x + k2*kron(x,x) + k3*kron(kron(x,x),x) + ...
+%    v(x) = v2*kron(x,x) + ...
+%           v3*kron(kron(x,x),x) + ...
+%           v4*kron(kron(kron(x,x),x),x) + ...     
+%    and
+%
+%    k(x) = k1*x + ...
+%           k2*kron(x,x) + ...
+%           k3*kron(kron(x,x),x) + ...
 %
 %   The elements of v and k are returned in a cell array:
 %    v{2} = v2, v{3} = v3, etc.   and   k{1} = k1, k{2} = k2, etc.
@@ -121,8 +127,8 @@ function [k,v] = qqr(A,B,Q,R,N,degree,compNST)
     end
     
     v{3} = v3.';
-    k{2} = R\res.';
-    K2 = k{2};
+    K2   = R\res.';
+    k{2} = K2;
     % comp2 = toc;
   end
   
@@ -265,10 +271,21 @@ function [k,v] = qqr(A,B,Q,R,N,degree,compNST)
     % tic
     
     Al{6} = ABKT;
+    
+    % form the Kronecker portion of the RHS
+    %    -( kron(K2.',K4.') +  kron(K3.',K3.') + kron(K4.',K2.') )*r2
+    tmp = K2.'*R*K4;
+    bb  = tmp(:);
+    tmp = tmp.';
+    bb  = bb + tmp(:);
+    tmp = K3.'*R*K3;
+    bb  = bb + tmp(:);
+    
+    % augment with the Kronecker sum products
     bb = -LyapProduct((B*K2+N).',v5,5) ...
          -LyapProduct((B*K3  ).',v4,4) ...
          -LyapProduct((B*K4  ).',v3,3) ...
-         -( kron(K2.',K4.') +  kron(K3.',K3.') + kron(K4.',K2.') )*r2;
+         -bb;%-( kron(K2.',K4.') +  kron(K3.',K3.') + kron(K4.',K2.') )*r2;
        
     if ( exist('./kronecker/tensor_recursive/lyapunov_recursive.m','file') )
       v6 = lyapunov_recursive(Al,reshape(bb,n,n,n,n,n,n));

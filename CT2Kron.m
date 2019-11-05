@@ -7,6 +7,13 @@ function [S] = CT2Kron(n,degree)
 %
 %        then CT2Kron(2,3)*[4;3;-3;4] = [ 4;1;1;-1;1;-1;-1;4 ];
 %
+%        as [ 4;1;1;-1;1;-1;-1;4 ]*kron(kron([x1;x2],[x1;x2]),[x1;x2])
+%
+%        would be the equivalent polynomial written in Kronecker product form.
+%
+%  Author: Jeff Borggaard, Virginia Tech
+%
+%  Part of the QQR library.
 %-------------------------------------------------------------------------------
   switch degree 
     case 1
@@ -765,7 +772,7 @@ function [S] = CT2Kron(n,degree)
             entryCount = entryCount + 1;
             II(entryCount) = idx5(i,j,k,j,k); JJ(entryCount) = CTcount; SS(entryCount) = 1/30;  
             entryCount = entryCount + 1;
-            II(entryCount) = idx5(i,j,k,k,j);JJ(entryCount) = CTcount; SS(entryCount) = 1/30;  
+            II(entryCount) = idx5(i,j,k,k,j); JJ(entryCount) = CTcount; SS(entryCount) = 1/30;  
             entryCount = entryCount + 1;
             II(entryCount) = idx5(i,k,j,k,j); JJ(entryCount) = CTcount; SS(entryCount) = 1/30;  
             entryCount = entryCount + 1;
@@ -778,7 +785,7 @@ function [S] = CT2Kron(n,degree)
             entryCount = entryCount + 1;
             II(entryCount) = idx5(j,i,k,j,k); JJ(entryCount) = CTcount; SS(entryCount) = 1/30;  
             entryCount = entryCount + 1;
-            II(entryCount) = idx5(j,i,k,k,j);JJ(entryCount) = CTcount; SS(entryCount) = 1/30;  
+            II(entryCount) = idx5(j,i,k,k,j); JJ(entryCount) = CTcount; SS(entryCount) = 1/30;  
             entryCount = entryCount + 1;
             II(entryCount) = idx5(j,k,i,k,j); JJ(entryCount) = CTcount; SS(entryCount) = 1/30;  
             entryCount = entryCount + 1;
@@ -791,7 +798,7 @@ function [S] = CT2Kron(n,degree)
             entryCount = entryCount + 1;
             II(entryCount) = idx5(j,j,k,i,k); JJ(entryCount) = CTcount; SS(entryCount) = 1/30;  
             entryCount = entryCount + 1;
-            II(entryCount) = idx5(j,j,k,k,i);JJ(entryCount) = CTcount; SS(entryCount) = 1/30;  
+            II(entryCount) = idx5(j,j,k,k,i); JJ(entryCount) = CTcount; SS(entryCount) = 1/30;  
             entryCount = entryCount + 1;
             II(entryCount) = idx5(j,k,j,k,i); JJ(entryCount) = CTcount; SS(entryCount) = 1/30;  
             entryCount = entryCount + 1;
@@ -804,7 +811,7 @@ function [S] = CT2Kron(n,degree)
             entryCount = entryCount + 1;
             II(entryCount) = idx5(k,j,i,j,k); JJ(entryCount) = CTcount; SS(entryCount) = 1/30;  
             entryCount = entryCount + 1;
-            II(entryCount) = idx5(k,j,i,k,j);JJ(entryCount) = CTcount; SS(entryCount) = 1/30;  
+            II(entryCount) = idx5(k,j,i,k,j); JJ(entryCount) = CTcount; SS(entryCount) = 1/30;  
             entryCount = entryCount + 1;
             II(entryCount) = idx5(k,i,j,k,j); JJ(entryCount) = CTcount; SS(entryCount) = 1/30;  
             entryCount = entryCount + 1;
@@ -817,7 +824,7 @@ function [S] = CT2Kron(n,degree)
             entryCount = entryCount + 1;
             II(entryCount) = idx5(k,j,k,j,i); JJ(entryCount) = CTcount; SS(entryCount) = 1/30;  
             entryCount = entryCount + 1;
-            II(entryCount) = idx5(k,j,k,i,j);JJ(entryCount) = CTcount; SS(entryCount) = 1/30;  
+            II(entryCount) = idx5(k,j,k,i,j); JJ(entryCount) = CTcount; SS(entryCount) = 1/30;  
             entryCount = entryCount + 1;
             II(entryCount) = idx5(k,k,j,i,j); JJ(entryCount) = CTcount; SS(entryCount) = 1/30;  
             entryCount = entryCount + 1;
@@ -829,134 +836,134 @@ function [S] = CT2Kron(n,degree)
               CTcount = CTcount + 1;                   % x_i x_j^2 x_k x_l terms
               % fprintf('x_%d x_%d^2 x_%d x_%d\n',i,j,k,l)
               entryCount = entryCount + 1;
-              II(entryCount) = idx5(i,j,j,k,l);JJ(entryCount) = CTcount; SS(entryCount) = 1/60;  
+              II(entryCount) = idx5(i,j,j,k,l); JJ(entryCount) = CTcount; SS(entryCount) = 1/60;  
               entryCount = entryCount + 1;
-              II(entryCount) = idx5(i,j,j,l,k);JJ(entryCount) = CTcount; SS(entryCount) = 1/60;   
+              II(entryCount) = idx5(i,j,j,l,k); JJ(entryCount) = CTcount; SS(entryCount) = 1/60;   
               entryCount = entryCount + 1;
-              II(entryCount) = idx5(i,j,k,j,l);JJ(entryCount) = CTcount; SS(entryCount) = 1/60;   
+              II(entryCount) = idx5(i,j,k,j,l); JJ(entryCount) = CTcount; SS(entryCount) = 1/60;   
               entryCount = entryCount + 1;
-              II(entryCount) = idx5(i,j,k,l,j);JJ(entryCount) = CTcount; SS(entryCount) = 1/60;   
+              II(entryCount) = idx5(i,j,k,l,j); JJ(entryCount) = CTcount; SS(entryCount) = 1/60;   
               entryCount = entryCount + 1;
-              II(entryCount) = idx5(i,j,l,j,k);JJ(entryCount) = CTcount; SS(entryCount) = 1/60;   
+              II(entryCount) = idx5(i,j,l,j,k); JJ(entryCount) = CTcount; SS(entryCount) = 1/60;   
               entryCount = entryCount + 1;
-              II(entryCount) = idx5(i,j,l,k,j);JJ(entryCount) = CTcount; SS(entryCount) = 1/60;   
+              II(entryCount) = idx5(i,j,l,k,j); JJ(entryCount) = CTcount; SS(entryCount) = 1/60;   
               
               entryCount = entryCount + 1;
-              II(entryCount) = idx5(i,k,j,j,l);JJ(entryCount) = CTcount; SS(entryCount) = 1/60;   
+              II(entryCount) = idx5(i,k,j,j,l); JJ(entryCount) = CTcount; SS(entryCount) = 1/60;   
               entryCount = entryCount + 1;
-              II(entryCount) = idx5(i,k,j,l,j);JJ(entryCount) = CTcount; SS(entryCount) = 1/60;   
+              II(entryCount) = idx5(i,k,j,l,j); JJ(entryCount) = CTcount; SS(entryCount) = 1/60;   
               entryCount = entryCount + 1;
-              II(entryCount) = idx5(i,k,l,j,j);JJ(entryCount) = CTcount; SS(entryCount) = 1/60;   
+              II(entryCount) = idx5(i,k,l,j,j); JJ(entryCount) = CTcount; SS(entryCount) = 1/60;   
               entryCount = entryCount + 1;
-              II(entryCount) = idx5(i,l,j,j,k);JJ(entryCount) = CTcount; SS(entryCount) = 1/60;   
+              II(entryCount) = idx5(i,l,j,j,k); JJ(entryCount) = CTcount; SS(entryCount) = 1/60;   
               entryCount = entryCount + 1;
-              II(entryCount) = idx5(i,l,j,k,j);JJ(entryCount) = CTcount; SS(entryCount) = 1/60;   
+              II(entryCount) = idx5(i,l,j,k,j); JJ(entryCount) = CTcount; SS(entryCount) = 1/60;   
               entryCount = entryCount + 1;
-              II(entryCount) = idx5(i,l,k,j,j);JJ(entryCount) = CTcount; SS(entryCount) = 1/60;   
+              II(entryCount) = idx5(i,l,k,j,j); JJ(entryCount) = CTcount; SS(entryCount) = 1/60;   
               
               entryCount = entryCount + 1;
-              II(entryCount) = idx5(j,i,j,k,l);JJ(entryCount) = CTcount; SS(entryCount) = 1/60;   
+              II(entryCount) = idx5(j,i,j,k,l); JJ(entryCount) = CTcount; SS(entryCount) = 1/60;   
               entryCount = entryCount + 1;
-              II(entryCount) = idx5(j,i,j,l,k);JJ(entryCount) = CTcount; SS(entryCount) = 1/60;   
+              II(entryCount) = idx5(j,i,j,l,k); JJ(entryCount) = CTcount; SS(entryCount) = 1/60;   
               entryCount = entryCount + 1;
-              II(entryCount) = idx5(j,i,k,j,l);JJ(entryCount) = CTcount; SS(entryCount) = 1/60;   
+              II(entryCount) = idx5(j,i,k,j,l); JJ(entryCount) = CTcount; SS(entryCount) = 1/60;   
               entryCount = entryCount + 1;
-              II(entryCount) = idx5(j,i,k,l,j);JJ(entryCount) = CTcount; SS(entryCount) = 1/60;   
+              II(entryCount) = idx5(j,i,k,l,j); JJ(entryCount) = CTcount; SS(entryCount) = 1/60;   
               entryCount = entryCount + 1;
-              II(entryCount) = idx5(j,i,l,j,k);JJ(entryCount) = CTcount; SS(entryCount) = 1/60;   
+              II(entryCount) = idx5(j,i,l,j,k); JJ(entryCount) = CTcount; SS(entryCount) = 1/60;   
               entryCount = entryCount + 1;
-              II(entryCount) = idx5(j,i,l,k,j);JJ(entryCount) = CTcount; SS(entryCount) = 1/60;   
+              II(entryCount) = idx5(j,i,l,k,j); JJ(entryCount) = CTcount; SS(entryCount) = 1/60;   
               
               entryCount = entryCount + 1;
-              II(entryCount) = idx5(j,j,i,k,l);JJ(entryCount) = CTcount; SS(entryCount) = 1/60;   
+              II(entryCount) = idx5(j,j,i,k,l); JJ(entryCount) = CTcount; SS(entryCount) = 1/60;   
               entryCount = entryCount + 1;
-              II(entryCount) = idx5(j,j,i,l,k);JJ(entryCount) = CTcount; SS(entryCount) = 1/60;   
+              II(entryCount) = idx5(j,j,i,l,k); JJ(entryCount) = CTcount; SS(entryCount) = 1/60;   
               entryCount = entryCount + 1;
-              II(entryCount) = idx5(j,j,k,i,l);JJ(entryCount) = CTcount; SS(entryCount) = 1/60;   
+              II(entryCount) = idx5(j,j,k,i,l); JJ(entryCount) = CTcount; SS(entryCount) = 1/60;   
               entryCount = entryCount + 1;
-              II(entryCount) = idx5(j,j,k,l,i);JJ(entryCount) = CTcount; SS(entryCount) = 1/60;   
+              II(entryCount) = idx5(j,j,k,l,i); JJ(entryCount) = CTcount; SS(entryCount) = 1/60;   
               entryCount = entryCount + 1;
-              II(entryCount) = idx5(j,j,l,i,k);JJ(entryCount) = CTcount; SS(entryCount) = 1/60;   
+              II(entryCount) = idx5(j,j,l,i,k); JJ(entryCount) = CTcount; SS(entryCount) = 1/60;   
               entryCount = entryCount + 1;
-              II(entryCount) = idx5(j,j,l,k,i);JJ(entryCount) = CTcount; SS(entryCount) = 1/60;   
+              II(entryCount) = idx5(j,j,l,k,i); JJ(entryCount) = CTcount; SS(entryCount) = 1/60;   
               
               entryCount = entryCount + 1;
-              II(entryCount) = idx5(j,k,i,j,l);JJ(entryCount) = CTcount; SS(entryCount) = 1/60;   
+              II(entryCount) = idx5(j,k,i,j,l); JJ(entryCount) = CTcount; SS(entryCount) = 1/60;   
               entryCount = entryCount + 1;
-              II(entryCount) = idx5(j,k,i,l,j);JJ(entryCount) = CTcount; SS(entryCount) = 1/60;   
+              II(entryCount) = idx5(j,k,i,l,j); JJ(entryCount) = CTcount; SS(entryCount) = 1/60;   
               entryCount = entryCount + 1;
-              II(entryCount) = idx5(j,k,j,i,l);JJ(entryCount) = CTcount; SS(entryCount) = 1/60;   
+              II(entryCount) = idx5(j,k,j,i,l); JJ(entryCount) = CTcount; SS(entryCount) = 1/60;   
               entryCount = entryCount + 1;
-              II(entryCount) = idx5(j,k,j,l,i);JJ(entryCount) = CTcount; SS(entryCount) = 1/60;   
+              II(entryCount) = idx5(j,k,j,l,i); JJ(entryCount) = CTcount; SS(entryCount) = 1/60;   
               entryCount = entryCount + 1;
-              II(entryCount) = idx5(j,k,l,i,j);JJ(entryCount) = CTcount; SS(entryCount) = 1/60;   
+              II(entryCount) = idx5(j,k,l,i,j); JJ(entryCount) = CTcount; SS(entryCount) = 1/60;   
               entryCount = entryCount + 1;
-              II(entryCount) = idx5(j,k,l,j,i);JJ(entryCount) = CTcount; SS(entryCount) = 1/60;   
+              II(entryCount) = idx5(j,k,l,j,i); JJ(entryCount) = CTcount; SS(entryCount) = 1/60;   
               
               entryCount = entryCount + 1;
-              II(entryCount) = idx5(j,l,i,j,k);JJ(entryCount) = CTcount; SS(entryCount) = 1/60;   
+              II(entryCount) = idx5(j,l,i,j,k); JJ(entryCount) = CTcount; SS(entryCount) = 1/60;   
               entryCount = entryCount + 1;
-              II(entryCount) = idx5(j,l,i,k,j);JJ(entryCount) = CTcount; SS(entryCount) = 1/60;   
+              II(entryCount) = idx5(j,l,i,k,j); JJ(entryCount) = CTcount; SS(entryCount) = 1/60;   
               entryCount = entryCount + 1;
-              II(entryCount) = idx5(j,l,j,i,k);JJ(entryCount) = CTcount; SS(entryCount) = 1/60;   
+              II(entryCount) = idx5(j,l,j,i,k); JJ(entryCount) = CTcount; SS(entryCount) = 1/60;   
               entryCount = entryCount + 1;
-              II(entryCount) = idx5(j,l,j,k,i);JJ(entryCount) = CTcount; SS(entryCount) = 1/60;   
+              II(entryCount) = idx5(j,l,j,k,i); JJ(entryCount) = CTcount; SS(entryCount) = 1/60;   
               entryCount = entryCount + 1;
-              II(entryCount) = idx5(j,l,k,i,j);JJ(entryCount) = CTcount; SS(entryCount) = 1/60;   
+              II(entryCount) = idx5(j,l,k,i,j); JJ(entryCount) = CTcount; SS(entryCount) = 1/60;   
               entryCount = entryCount + 1;
-              II(entryCount) = idx5(j,l,k,j,i);JJ(entryCount) = CTcount; SS(entryCount) = 1/60;   
+              II(entryCount) = idx5(j,l,k,j,i); JJ(entryCount) = CTcount; SS(entryCount) = 1/60;   
               
               entryCount = entryCount + 1;
-              II(entryCount) = idx5(k,i,j,j,l);JJ(entryCount) = CTcount; SS(entryCount) = 1/60;   
+              II(entryCount) = idx5(k,i,j,j,l); JJ(entryCount) = CTcount; SS(entryCount) = 1/60;   
               entryCount = entryCount + 1;
-              II(entryCount) = idx5(k,i,j,l,j);JJ(entryCount) = CTcount; SS(entryCount) = 1/60;   
+              II(entryCount) = idx5(k,i,j,l,j); JJ(entryCount) = CTcount; SS(entryCount) = 1/60;   
               entryCount = entryCount + 1;
-              II(entryCount) = idx5(k,i,l,j,j);JJ(entryCount) = CTcount; SS(entryCount) = 1/60;   
+              II(entryCount) = idx5(k,i,l,j,j); JJ(entryCount) = CTcount; SS(entryCount) = 1/60;   
               entryCount = entryCount + 1;
-              II(entryCount) = idx5(k,j,i,j,l);JJ(entryCount) = CTcount; SS(entryCount) = 1/60;   
+              II(entryCount) = idx5(k,j,i,j,l); JJ(entryCount) = CTcount; SS(entryCount) = 1/60;   
               entryCount = entryCount + 1;
-              II(entryCount) = idx5(k,j,i,l,j);JJ(entryCount) = CTcount; SS(entryCount) = 1/60;   
+              II(entryCount) = idx5(k,j,i,l,j); JJ(entryCount) = CTcount; SS(entryCount) = 1/60;   
               entryCount = entryCount + 1;
-              II(entryCount) = idx5(k,j,j,i,l);JJ(entryCount) = CTcount; SS(entryCount) = 1/60;   
+              II(entryCount) = idx5(k,j,j,i,l); JJ(entryCount) = CTcount; SS(entryCount) = 1/60;   
               
               entryCount = entryCount + 1;
-              II(entryCount) = idx5(k,j,j,l,i);JJ(entryCount) = CTcount; SS(entryCount) = 1/60;   
+              II(entryCount) = idx5(k,j,j,l,i); JJ(entryCount) = CTcount; SS(entryCount) = 1/60;   
               entryCount = entryCount + 1;
-              II(entryCount) = idx5(k,j,l,i,j);JJ(entryCount) = CTcount; SS(entryCount) = 1/60;   
+              II(entryCount) = idx5(k,j,l,i,j); JJ(entryCount) = CTcount; SS(entryCount) = 1/60;   
               entryCount = entryCount + 1;
-              II(entryCount) = idx5(k,j,l,j,i);JJ(entryCount) = CTcount; SS(entryCount) = 1/60;   
+              II(entryCount) = idx5(k,j,l,j,i); JJ(entryCount) = CTcount; SS(entryCount) = 1/60;   
               entryCount = entryCount + 1;
-              II(entryCount) = idx5(k,l,i,j,j);JJ(entryCount) = CTcount; SS(entryCount) = 1/60;   
+              II(entryCount) = idx5(k,l,i,j,j); JJ(entryCount) = CTcount; SS(entryCount) = 1/60;   
               entryCount = entryCount + 1;
-              II(entryCount) = idx5(k,l,j,i,j);JJ(entryCount) = CTcount; SS(entryCount) = 1/60;   
+              II(entryCount) = idx5(k,l,j,i,j); JJ(entryCount) = CTcount; SS(entryCount) = 1/60;   
               entryCount = entryCount + 1;
-              II(entryCount) = idx5(k,l,j,j,i);JJ(entryCount) = CTcount; SS(entryCount) = 1/60;   
+              II(entryCount) = idx5(k,l,j,j,i); JJ(entryCount) = CTcount; SS(entryCount) = 1/60;   
               
               entryCount = entryCount + 1;
-              II(entryCount) = idx5(l,i,j,j,k);JJ(entryCount) = CTcount; SS(entryCount) = 1/60;   
+              II(entryCount) = idx5(l,i,j,j,k); JJ(entryCount) = CTcount; SS(entryCount) = 1/60;   
               entryCount = entryCount + 1;
-              II(entryCount) = idx5(l,i,j,k,j);JJ(entryCount) = CTcount; SS(entryCount) = 1/60;   
+              II(entryCount) = idx5(l,i,j,k,j); JJ(entryCount) = CTcount; SS(entryCount) = 1/60;   
               entryCount = entryCount + 1;
-              II(entryCount) = idx5(l,i,k,j,j);JJ(entryCount) = CTcount; SS(entryCount) = 1/60;   
+              II(entryCount) = idx5(l,i,k,j,j); JJ(entryCount) = CTcount; SS(entryCount) = 1/60;   
               entryCount = entryCount + 1;
-              II(entryCount) = idx5(l,j,i,j,k);JJ(entryCount) = CTcount; SS(entryCount) = 1/60;   
+              II(entryCount) = idx5(l,j,i,j,k); JJ(entryCount) = CTcount; SS(entryCount) = 1/60;   
               entryCount = entryCount + 1;
-              II(entryCount) = idx5(l,j,i,k,j);JJ(entryCount) = CTcount; SS(entryCount) = 1/60;   
+              II(entryCount) = idx5(l,j,i,k,j); JJ(entryCount) = CTcount; SS(entryCount) = 1/60;   
               entryCount = entryCount + 1;
-              II(entryCount) = idx5(l,j,j,i,k);JJ(entryCount) = CTcount; SS(entryCount) = 1/60;   
+              II(entryCount) = idx5(l,j,j,i,k); JJ(entryCount) = CTcount; SS(entryCount) = 1/60;   
               
               entryCount = entryCount + 1;
-              II(entryCount) = idx5(l,j,j,k,i);JJ(entryCount) = CTcount; SS(entryCount) = 1/60;   
+              II(entryCount) = idx5(l,j,j,k,i); JJ(entryCount) = CTcount; SS(entryCount) = 1/60;   
               entryCount = entryCount + 1;
-              II(entryCount) = idx5(l,j,k,i,j);JJ(entryCount) = CTcount; SS(entryCount) = 1/60;   
+              II(entryCount) = idx5(l,j,k,i,j); JJ(entryCount) = CTcount; SS(entryCount) = 1/60;   
               entryCount = entryCount + 1;
-              II(entryCount) = idx5(l,j,k,j,i);JJ(entryCount) = CTcount; SS(entryCount) = 1/60;   
+              II(entryCount) = idx5(l,j,k,j,i); JJ(entryCount) = CTcount; SS(entryCount) = 1/60;   
               entryCount = entryCount + 1;
-              II(entryCount) = idx5(l,k,i,j,j);JJ(entryCount) = CTcount; SS(entryCount) = 1/60;   
+              II(entryCount) = idx5(l,k,i,j,j); JJ(entryCount) = CTcount; SS(entryCount) = 1/60;   
               entryCount = entryCount + 1;
-              II(entryCount) = idx5(l,k,j,i,j);JJ(entryCount) = CTcount; SS(entryCount) = 1/60;   
+              II(entryCount) = idx5(l,k,j,i,j); JJ(entryCount) = CTcount; SS(entryCount) = 1/60;   
               entryCount = entryCount + 1;
-              II(entryCount) = idx5(l,k,j,j,i);JJ(entryCount) = CTcount; SS(entryCount) = 1/60;   
+              II(entryCount) = idx5(l,k,j,j,i); JJ(entryCount) = CTcount; SS(entryCount) = 1/60;   
 
             end
           end
@@ -1144,134 +1151,134 @@ function [S] = CT2Kron(n,degree)
               CTcount = CTcount + 1;                   % x_i x_j x_k x_l^2 terms
               % fprintf('x_%d x_%d x_%d x_%d^2\n',i,j,k,l)
               entryCount = entryCount + 1;
-              II(entryCount) = idx5(i,j,k,l,l);JJ(entryCount) = CTcount; SS(entryCount) = 1/60;     
+              II(entryCount) = idx5(i,j,k,l,l); JJ(entryCount) = CTcount; SS(entryCount) = 1/60;     
               entryCount = entryCount + 1;
-              II(entryCount) = idx5(i,j,l,k,l);JJ(entryCount) = CTcount; SS(entryCount) = 1/60;     
+              II(entryCount) = idx5(i,j,l,k,l); JJ(entryCount) = CTcount; SS(entryCount) = 1/60;     
               entryCount = entryCount + 1;
-              II(entryCount) = idx5(i,j,l,l,k);JJ(entryCount) = CTcount; SS(entryCount) = 1/60;     
+              II(entryCount) = idx5(i,j,l,l,k); JJ(entryCount) = CTcount; SS(entryCount) = 1/60;     
               entryCount = entryCount + 1;
-              II(entryCount) = idx5(i,k,j,l,l);JJ(entryCount) = CTcount; SS(entryCount) = 1/60;     
+              II(entryCount) = idx5(i,k,j,l,l); JJ(entryCount) = CTcount; SS(entryCount) = 1/60;     
               entryCount = entryCount + 1;
-              II(entryCount) = idx5(i,k,l,j,l);JJ(entryCount) = CTcount; SS(entryCount) = 1/60;     
+              II(entryCount) = idx5(i,k,l,j,l); JJ(entryCount) = CTcount; SS(entryCount) = 1/60;     
               entryCount = entryCount + 1;
-              II(entryCount) = idx5(i,k,l,l,j);JJ(entryCount) = CTcount; SS(entryCount) = 1/60;     
+              II(entryCount) = idx5(i,k,l,l,j); JJ(entryCount) = CTcount; SS(entryCount) = 1/60;     
               
               entryCount = entryCount + 1;
-              II(entryCount) = idx5(i,l,j,k,l);JJ(entryCount) = CTcount; SS(entryCount) = 1/60;     
+              II(entryCount) = idx5(i,l,j,k,l); JJ(entryCount) = CTcount; SS(entryCount) = 1/60;     
               entryCount = entryCount + 1;
-              II(entryCount) = idx5(i,l,j,l,k);JJ(entryCount) = CTcount; SS(entryCount) = 1/60;     
+              II(entryCount) = idx5(i,l,j,l,k); JJ(entryCount) = CTcount; SS(entryCount) = 1/60;     
               entryCount = entryCount + 1;
-              II(entryCount) = idx5(i,l,k,j,l);JJ(entryCount) = CTcount; SS(entryCount) = 1/60;     
+              II(entryCount) = idx5(i,l,k,j,l); JJ(entryCount) = CTcount; SS(entryCount) = 1/60;     
               entryCount = entryCount + 1;
-              II(entryCount) = idx5(i,l,k,l,j);JJ(entryCount) = CTcount; SS(entryCount) = 1/60;     
+              II(entryCount) = idx5(i,l,k,l,j); JJ(entryCount) = CTcount; SS(entryCount) = 1/60;     
               entryCount = entryCount + 1;
-              II(entryCount) = idx5(i,l,l,j,k);JJ(entryCount) = CTcount; SS(entryCount) = 1/60;     
+              II(entryCount) = idx5(i,l,l,j,k); JJ(entryCount) = CTcount; SS(entryCount) = 1/60;     
               entryCount = entryCount + 1;
-              II(entryCount) = idx5(i,l,l,k,j);JJ(entryCount) = CTcount; SS(entryCount) = 1/60;     
+              II(entryCount) = idx5(i,l,l,k,j); JJ(entryCount) = CTcount; SS(entryCount) = 1/60;     
               
               entryCount = entryCount + 1;
-              II(entryCount) = idx5(j,i,k,l,l);JJ(entryCount) = CTcount; SS(entryCount) = 1/60;     
+              II(entryCount) = idx5(j,i,k,l,l); JJ(entryCount) = CTcount; SS(entryCount) = 1/60;     
               entryCount = entryCount + 1;
-              II(entryCount) = idx5(j,i,l,k,l);JJ(entryCount) = CTcount; SS(entryCount) = 1/60;     
+              II(entryCount) = idx5(j,i,l,k,l); JJ(entryCount) = CTcount; SS(entryCount) = 1/60;     
               entryCount = entryCount + 1;
-              II(entryCount) = idx5(j,i,l,l,k);JJ(entryCount) = CTcount; SS(entryCount) = 1/60;     
+              II(entryCount) = idx5(j,i,l,l,k); JJ(entryCount) = CTcount; SS(entryCount) = 1/60;     
               entryCount = entryCount + 1;
-              II(entryCount) = idx5(j,k,i,l,l);JJ(entryCount) = CTcount; SS(entryCount) = 1/60;     
+              II(entryCount) = idx5(j,k,i,l,l); JJ(entryCount) = CTcount; SS(entryCount) = 1/60;     
               entryCount = entryCount + 1;
-              II(entryCount) = idx5(j,k,l,i,l);JJ(entryCount) = CTcount; SS(entryCount) = 1/60;     
+              II(entryCount) = idx5(j,k,l,i,l); JJ(entryCount) = CTcount; SS(entryCount) = 1/60;     
               entryCount = entryCount + 1;
-              II(entryCount) = idx5(j,k,l,l,i);JJ(entryCount) = CTcount; SS(entryCount) = 1/60;     
+              II(entryCount) = idx5(j,k,l,l,i); JJ(entryCount) = CTcount; SS(entryCount) = 1/60;     
               
               entryCount = entryCount + 1;
-              II(entryCount) = idx5(j,l,i,k,l);JJ(entryCount) = CTcount; SS(entryCount) = 1/60;     
+              II(entryCount) = idx5(j,l,i,k,l); JJ(entryCount) = CTcount; SS(entryCount) = 1/60;     
               entryCount = entryCount + 1;
-              II(entryCount) = idx5(j,l,i,l,k);JJ(entryCount) = CTcount; SS(entryCount) = 1/60;     
+              II(entryCount) = idx5(j,l,i,l,k); JJ(entryCount) = CTcount; SS(entryCount) = 1/60;     
               entryCount = entryCount + 1;
-              II(entryCount) = idx5(j,l,k,i,l);JJ(entryCount) = CTcount; SS(entryCount) = 1/60;     
+              II(entryCount) = idx5(j,l,k,i,l); JJ(entryCount) = CTcount; SS(entryCount) = 1/60;     
               entryCount = entryCount + 1;
-              II(entryCount) = idx5(j,l,k,l,i);JJ(entryCount) = CTcount; SS(entryCount) = 1/60;     
+              II(entryCount) = idx5(j,l,k,l,i); JJ(entryCount) = CTcount; SS(entryCount) = 1/60;     
               entryCount = entryCount + 1;
-              II(entryCount) = idx5(j,l,l,i,k);JJ(entryCount) = CTcount; SS(entryCount) = 1/60;     
+              II(entryCount) = idx5(j,l,l,i,k); JJ(entryCount) = CTcount; SS(entryCount) = 1/60;     
               entryCount = entryCount + 1;
-              II(entryCount) = idx5(j,l,l,k,i);JJ(entryCount) = CTcount; SS(entryCount) = 1/60;     
+              II(entryCount) = idx5(j,l,l,k,i); JJ(entryCount) = CTcount; SS(entryCount) = 1/60;     
               
               entryCount = entryCount + 1;
-              II(entryCount) = idx5(k,i,j,l,l);JJ(entryCount) = CTcount; SS(entryCount) = 1/60;     
+              II(entryCount) = idx5(k,i,j,l,l); JJ(entryCount) = CTcount; SS(entryCount) = 1/60;     
               entryCount = entryCount + 1;
-              II(entryCount) = idx5(k,i,l,j,l);JJ(entryCount) = CTcount; SS(entryCount) = 1/60;     
+              II(entryCount) = idx5(k,i,l,j,l); JJ(entryCount) = CTcount; SS(entryCount) = 1/60;     
               entryCount = entryCount + 1;
-              II(entryCount) = idx5(k,i,l,l,j);JJ(entryCount) = CTcount; SS(entryCount) = 1/60;     
+              II(entryCount) = idx5(k,i,l,l,j); JJ(entryCount) = CTcount; SS(entryCount) = 1/60;     
               entryCount = entryCount + 1;
-              II(entryCount) = idx5(k,j,i,l,l);JJ(entryCount) = CTcount; SS(entryCount) = 1/60;     
+              II(entryCount) = idx5(k,j,i,l,l); JJ(entryCount) = CTcount; SS(entryCount) = 1/60;     
               entryCount = entryCount + 1;
-              II(entryCount) = idx5(k,j,l,i,l);JJ(entryCount) = CTcount; SS(entryCount) = 1/60;     
+              II(entryCount) = idx5(k,j,l,i,l); JJ(entryCount) = CTcount; SS(entryCount) = 1/60;     
               entryCount = entryCount + 1;
-              II(entryCount) = idx5(k,j,l,l,i);JJ(entryCount) = CTcount; SS(entryCount) = 1/60;     
+              II(entryCount) = idx5(k,j,l,l,i); JJ(entryCount) = CTcount; SS(entryCount) = 1/60;     
               
               entryCount = entryCount + 1;
-              II(entryCount) = idx5(k,l,i,j,l);JJ(entryCount) = CTcount; SS(entryCount) = 1/60;     
+              II(entryCount) = idx5(k,l,i,j,l); JJ(entryCount) = CTcount; SS(entryCount) = 1/60;     
               entryCount = entryCount + 1;
-              II(entryCount) = idx5(k,l,i,l,j);JJ(entryCount) = CTcount; SS(entryCount) = 1/60;     
+              II(entryCount) = idx5(k,l,i,l,j); JJ(entryCount) = CTcount; SS(entryCount) = 1/60;     
               entryCount = entryCount + 1;
-              II(entryCount) = idx5(k,l,j,i,l);JJ(entryCount) = CTcount; SS(entryCount) = 1/60;     
+              II(entryCount) = idx5(k,l,j,i,l); JJ(entryCount) = CTcount; SS(entryCount) = 1/60;     
               entryCount = entryCount + 1;
-              II(entryCount) = idx5(k,l,j,l,i);JJ(entryCount) = CTcount; SS(entryCount) = 1/60;     
+              II(entryCount) = idx5(k,l,j,l,i); JJ(entryCount) = CTcount; SS(entryCount) = 1/60;     
               entryCount = entryCount + 1;
-              II(entryCount) = idx5(k,l,l,i,j);JJ(entryCount) = CTcount; SS(entryCount) = 1/60;     
+              II(entryCount) = idx5(k,l,l,i,j); JJ(entryCount) = CTcount; SS(entryCount) = 1/60;     
               entryCount = entryCount + 1;
-              II(entryCount) = idx5(k,l,l,j,i);JJ(entryCount) = CTcount; SS(entryCount) = 1/60;     
+              II(entryCount) = idx5(k,l,l,j,i); JJ(entryCount) = CTcount; SS(entryCount) = 1/60;     
               
               entryCount = entryCount + 1;
-              II(entryCount) = idx5(l,i,j,k,l);JJ(entryCount) = CTcount; SS(entryCount) = 1/60;     
+              II(entryCount) = idx5(l,i,j,k,l); JJ(entryCount) = CTcount; SS(entryCount) = 1/60;     
               entryCount = entryCount + 1;
-              II(entryCount) = idx5(l,i,j,l,k);JJ(entryCount) = CTcount; SS(entryCount) = 1/60;     
+              II(entryCount) = idx5(l,i,j,l,k); JJ(entryCount) = CTcount; SS(entryCount) = 1/60;     
               entryCount = entryCount + 1;
-              II(entryCount) = idx5(l,i,k,j,l);JJ(entryCount) = CTcount; SS(entryCount) = 1/60;     
+              II(entryCount) = idx5(l,i,k,j,l); JJ(entryCount) = CTcount; SS(entryCount) = 1/60;     
               entryCount = entryCount + 1;
-              II(entryCount) = idx5(l,i,k,l,j);JJ(entryCount) = CTcount; SS(entryCount) = 1/60;     
+              II(entryCount) = idx5(l,i,k,l,j); JJ(entryCount) = CTcount; SS(entryCount) = 1/60;     
               entryCount = entryCount + 1;
-              II(entryCount) = idx5(l,i,l,j,k);JJ(entryCount) = CTcount; SS(entryCount) = 1/60;     
+              II(entryCount) = idx5(l,i,l,j,k); JJ(entryCount) = CTcount; SS(entryCount) = 1/60;     
               entryCount = entryCount + 1;
-              II(entryCount) = idx5(l,i,l,k,j);JJ(entryCount) = CTcount; SS(entryCount) = 1/60;     
+              II(entryCount) = idx5(l,i,l,k,j); JJ(entryCount) = CTcount; SS(entryCount) = 1/60;     
               
               entryCount = entryCount + 1;
-              II(entryCount) = idx5(l,j,i,k,l);JJ(entryCount) = CTcount; SS(entryCount) = 1/60;     
+              II(entryCount) = idx5(l,j,i,k,l); JJ(entryCount) = CTcount; SS(entryCount) = 1/60;     
               entryCount = entryCount + 1;
-              II(entryCount) = idx5(l,j,i,l,k);JJ(entryCount) = CTcount; SS(entryCount) = 1/60;     
+              II(entryCount) = idx5(l,j,i,l,k); JJ(entryCount) = CTcount; SS(entryCount) = 1/60;     
               entryCount = entryCount + 1;
-              II(entryCount) = idx5(l,j,k,i,l);JJ(entryCount) = CTcount; SS(entryCount) = 1/60;     
+              II(entryCount) = idx5(l,j,k,i,l); JJ(entryCount) = CTcount; SS(entryCount) = 1/60;     
               entryCount = entryCount + 1;
-              II(entryCount) = idx5(l,j,k,l,i);JJ(entryCount) = CTcount; SS(entryCount) = 1/60;     
+              II(entryCount) = idx5(l,j,k,l,i); JJ(entryCount) = CTcount; SS(entryCount) = 1/60;     
               entryCount = entryCount + 1;
-              II(entryCount) = idx5(l,j,l,i,k);JJ(entryCount) = CTcount; SS(entryCount) = 1/60;     
+              II(entryCount) = idx5(l,j,l,i,k); JJ(entryCount) = CTcount; SS(entryCount) = 1/60;     
               entryCount = entryCount + 1;
-              II(entryCount) = idx5(l,j,l,k,i);JJ(entryCount) = CTcount; SS(entryCount) = 1/60;     
+              II(entryCount) = idx5(l,j,l,k,i); JJ(entryCount) = CTcount; SS(entryCount) = 1/60;     
               
               entryCount = entryCount + 1;
-              II(entryCount) = idx5(l,k,i,j,l);JJ(entryCount) = CTcount; SS(entryCount) = 1/60;     
+              II(entryCount) = idx5(l,k,i,j,l); JJ(entryCount) = CTcount; SS(entryCount) = 1/60;     
               entryCount = entryCount + 1;
-              II(entryCount) = idx5(l,k,i,l,j);JJ(entryCount) = CTcount; SS(entryCount) = 1/60;     
+              II(entryCount) = idx5(l,k,i,l,j); JJ(entryCount) = CTcount; SS(entryCount) = 1/60;     
               entryCount = entryCount + 1;
-              II(entryCount) = idx5(l,k,j,i,l);JJ(entryCount) = CTcount; SS(entryCount) = 1/60;     
+              II(entryCount) = idx5(l,k,j,i,l); JJ(entryCount) = CTcount; SS(entryCount) = 1/60;     
               entryCount = entryCount + 1;
-              II(entryCount) = idx5(l,k,j,l,i);JJ(entryCount) = CTcount; SS(entryCount) = 1/60;     
+              II(entryCount) = idx5(l,k,j,l,i); JJ(entryCount) = CTcount; SS(entryCount) = 1/60;     
               entryCount = entryCount + 1;
-              II(entryCount) = idx5(l,k,l,i,j);JJ(entryCount) = CTcount; SS(entryCount) = 1/60;     
+              II(entryCount) = idx5(l,k,l,i,j); JJ(entryCount) = CTcount; SS(entryCount) = 1/60;     
               entryCount = entryCount + 1;
-              II(entryCount) = idx5(l,k,l,j,i);JJ(entryCount) = CTcount; SS(entryCount) = 1/60;     
+              II(entryCount) = idx5(l,k,l,j,i); JJ(entryCount) = CTcount; SS(entryCount) = 1/60;     
               
               entryCount = entryCount + 1;
-              II(entryCount) = idx5(l,l,i,j,k);JJ(entryCount) = CTcount; SS(entryCount) = 1/60;     
+              II(entryCount) = idx5(l,l,i,j,k); JJ(entryCount) = CTcount; SS(entryCount) = 1/60;     
               entryCount = entryCount + 1;
-              II(entryCount) = idx5(l,l,i,k,j);JJ(entryCount) = CTcount; SS(entryCount) = 1/60;     
+              II(entryCount) = idx5(l,l,i,k,j); JJ(entryCount) = CTcount; SS(entryCount) = 1/60;     
               entryCount = entryCount + 1;
-              II(entryCount) = idx5(l,l,j,i,k);JJ(entryCount) = CTcount; SS(entryCount) = 1/60;     
+              II(entryCount) = idx5(l,l,j,i,k); JJ(entryCount) = CTcount; SS(entryCount) = 1/60;     
               entryCount = entryCount + 1;
-              II(entryCount) = idx5(l,l,j,k,i);JJ(entryCount) = CTcount; SS(entryCount) = 1/60;     
+              II(entryCount) = idx5(l,l,j,k,i); JJ(entryCount) = CTcount; SS(entryCount) = 1/60;     
               entryCount = entryCount + 1;
-              II(entryCount) = idx5(l,l,k,i,j);JJ(entryCount) = CTcount; SS(entryCount) = 1/60;     
+              II(entryCount) = idx5(l,l,k,i,j); JJ(entryCount) = CTcount; SS(entryCount) = 1/60;     
               entryCount = entryCount + 1;
-              II(entryCount) = idx5(l,l,k,j,i);JJ(entryCount) = CTcount; SS(entryCount) = 1/60;     
+              II(entryCount) = idx5(l,l,k,j,i); JJ(entryCount) = CTcount; SS(entryCount) = 1/60;     
 
               for m=l+1:n
                 CTcount = CTcount + 1;               % x_i x_j x_k x_l x_m terms

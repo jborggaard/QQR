@@ -1,11 +1,34 @@
-%EXAMPLE2 Compares feedback strategies for a random quadratic system
+%EXAMPLE2 Compares different degree feedback strategies for the 
+% discretized Burgers equation.  The conversion to an ODE is non-optimal
+% but is below as performed in the ACC submission of 27 Sept 2019.
+%
 
-  rng(0,'v5uniform')
+% n is the order of the state space
+% m is the number of equally spaced control inputs
+
+  addpath('Burgers1DControl')
+
+  epsilon = 0.001;   % set the viscosity parameter which controls the relative
+                     % importance of the nonlinear term
+                     
+  alpha   = 0;       % a linear reaction term
   
   x0 = zeros(n,1);   u0 = zeros(m,1);
-  A = rand(n,n); B = rand(n,m); Q = eye(n); R = eye(m);
+
+  %  Get FEM model of Burgers equation on a periodic domain.  The model
+  %  consists of matrices of the form
+  %
+  %  M*\dot{z} = A*z + B*u + N*kron(z,z),
   
-  % R = rand(m,m);  R=R*R';
+  [M,A,B,N,zInit] = BurgersFEMControl(n,m);
+    
+  %  write the terms in the form \dot{x} = Ax+Bu+Nu, a better way to do this
+  %  would involve a change of variables, e.g. y = M^(1/2)x, or when we 
+  %  eventually extend the software to handle "mass matrices"
+
+  A = epsilon*(M\A)  + alpha*eye(n);
+  B = M\B;
+  N = M\N;
   
-  N = rand(n,n*n);
-  
+  Q = M/2;  R = speye(m)/2;
+

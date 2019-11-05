@@ -106,16 +106,27 @@ end
 
 function [z0] = zZero(x)
 %  Sets the initial function (FEM coefs are determined by projection)
+%  Using a smoother initial condition to better approximate with coarser
+%  meshes.
   n_nodes = size(x,1);
   
   z0 = zeros(n_nodes,1);
   for n_nd=1:n_nodes
     if (x(n_nd)<=0.5)
-      z0(n_nd) = 0.5*sin(2*pi*x(n_nd));
+      z0(n_nd) = 0.5*sin(2*pi*x(n_nd)).^2;
     else
       z0(n_nd) = 0;
     end
   end
+  
+%   z0 = zeros(n_nodes,1);
+%   for n_nd=1:n_nodes
+%     if (x(n_nd)<=0.5)
+%       z0(n_nd) = 0.5*sin(2*pi*x(n_nd));
+%     else
+%       z0(n_nd) = 0;
+%     end
+%   end
 end
 
 function [Nz] = Ntimes(N,z)
@@ -126,61 +137,4 @@ function [Nz] = Ntimes(N,z)
   for i=1:n
     Nz = Nz + N(:,:,i)*z(i);
   end
-end
-
-function [zz] = evaluateMonomials(z,degree)
-%  Evaluates a vector of monomial terms compatible with Krener's compact
-%  storage format.
-%
-%  Usage:   [Mz] = evaluateMonomials(z,degree)
-%
-%      Mz  is M(z), a vector of monomial values up to "degree"th order
-%
-  z = z(:);
-  nVar = length(z);
-%   %  Preallocate storage
-%   nStor = 0;
-%   dStor = 1;
-%   for d=1:degree
-%     dStor = dStor*(n+d-1)/d;
-%     nStor = nStor + dStor;
-%   end
-
-  % Determines the number of monomial terms in a d-degree polynomial with
-  % n variables.
-  monomialLength = @(n,d) factorial(n+d-1)/factorial(n-1)/factorial(d);
-  
-  zMonomial = cell(degree,1);
-  zMonomial{1} = z;
-  
-  if ( degree>1 )
-    zMonomial{2} = zeros( nVar*(nVar+1)/2, 1 );
-    
-    i1 = 0;
-    for n=1:nVar
-      i2 = i1 + nVar+1-n;
-      zMonomial{2}( i1+1:i2 ) = z(n)*z(n:nVar);
-      i1 = i2;
-    end
-  end
-  
-  for d=3:degree
-    zMonomial{d} = zeros(monomialLength(nVar,d),1);
-    dMinusOneSizes = zeros(1,nVar);
-    dMinusTwoSizes = zeros(1,nVar);
-    for i=1:nVar
-      dMinusOneSizes(i) = monomialLength(nVar+1-i,d-1);
-      dMinusTwoSizes(i) = monomialLength(nVar+1-i,d-2);
-    end
-    dOldIndices = [0 cumsum(dMinusTwoSizes)];
-    dNowIndices = [0 cumsum(dMinusOneSizes)];
- 
-    zMonomial{d}(1:dNowIndices(2)) = z(1)*zMonomial{d-1}(:);
-    for n=2:nVar
-      zMonomial{d}(dNowIndices(n)+1:dNowIndices(n+1)) = ...
-        z(n)*zMonomial{d-1}(dOldIndices(n)+1:end);
-    end
-  end
-  
-  zz = cell2mat(zMonomial);
 end

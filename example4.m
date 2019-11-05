@@ -9,7 +9,7 @@
   A = [-sigma  sigma    0  ; ...
          rho    -1      0  ; ...
           0      0   -beta ];
-  B = [1;0;1];
+  B = [1;0;0]; %B = [1;0;1];
   N = zeros(3,9); 
   N(2,3)=-0.5; N(2,7)=-0.5;  % -x1 x3 term
   N(3,2)= 0.5; N(3,4)= 0.5;  %  x1 x2 term
@@ -20,7 +20,7 @@
   
   v2 = v{2};
 %  x0 = [1;1;1];
-  x0 = [5;5;5];
+  x0 = [10;10;10];
   T  = 50;
   %  Open loop
   rhs_open = @(t,x) [A*x(1:3) + N*kron(x(1:3),x(1:3)); ...
@@ -132,16 +132,20 @@
   fprintf('approx. regulator cost to v6: %g  cost to T: %g\n',c6,x5(end,4))
   
   
-  
-  figure(31)
-  plot(t1,x1(:,1),'r',t2,x2(:,1),'b',t3,x3(:,1),'k')
-  legend('degree 1','degree 2','degree 3')
-  figure(32)
-  plot(t1,x1(:,2),'r',t2,x2(:,2),'b',t3,x3(:,2),'k')
-  legend('degree 1','degree 2','degree 3')
-  figure(33)
-  plot(t1,x1(:,3),'r',t2,x2(:,3),'b',t3,x3(:,3),'k')
-  legend('degree 1','degree 2','degree 3')
+%   figure(31)
+%   plot(t1,x1(:,1),'r',t2,x2(:,1),'b',t3,x3(:,1),'k')
+%   legend('degree 1','degree 2','degree 3')
+%   xlabel('time'); ylabel('x_1'); title('evolution of state 1')
+%   
+%   figure(32)
+%   plot(t1,x1(:,2),'r',t2,x2(:,2),'b',t3,x3(:,2),'k')
+%   legend('degree 1','degree 2','degree 3')
+%   xlabel('time'); ylabel('x_2'); title('evolution of state 2')
+% 
+%   figure(33)
+%   plot(t1,x1(:,3),'r',t2,x2(:,3),'b',t3,x3(:,3),'k')
+%   legend('degree 1','degree 2','degree 3')
+%   xlabel('time'); ylabel('x_3'); title('evolution of state 3')
   
   figure(41)
   pu1 = k{1}*x1(:,1:3).';
@@ -156,12 +160,21 @@
     pu3(i) = pu3(i) + k{2}*kron(x3(i,1:3).',x3(i,1:3).') ...
                     + k{3}*kron(x3(i,1:3).',kron(x3(i,1:3).',x3(i,1:3).'));
   end
-  
-  plot(t1,pu1,'r',t2,pu2,'b',t3,pu3,'k')
-  legend('degree 1','degree 2','degree 3')
+
+  pu4 = k{1}*x4(:,1:3).';
+  for i=1:length(pu4)
+    pu4(i) = pu4(i) + k{2}*kron(x4(i,1:3).',x4(i,1:3).') ...
+                    + k{3}*kron(x4(i,1:3).',kron(x4(i,1:3).',x4(i,1:3).')) ...
+                    + k{4}*kron(x4(i,1:3).',kron(x4(i,1:3).',kron(x4(i,1:3).',x4(i,1:3).')));
+  end
+
+  plot(t1,pu1,'r',t2,pu2,'b',t3,pu3,'k',t4,pu4,'c')
+  legend('degree 1','degree 2','degree 3','degree 4')
+  xlabel('time'); ylabel('control input'); title('Evolution of the control')
 
   figure(51)
   plot(t1,x1(:,4),t2,x2(:,4),t3,x3(:,4),t4,x4(:,4),t5,x5(:,4))
   legend('degree 1','degree 2','degree 3','degree 4','degree 5')
+  xlabel('time'); ylabel('accumulated cost'); title('Value function')
 %end
 
