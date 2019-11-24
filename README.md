@@ -11,16 +11,18 @@ Clone this repository:
   git clone https://www.github.com/jborggaard/QQR
 ```
 
-Create a new directory called "kronecker" within it.
+Optional: 
+Get the Matlab functions for efficiently solving linear systems with a special Kronecker sum structure (laplace-like structure) at https://anchp.epfl.ch/index-html/software/misc and detailed in the preprint: _Recursive blocked algorithms for linear systems with Kronecker product structure_, by Minhong Chen and Daniel Kressner.  Place the directory "tensor_recursive" within the kronecker directory.
 
-Get the Matlab functions for efficiently solving linear systems with a special Kronecker sum structure (laplace-like structure) at https://anchp.epfl.ch/index-html/software/misc and detailed in the preprint: _Recursive blocked algorithms for linear systems with Kronecker product structure_, by Minhong Chen and Daniel Kressner.  Place the directory "tensor_recursive" within this new kronecker directory.
+Optional: 
+Tests to match our Quadratic-Quadratic Regulator paper can be performed by requesting the Nonlinear Systems Toolbox from Art Krener.  If this is the case, adjust the path in **setNSTpath.m** and set _testNST=true_ inside the **tests_ACC.m** script.
 
 The installation can be tested in Matlab (we used R2019b) by typing
 ```
->> tests_ACC
+>> examplesForACC
 ```
-Optionally, tests to match our Quadratic-Quadratic Regulator paper can be performed by requesting the Nonlinear Systems Toolbox from Art Krener.  If this is the case, adjust the path in **setNSTpath.m** and set _testNST=true_ inside the **tests_ACC.m** script.
 
+A stand-alone test (setting testNST=false) can be found in the examples directory
 The details of some of our functions and test examples are provided below.  
 
 
@@ -47,7 +49,7 @@ For details on how to run **qqr**, type
 
 for examples how to run **qqr** see those in
 ```
->> tests_ACC
+>> examplesForACC
 ```
 as well as 
 ```
@@ -121,3 +123,4 @@ A simple first-order system where we can investigate convergence of the value fu
     primaryClass={math.OC}
 }
 ```
+
