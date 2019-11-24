@@ -1,4 +1,8 @@
 %EXAMPLE1 Compares feedback strategies for a random quadratic system
+%
+%  The values of n (state dimension) and m (control dimension) must be
+%  specified before calling this script.
+%%
 
   rng(0,'v5uniform')
   

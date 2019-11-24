@@ -21,44 +21,24 @@
 %%
 
 %  Variables: n, m, degree,   A, B, N,   Q, R    and
-%  Flags:  testNST, testFull, testTensor  must be specified
-
-
+%  Flag:  testFull  must be specified
+%
+%  We assume that [k,v] = qqr(A,B,Q,R,N, degree, true) has already been called
+%                                                ^^^^
+%  and the problem sizes are small enough so NST is feasible.
 %%
 if ( testNST )
-  %  adjust the file setNSTpath.m to contain the path where you installed nst15
-  setNSTpath
-  
-  tic
-  x=sym('x',[n,1]); %  state variables 
-  u=sym('u',[m,1]); %  control variables
-  f = A*x + B*u + N*kron(x,x);
-  
-  % control Lagrangian 
-  l=0.5*( x'*Q*x + u'*R*u );
-  [ff,ll]=hjb_set_up(f,l,x,u,x0,u0,n,m,degree);
-  set_up=toc;
-  
-  % call hjb.m to find the Taylor polynomial py of the optimal cost
-  % to degree d+1 and the Taylor polynomial ka of the optimal feedback
-  % to degree d.
-
-  tic
-  [ka,fk,py,lk]= hjb(ff,ll,n,m,degree);
-  comp=toc;
-
-  fprintf('            NST solution required %g (%g) seconds\n\n',...
-          comp,comp+set_up);
-end % if testNST
+  [ka,py] = runNST(A,B,Q,R,N,degree);
+end
 
 %%  Calculate via the full Kronecker product formula
 if ( testFull )
   tic
-    if ( testNST )
-      [k,v] = AlbrekhtKronQQR(A,B,Q,R,N,degree,true);
-    else
-      [k,v] = AlbrekhtKronQQR(A,B,Q,R,N,degree);
-    end
+  if ( testNST )
+    [kF,vF] = AlbrekhtKronQQR(A,B,Q,R,N,min(degree,4),true);
+  else
+    [kF,vF] = AlbrekhtKronQQR(A,B,Q,R,N,min(degree,4));
+  end
   comp = toc;
   disp('')
   fprintf('AlbrekhtKronQQR solution required %g seconds\n',comp)
@@ -67,13 +47,6 @@ end
 
 
 if ( degree>1 )
-  if ( testFull )
-    v2 = v{2};
-    v3 = v{3};
-  
-    k1 = k{1};
-    k2 = k{2};
-  end
   
   tic;
   C2 = CT2Kron(n,2);
@@ -83,42 +56,52 @@ if ( degree>1 )
   S3 = Kron2CT(n,3);
   CTtime = toc;
 
-  if ( testTensor )
-    tic
-      if ( testNST )
-        [kk,vv] = qqr(A,B,Q,R,N,degree,true);
-      else
-        [kk,vv] = qqr(A,B,Q,R,N,degree);
-      end
-    comp = toc;
+%   if ( testTensor )
+%     tic
+%       if ( testNST )
+%         [kk,vv] = qqr(A,B,Q,R,N,degree,true);
+%       else
+%         [kk,vv] = qqr(A,B,Q,R,N,degree);
+%       end
+%     comp = toc;
     
-    disp('')
-    fprintf('    qqr solution required %g seconds\n\n',comp)
-    kk2 = kk{2};
-    vv3 = vv{3};
-    if ( testNST )
+%     disp('')
+%     fprintf('    qqr solution required %g seconds\n\n',comp)
+    k2 = k{2};
+    v3 = v{3};
+%    if ( testNST )
       idx1 = n;
       idx2 = idx1 + n*(n+1)/2;
       idx3 = idx2 + n*(n+1)*(n+2)/6;
       idx4 = idx3 + n*(n+1)*(n+2)*(n+3)/24;
+      idx5 = idx4 + n*(n+1)*(n+2)*(n+3)*(n+4)/120;
+      idx6 = idx5 + n*(n+1)*(n+2)*(n+3)*(n+4)*(n+5)/720;
       
-      ka2  = ka(:,     idx1+1:idx2     );
+      ka2  = ka(:,idx1     +1:idx2     );
       py3  = py(  idx2-idx1+1:idx3-idx1);
 
-      e_k2 = norm( ka2-kk2*S2' );
+      e_k2 = norm( ka2 - k2*S2' );
+      fprintf('NST:     The norm of k^[2] is %g\n',norm(ka2));
+      fprintf('NST:     The norm of v^[3] is %g\n',norm(py3));
       fprintf('tensor:  The relative error in k^[2] is %g\n',e_k2/norm(ka2));
-      e_p3 = norm( py3-vv3*S3' );
+      e_p3 = norm( py3 - v3*S3' );
       fprintf('tensor:  The relative error in v^[3] is %g\n',e_p3/norm(py3));
-    end
-  end
+%    end
+%  end
   
-  if ( testFull && testNST )
+  if ( testFull )
+    vF2 = vF{2};
+    vF3 = vF{3};
+  
+    kF1 = kF{1};
+    kF2 = kF{2};
+
     %  Convert to compact Taylor format for comparison with the NST toolbox
     %  solution.
-    e_k2 = norm( ka2-k2*S2' );
+    e_k2 = norm( ka2 - kF2*S2' );
     fprintf('FullKr:  The relative error in k^[2] is %g\n',e_k2/norm(ka2));
   
-    e_p3 = norm(py3-v3*S3');
+    e_p3 = norm( py3 - vF3*S3' );
     fprintf('FullKr:  The relative error in v^[3] is %g\n\n',e_p3/norm(py3));
   end
   
@@ -126,10 +109,6 @@ if ( degree>1 )
 end
 
 if ( degree>2 )
-  if ( testFull )
-    k3 = k{3};
-    v4 = v{4};
-  end
   
   tic;
     C4 = CT2Kron(n,4);
@@ -137,7 +116,7 @@ if ( degree>2 )
   CTtime = toc;
   % fprintf('CT to Kron mappings (4) require %g seconds\n',CTtime)
   
-  if ( testTensor )
+%  if ( testTensor )
     tic
     % Al{4} = ABKT;    
     % r2 = R(:)/2;
@@ -145,7 +124,7 @@ if ( degree>2 )
     %         kron( kron( eye(n  ), (B*kk2+N).'), eye(n) ) + ...
     %         kron(       eye(n^2), (B*kk2+N).'           ) )*vv3(:) ...
     %      -  kron(kk2.',kk2.')*r2 ;    
-    % vv4 = lyapunov_recursive(Al,reshape(bb,n,n,n,n));
+    % v4 = lyapunov_recursive(Al,reshape(bb,n,n,n,n));
     % comp = comp+toc;
     % fprintf('     tensorized solution required %g seconds\n',comp);
     %   
@@ -158,43 +137,43 @@ if ( degree>2 )
     %   GG = C3*S3*GG;
     %   res(:,i) = -GG*vv4(:);
     % end
-    % kk3 = R\res.';
-    kk3 = kk{3};
-    vv4 = vv{4};
+    % k3 = R\res.';
+    k3 = k{3};
+    v4 = v{4};
     
-    if ( testNST )
-      ka3 = ka(:,idx2+1:idx3);
-      e_k3 = norm( ka3-kk3*S3' );
-      fprintf('tensor:  The relative error in k^[3] is %g\n',e_k3/norm(ka3));
-      py4 = py(idx3-idx1+1:idx4-idx1);
-      e_p4 = norm( py4-(vv4*S4') );
-      fprintf('tensor:  The relative error in v^[4] is %g\n',e_p4/norm(py4));
-    end
-  end
+    ka3 = ka(:,idx2     +1:idx3     );
+    py4 = py(  idx3-idx1+1:idx4-idx1);
+    fprintf('NST:     The norm of k^[3] is %g\n',norm(ka3));
+    fprintf('NST:     The norm of v^[4] is %g\n',norm(py4));
+
+    e_k3 = norm( ka3 - k3*S3' );
+    fprintf('tensor:  The relative error in k^[3] is %g\n',e_k3/norm(ka3));
+    e_p4 = norm( py4 - v4*S4' );
+    fprintf('tensor:  The relative error in v^[4] is %g\n',e_p4/norm(py4));
+%  end
   
   
-  if ( testFull && testNST )
-  %  Convert to compact Taylor format for comparison with the NST toolbox
-  %  solution.
-  e_k3 = norm( ka3-k3*S3' );
-  fprintf('FullKr:  The relative error in k^[3] is %g\n',e_k3/norm(ka3));
-  
-  e_p4 = norm( py4 - v4*S4' );
-  fprintf('FullKr:  The relative error in v^[4] is %g\n\n',e_p4/norm(py4));
+  if ( testFull )
+    kF3 = kF{3};
+    vF4 = vF{4};
+
+    %  Convert to compact Taylor format for comparison with the NST toolbox
+    %  solution.
+    e_k3 = norm( ka3 - kF3*S3' );
+    fprintf('FullKr:  The relative error in k^[3] is %g\n',e_k3/norm(ka3));
+
+    e_p4 = norm( py4 - vF4*S4' );
+    fprintf('FullKr:  The relative error in v^[4] is %g\n\n',e_p4/norm(py4));
   end
 end
 
 if ( degree>3 )
-  if ( testFull )
-    k4 = k{4};
-    v5 = v{5};
-  end
   
   tic;
   S5 = Kron2CT(n,5);
   CTtime = toc;
   
-  if ( testTensor )
+%  if ( testTensor )
     tic
     % Al{5} = ABKT;    
     % bb = -( kron(                 (B*kk2+N).',   eye(n^3) ) + ...
@@ -220,36 +199,69 @@ if ( degree>3 )
     %   res(:,i) = -GG*v5;
     % end
     % kk4 = R\res.';
-    kk4 = kk{4};
-    vv5 = vv{5};
+    k4 = k{4};
+    v5 = v{5};
     
-    if ( testNST )
-      ka4 = ka(:,idx3+1:idx4);
-      e_k4 = norm( ka4-kk4*S4' );
+ %   if ( testNST )
+      ka4 = ka(:,idx3     +1:idx4     );
+      py5 = py(  idx4-idx1+1:idx5-idx1);
+      fprintf('NST:     The norm of k^[4] is %g\n',norm(ka4));
+      fprintf('NST:     The norm of v^[5] is %g\n',norm(py5));
+      
+      e_k4 = norm( ka4 - k4*S4' );
       fprintf('tensor:  The relative error in k^[4] is %g\n',e_k4/norm(ka4));
       
-      py5 = py(idx4-idx1+1:end);
-      e_p5 = norm( py5 - vv5*S5' );
+      e_p5 = norm( py5 - v5*S5' );
       fprintf('tensor:  The relative error in v^[5] is %g\n',e_p5/norm(py5));
       
+%    end
+%  end
+  
+  if ( testFull )
+    kF4 = kF{4};
+    vF5 = vF{5};
+
+    %  Convert to compact Taylor format for comparison with the NST toolbox
+    %  solution.
+    e_k4 = norm( ka4 - kF4*S4' );
+    fprintf('FullKr:  The relative error in k^[4] is %g\n',e_k4/norm(ka4));
+  
+    e_p5 = norm( py5 - vF5*S5' );
+    fprintf('FullKr:  The relative error in v^[5] is %g\n\n',e_p5/norm(py5));
+  end
+end 
+
+if ( degree>4 )  
+%   tic;
+%   S6 = Kron2CT(n,6);
+%   CTtime = toc;
+  
+%  if ( testTensor )
+    tic
+    k5 = k{5};
+    v6 = v{6};
+    
+    if ( testNST )
+      ka5 = ka(:,idx4     +1:idx5     );
+      py6 = py(  idx5-idx1+1:idx6-idx1);
+      fprintf('NST:     The norm of k^[5] is %g\n',norm(ka5));
+      fprintf('NST:     The norm of v^[6] is %g\n',norm(py6));
+      
+      e_k5 = norm( ka5 - k5*S5' );
+      fprintf('tensor:  The relative error in k^[5] is %g\n',e_k5/norm(ka5));
+      
+%       e_p5 = norm( py6 - vv6*S6' );
+%       fprintf('tensor:  The relative error in v^[6] is %g\n',e_p6/norm(py6));
+      
     end
-  end
-  
-  if ( testNST && testFull )
-  %  Convert to compact Taylor format for comparison with the NST toolbox
-  %  solution.
-  e_k4 = norm( ka4-k4*S4' );
-  fprintf('FullKr:  The relative error in k^[4] is %g\n',e_k4/norm(ka4));
-  
-  e_p5 = norm( py5 - v5*S5' );
-  fprintf('FullKr:  The relative error in v^[5] is %g\n\n',e_p5/norm(py5));
-  end
+%  end
 end 
 
 if ( degree>3 )
   fprintf('\n');
   fprintf('CT to Kron mappings (5) require %g seconds\n\n',CTtime)
 end
+
 %  sometimes these errors are high, but the relative error is then low.
 %  possibly due to factors like nearly singular R, nearly uncontrollable
 %  (or extensions of this notion to the higher degree case?)

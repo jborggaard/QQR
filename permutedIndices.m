@@ -4,22 +4,22 @@ alphabet = 'ijkll';
 
 n = length(alphabet);
 b = '';
-%list = char(factorial(n),n);
+list = char(zeros(factorial(n),n));
 count = 0;
-for i=1:n
-  b(1) = alphabet(i);
-  for j=1:n
-    if (j~=i)
-      b(2)=alphabet(j);
-      for k=1:n
-        if (k~=i && k~=j)
-          b(3)=alphabet(k);
-          for l=1:n
-            if (l~=i && l~=j && l~=k)
-              b(4)=alphabet(l);
-              for m=1:n
-                if (m~=i && m~=j && m~=k && m~=l)
-                  b(5)=alphabet(m);
+for i1=1:n
+  b(1) = alphabet(i1);
+  for i2=1:n
+    if (i2~=i1)
+      b(2)=alphabet(i2);
+      for i3=1:n
+        if (i3~=i1 && i3~=i2)
+          b(3)=alphabet(i3);
+          for i4=1:n
+            if (i4~=i1 && i4~=i2 && i4~=i3)
+              b(4)=alphabet(i4);
+              for i5=1:n
+                if (i5~=i1 && i5~=i2 && i5~=i3 && i5~=i4)
+                  b(5)=alphabet(i5);
                   count = count + 1;
                   list(count,1:n) = b;
                 end

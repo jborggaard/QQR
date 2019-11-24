@@ -1,0 +1,13 @@
+1. When the number of states==1, there is an issue in Lyapunov recursive 
+   (and Laplace recursive, in the calculation of d)  The size command
+   on a tensor of size (1,1,1,1,1) will not give 5 as the length gets
+   compressed and results in a (1,1) "matrix"
+
+2. There is an internal error in hjb that doubles the values of q and r
+   This can be verified by feeding in an l(x,u) function with one set
+   of values of q and r, then printing them out inside hjb.m just before
+   the lqr2 function call.
+
+
+
+

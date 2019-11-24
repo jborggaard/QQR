@@ -21,17 +21,17 @@
 %%
 %  Set up test examples, problem dimensions (order), and degree of feedback
 
+  addpath('./examples')  % location of example problems
+  
+  testcase = 2;
 
-  testcase = 1;
+  n      =  4;   % state dimension
+  m      =  1;   % control dimension
+  degree =  5;   % degree of optimal feedback
 
-  n      = 8;  % state dimension
-  m      = 1;   % control dimension
-  degree = 4;   % degree of optimal feedback
-
-  %  Flag those methods used for the current test (NST is reqd for errors)
+  %  Flag those methods used for the current test (NST is reqd for error tables)
   testNST    = true;
-  testFull   = false;
-  testTensor = true;
+  testFull   = true;
 
   if ( testcase==1 )
   %%
@@ -52,5 +52,17 @@
     example3
     
   end
-
+  
+  tic
+  if ( testNST )
+    [k,v] = qqr(A,B,Q,R,N,degree,true);
+  else
+    [k,v] = qqr(A,B,Q,R,N,degree);
+  end
+  compQQR = toc;
+    
+  fprintf('\n');
+  fprintf('    qqr solution required %g seconds\n\n',compQQR);
+  
   runComparisons
+  

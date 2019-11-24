@@ -80,7 +80,7 @@ function [k,v] = AlbrekhtKronQQR(A,B,Q,R,N,degree,compNST)
            kron( eye(n^2),       ABKT           ) );
     bb = -( kron( N, eye(n) ) + kron( eye(n),N ) ).'*v2;
     v3 = AA\bb;
-    
+
     S = Kron2CT(n,2);
     C = CT2Kron(n,2);
     
@@ -92,7 +92,7 @@ function [k,v] = AlbrekhtKronQQR(A,B,Q,R,N,degree,compNST)
       GG = C*S*GG;
       res(:,i) = -GG*v3;
     end
-    
+ 
     v{3} = v3.';
     k{2} = R\res.';
     K2 = k{2};

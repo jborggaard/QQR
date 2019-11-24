@@ -1,4 +1,4 @@
-function [k,v] = qqr(A,B,Q,R,N,degree,compNST)
+function [k,v] = qqr(A,B,Q,R,N,degree,compNST,solver)
 %QQR Albrecht's approximation to the quadratic-quadratic-regulator problem
 %   A quadratic system is provided in Kronecker product form
 %     \dot{x} = A*x + B*u + N*kron(x,x),  \ell(x,u) = x'*Q*x + u'*R*u
@@ -39,12 +39,10 @@ function [k,v] = qqr(A,B,Q,R,N,degree,compNST)
 %   and example scripts, can be found at https://github.com/jborggaard/QQR
 %%
 
-  if ( exist('./kronecker/tensor_recursive','dir') )
-    addpath('./kronecker/tensor_recursive')
-  else
-    error('qqr: the tensor_recursive software must be installed')
-  end
-
+  setKroneckerSumPath
+    
+  verbose = true;   % a flag for more detailed output
+  
   % some input consistency checks: A nxn, B nxm, Q nxn SPSD, R mxm SPD, N nxn^2
   n = size(A,1);
   m = size(B,2);
@@ -57,7 +55,7 @@ function [k,v] = qqr(A,B,Q,R,N,degree,compNST)
     attributesR = {'size',[m,m]};     validateattributes(R,classes,attributesR);
     attributesN = {'size',[n,n*n]};   validateattributes(N,classes,attributesN);
   else
-    error('qqr: expecting at least 5 inputs');
+    error('qqr: expects at least 5 inputs');
   end
 
   if ( nargin==5 )
@@ -66,6 +64,21 @@ function [k,v] = qqr(A,B,Q,R,N,degree,compNST)
   elseif ( nargin==6 )
     compNST = false;
   end
+  
+  %=============================================================================
+  %  Define the linear solver
+  %=============================================================================
+  if ( exist('./kronecker/tensor_recursive/lyapunov_recursive.m','file') && n>1 )
+    % lyapunov_recursive is defined and is applicable
+    solver = 'LyapunovRecursive';
+  elseif ( exist('./kronecker/tensor_recursive/laplace_recursive.m','file') && n>1 )
+    % laplace_recursive is defined and is applicable
+    solver = 'LaplaceRecursive';
+  else
+    % either n=1 (which could also be treated separately) or testing N-Way
+    solver = 'BartelsStewart';
+  end
+  
   
   v = cell(1,degree+1);
   k = cell(1,degree);
@@ -98,17 +111,14 @@ function [k,v] = qqr(A,B,Q,R,N,degree,compNST)
     %        kron( eye(n^2),       ABKT           )   );
     % bb =-( kron( N, eye(n) ) + kron( eye(n),N ) ).'*v2;
     % v3 = AA\bb;
-    % tic
+    
+    tic
     
     ABKT = (A+B*K1).';
     Al{1} = ABKT; Al{2} = ABKT; Al{3} = ABKT;
     bb = -LyapProduct(N.',v2,2);
-    
-    if ( exist('./kronecker/tensor_recursive/lyapunov_recursive.m','file') )
-      v3 = lyapunov_recursive(Al,reshape(bb,n,n,n));
-    else
-      v3 = laplace_recursive(Al,reshape(bb,n,n,n));
-    end
+
+    v3 = solveKroneckerSystem(Al,bb,n,2,solver);
     v3 = real(v3(:));
        
     S = Kron2CT(n,2);
@@ -125,11 +135,13 @@ function [k,v] = qqr(A,B,Q,R,N,degree,compNST)
       GGv3 = LyapProduct(B(:,i).',v3,3);
       res(:,i) = -C*S*GGv3;
     end
-    
+
     v{3} = v3.';
+   
     K2   = R\res.';
     k{2} = K2;
-    % comp2 = toc;
+    
+    comp2 = toc;
   end
   
   if ( degree>2 )
@@ -146,17 +158,14 @@ function [k,v] = qqr(A,B,Q,R,N,degree,compNST)
     %        kron(       eye(n^2), (B*K2+N).'            ) )*v3 ...
     %     -  kron(K2.',K2.')*r2 ;
     % v4 = AA\bb;
-    % tic
+    
+    tic
     
     Al{4} = ABKT;
     bb = -LyapProduct((B*K2+N).',v3,3) ...
          -kron(K2.',K2.')*r2;
        
-    if ( exist('./kronecker/tensor_recursive/lyapunov_recursive.m','file') )
-      v4 = lyapunov_recursive(Al,reshape(bb,n,n,n,n));
-    else
-      v4 = laplace_recursive(Al,reshape(bb,n,n,n,n));
-    end
+    v4 = solveKroneckerSystem(Al,bb,n,3,solver);
     v4 = real(v4(:));
       
     S = Kron2CT(n,3);
@@ -178,7 +187,8 @@ function [k,v] = qqr(A,B,Q,R,N,degree,compNST)
     v{4} = v4.';
     k{3} = R\res.'; 
     K3 = k{3};
-    % comp3 = toc;
+    
+    comp3 = toc;
   end
   
   if ( degree>3 )
@@ -203,18 +213,15 @@ function [k,v] = qqr(A,B,Q,R,N,degree,compNST)
     %        kron(       eye(n^2), (B*K3  ).'             ) )*v3 ...
     %     -( kron(K2.',K3.') + kron(K3.',K2.') )*r2 ; 
     % v5 = AA\bb;
-    % tic
+    
+    tic
     
     Al{5} = ABKT;
     bb = -LyapProduct((B*K2+N).',v4,4) ...
          -LyapProduct((B*K3  ).',v3,3) ...
          -( kron(K2.',K3.') + kron(K3.',K2.') )*r2;
        
-    if ( exist('./kronecker/tensor_recursive/lyapunov_recursive.m','file') )
-      v5 = lyapunov_recursive(Al,reshape(bb,n,n,n,n,n));
-    else
-      v5 = laplace_recursive(Al,reshape(bb,n,n,n,n,n));
-    end
+    v5 = solveKroneckerSystem(Al,bb,n,4,solver);
     v5 = real(v5(:));
     
     S = Kron2CT(n,4);
@@ -238,7 +245,8 @@ function [k,v] = qqr(A,B,Q,R,N,degree,compNST)
     v{5} = v5.';
     k{4} = R\res.'; 
     K4 = k{4};
-    % comp4 = toc;    
+    
+    comp4 = toc;    
   end
   
   if ( degree>4 )
@@ -268,30 +276,28 @@ function [k,v] = qqr(A,B,Q,R,N,degree,compNST)
     %        kron(K3.',K3.') + ...
     %        kron(K4.',K2.') )*r2 ; 
     % v6 = AA\bb;
-    % tic
+    
+    tic
     
     Al{6} = ABKT;
     
     % form the Kronecker portion of the RHS
     %    -( kron(K2.',K4.') +  kron(K3.',K3.') + kron(K4.',K2.') )*r2
-    tmp = K2.'*R*K4;
-    bb  = tmp(:);
-    tmp = tmp.';
-    bb  = bb + tmp(:);
-    tmp = K3.'*R*K3;
-    bb  = bb + tmp(:);
+%     tmp = K2.'*R*K4;
+%     bb  = tmp(:);
+%     tmp = tmp.';
+%     bb  = bb + tmp(:);
+%     tmp = K3.'*R*K3;
+%     bb  = bb + tmp(:);
     
     % augment with the Kronecker sum products
     bb = -LyapProduct((B*K2+N).',v5,5) ...
          -LyapProduct((B*K3  ).',v4,4) ...
          -LyapProduct((B*K4  ).',v3,3) ...
-         -bb;%-( kron(K2.',K4.') +  kron(K3.',K3.') + kron(K4.',K2.') )*r2;
+         ...%-bb;%
+       -( kron(K2.',K4.') +  kron(K3.',K3.') + kron(K4.',K2.') )*r2;
        
-    if ( exist('./kronecker/tensor_recursive/lyapunov_recursive.m','file') )
-      v6 = lyapunov_recursive(Al,reshape(bb,n,n,n,n,n,n));
-    else
-      v6 = laplace_recursive(Al,reshape(bb,n,n,n,n,n,n));
-    end
+    v6 = solveKroneckerSystem(Al,bb,n,5,solver);
     v6 = real(v6(:));
     
     S = Kron2CT(n,5);
@@ -315,12 +321,66 @@ function [k,v] = qqr(A,B,Q,R,N,degree,compNST)
     v{6} = v6.';
     k{5} = R\res.'; 
     % K5 = k{5};
-    % comp4 = toc;
+    
+    comp5 = toc;
   end
   
   if ( degree>5 )
-    warning('Only controls of degree <=5 have been implemented so far')
+    warning('qqr: Only controls of degree <=5 have been implemented so far')
   end
   
+  if ( verbose )
+    if ( degree>1 )
+      fprintf('qqr: CPU time for degree 2 controls: %g\n',comp2);
+    end
+    
+    if ( degree>2 )
+      fprintf('qqr: CPU time for degree 3 controls: %g\n',comp3);
+    end
+    
+    if ( degree>3 )
+      fprintf('qqr: CPU time for degree 4 controls: %g\n',comp4);
+    end
+    
+    if ( degree>4 )
+      fprintf('qqr: CPU time for degree 5 controls: %g\n',comp5);
+    end
+  end
 end
 
+
+function [v] = solveKroneckerSystem(Al,bb,n,degree,solver)
+
+  if ( strcmp(solver,'LyapunovRecursive') )
+    switch degree
+      case 2
+        v = lyapunov_recursive(Al,reshape(bb,n,n,n));
+      case 3
+        v = lyapunov_recursive(Al,reshape(bb,n,n,n,n));
+      case 4
+        v = lyapunov_recursive(Al,reshape(bb,n,n,n,n,n));
+      case 5
+        v = lyapunov_recursive(Al,reshape(bb,n,n,n,n,n,n));
+      otherwise
+        warning('qqr: degree not supported')
+    end
+    
+  elseif ( strcmp(solver,'LaplaceRecursive') )
+     switch degree
+      case 2
+        v = laplace_recursive(Al,reshape(bb,n,n,n));
+      case 3
+        v = laplace_recursive(Al,reshape(bb,n,n,n,n));
+      case 4
+        v = laplace_recursive(Al,reshape(bb,n,n,n,n,n));
+      case 5
+        v = laplace_recursive(Al,reshape(bb,n,n,n,n,n,n));
+      otherwise
+        warning('qqr: degree not supported')
+     end
+
+  else
+    v = KroneckerSumSolver(Al,bb,degree);
+  end
+  
+end % function solveKroneckerSystem

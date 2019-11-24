@@ -11,7 +11,7 @@ function [Y] = kroneckerLeft(M,B)
 %%
   [~ ,n] = size(M);
   [nB,m] = size(B);
-  
+
   if ( n^2==nB )
     Y = zeros(n^2,m);
     for j=1:m

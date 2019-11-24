@@ -7,14 +7,14 @@
 % degree is the maximum degree to be tested.
 %-------------------------------------------------------------------------------
 %%
-  n      = 16;
+  n      = 8;%16;
   m      = 3;
   degree = 5;
   fprintf('example5: the maximum degree is %d\n',degree);
   
   T  = 200;    % this is T=\infty...
 
-  addpath('Burgers1DControl')
+  addpath('./examples/Burgers1DControl')
 
   epsilon = 0.005;   % set the viscosity parameter which controls the relative
                      % importance of the nonlinear term
@@ -28,6 +28,7 @@
   % add linear reaction term
   A = epsilon*A + alpha*M;
   Q = M;
+
   %  Perform a change of variables to eliminate the positive definite
   %  mass matrix.  M^(1/2)z -> z
   %
@@ -103,7 +104,7 @@
   
   options = odeset(options,'Mass',[M zeros(n,1);zeros(1,n) 1]);
   
-  %-----------------------------------------------------------------------------  
+  %-----------------------------------------------------------------------------
   %  Linear feedback
   %-----------------------------------------------------------------------------
   v2 = v{2};
@@ -208,15 +209,15 @@
     view([1 -1 1])
 
     c5 = c4 + v5*kron(kron(kron(kron(x0,x0),x0),x0),x0);
-    fprintf('Approx regulator cost to v^[5]:   %g\n',c4)
+    fprintf('Approx regulator cost to v^[5]:   %g\n',c5)
     fprintf('Actual closed-loop cost (0,T) is: %g\n\n',x4(end,end));
   
   end
   
   if ( degree>4 )
-    %-----------------------------------------------------------------------------
+    %---------------------------------------------------------------------------
     %  Quintic feedback
-    %-----------------------------------------------------------------------------
+    %---------------------------------------------------------------------------
     v6 = v{6};
     computeU5   = @(x) k{1}*x                                        + ...
                        k{2}*kron(x,x)                                + ...
@@ -241,8 +242,8 @@
     axis([0 1 -0.1 5 -.4 .6])  
     view([1 -1 1])
 
-    c5 = c4 + v5*kron(kron(kron(kron(x0,x0),x0),x0),x0);
-    fprintf('Approx regulator cost to v^[6]:   %g\n',c5)
+    c6 = c5 + v6*kron(kron(kron(kron(kron(x0,x0),x0),x0),x0),x0);
+    fprintf('Approx regulator cost to v^[6]:   %g\n',c6)
     fprintf('Actual closed-loop cost (0,T) is: %g\n\n',x5(end,end));
   
   end

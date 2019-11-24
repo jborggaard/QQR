@@ -9,7 +9,7 @@ function [Y] = kroneckerRight(B,M)
 %
 %  This is multiplication performed recursively using Kronecker product rules.
 %%
-  Y = kroneckerLeft(M.',B.').';
+  Y = kroneckerLeft(M',B')';
   
 end
 

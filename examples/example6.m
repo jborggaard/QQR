@@ -17,21 +17,22 @@
   Q =  1.0;
   R =  1.0;
   
-  T  = 20;    % this is T=\infty...
-  x0 = -0.0125;
+  T  = 30;    % this is T=\infty...
+  x0 = 0.125;
 
   tic
-    testNST = false;
+   % testNST = false;
     if ( testNST )
       [k,v] = qqr(A,B,Q,R,N,degree,true);
-      Q = Q/2;
-      R = R/2;
+%       Q = Q/2;
+%       R = R/2;
     else
       [k,v] = qqr(A,B,Q,R,N,degree,false);
     end
   toc 
 
-
+  disp([A B Q R N])
+  
   options = odeset('AbsTol',1e-7);
   
   runOpen = false;
@@ -52,7 +53,9 @@
     fprintf('Open Loop Cost (0,T) is %g\n\n',x(end,end));
     toc
   end
-    
+   
+  runClosed = false;
+  if ( runClosed )
   %-----------------------------------------------------------------------------  
   %  Linear feedback
   %-----------------------------------------------------------------------------
@@ -186,14 +189,15 @@
     fprintf('Actual closed-loop cost (0,T) is: %g\n\n',x5(end,end));
   
   end
+  end % runClosed
   
   figure
-  x0 = linspace(-1,1,201);
-  c2 = v2*x0.^2;
-  c3 = c2 + v3*x0.^3;
-  c4 = c3 + v4*x0.^4;
-  c5 = c4 + v5*x0.^5;
-  c6 = c5 + v6*x0.^6;
+  x0 = linspace(-.1,.1,201);
+  c2 =      v{2}*x0.^2;
+  c3 = c2 + v{3}*x0.^3;
+  c4 = c3 + v{4}*x0.^4;
+  c5 = c4 + v{5}*x0.^5;
+  c6 = c5 + v{6}*x0.^6;
   plot(x0,c2,x0,c3,x0,c4,x0,c5,x0,c6)
   legend('v2','v3','v4','v5','v6')
   
