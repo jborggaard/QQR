@@ -1,4 +1,4 @@
-function [k,v] = qqr(A,B,Q,R,N,degree,compNST,solver)
+function [k,v] = qqr(A,B,Q,R,N,degree,solver)
 %QQR Albrecht's approximation to the quadratic-quadratic-regulator problem
 %   A quadratic system is provided in Kronecker product form
 %     \dot{x} = A*x + B*u + N*kron(x,x),  \ell(x,u) = x'*Q*x + u'*R*u
@@ -37,6 +37,10 @@ function [k,v] = qqr(A,B,Q,R,N,degree,compNST,solver)
 %
 %   Details about how to run this function, including necessary libraries
 %   and example scripts, can be found at https://github.com/jborggaard/QQR
+%
+%  Author: Jeff Borggaard, Virginia Tech
+%
+%  Part of the QQR library.
 %%
 
   setKroneckerSumPath
@@ -60,9 +64,6 @@ function [k,v] = qqr(A,B,Q,R,N,degree,compNST,solver)
 
   if ( nargin==5 )
     degree = 2;
-    compNST = false;
-  elseif ( nargin==6 )
-    compNST = false;
   end
   
   %=============================================================================
@@ -92,11 +93,6 @@ function [k,v] = qqr(A,B,Q,R,N,degree,compNST,solver)
   v2 = PP(:);
   
   r2 = R(:);
-  
-  if (compNST) 
-    v2 = v2/2;    %   divide by 2 to compare with NST
-    r2 = r2/2;    %   divide by 2 to compare with NST
-  end  
   
   v{2} = v2.';
   k{1} = K1;
@@ -137,9 +133,8 @@ function [k,v] = qqr(A,B,Q,R,N,degree,compNST,solver)
     end
 
     v{3} = v3.';
-   
-    K2   = R\res.';
-    k{2} = K2;
+    k{2} = 0.5*(R\res.');
+    K2   = k{2};
     
     comp2 = toc;
   end
@@ -185,8 +180,8 @@ function [k,v] = qqr(A,B,Q,R,N,degree,compNST,solver)
     end
     
     v{4} = v4.';
-    k{3} = R\res.'; 
-    K3 = k{3};
+    k{3} = 0.5*(R\res.'); 
+    K3   = k{3};
     
     comp3 = toc;
   end
@@ -243,8 +238,8 @@ function [k,v] = qqr(A,B,Q,R,N,degree,compNST,solver)
     end
     
     v{5} = v5.';
-    k{4} = R\res.'; 
-    K4 = k{4};
+    k{4} = 0.5*(R\res.'); 
+    K4   = k{4};
     
     comp4 = toc;    
   end
@@ -319,7 +314,7 @@ function [k,v] = qqr(A,B,Q,R,N,degree,compNST,solver)
     end
     
     v{6} = v6.';
-    k{5} = R\res.'; 
+    k{5} = 0.5*(R\res.'); 
     % K5 = k{5};
     
     comp5 = toc;

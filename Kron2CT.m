@@ -8,6 +8,9 @@ function [S] = Kron2CT(n,degree)
 %
 %        S is dimension n^d  x  (d+n-1)! / ( n! (d-1)! )
 %
+%  Author: Jeff Borggaard, Virginia Tech
+%
+%  Part of the QQR library.
 %-------------------------------------------------------------------------------
   switch degree
     case 1
@@ -1554,8 +1557,11 @@ function [S] = Kron2CT(n,degree)
 
       S = sparse( II,JJ,SS,n*(n+1)*(n+2)*(n+3)*(n+4)/120,n^5 );
 
+    case 6
+      [S] = Kron2CT6(n,degree);
+      
     otherwise
-      error('degrees higher than 5 haven''t been implemented yet.')
+      error('degrees higher than 6 haven''t been implemented yet.')
     
   end % switch degree
   

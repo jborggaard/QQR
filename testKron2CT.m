@@ -1,7 +1,13 @@
-%  test Kron2CT
+%testKron2CT A script to help test the Kron2CT function using symbolic
+%  expressions.  This is very expensive for values of n and d larger than
+%  4~5.
+%
+%  Author: Jeff Borggaard, Virginia Tech
+%
+%  Part of the QQR library.
 
-n = 6;
-d = 5;
+n = 4;
+d = 6;
 
 x = sym('x',[n,1]);
 kk = x;

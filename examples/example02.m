@@ -1,4 +1,4 @@
-%EXAMPLE2 Compares different degree feedback strategies for the 
+%EXAMPLE02 Compares different degree feedback strategies for the 
 % discretized Burgers equation.  The conversion to an ODE is non-optimal
 % but is below as performed in the ACC submission of 27 Sept 2019.
 %

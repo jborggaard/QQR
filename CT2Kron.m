@@ -2,7 +2,7 @@ function [S] = CT2Kron(n,degree)
 %CT2Kron converts the coefficients of a polynomial in compact Taylor format to 
 %        those of a polynomial in Kronecker product form.
 %
-%        for example, consider the polynomial in R^2 of degree 3: (n=2,degree=3) 
+%        for example, consider the polynomial in R^2 of degree 3: (n=2,degree=3)
 %              4 x1^3 + 3 x1^2 x2 - 3 x1 x2^2 + 4 x2^3
 %
 %        then CT2Kron(2,3)*[4;3;-3;4] = [ 4;1;1;-1;1;-1;-1;4 ];

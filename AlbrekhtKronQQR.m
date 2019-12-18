@@ -1,4 +1,4 @@
-function [k,v] = AlbrekhtKronQQR(A,B,Q,R,N,degree,compNST)
+function [k,v] = AlbrekhtKronQQR(A,B,Q,R,N,degree)
 %AlbrekhtKronQQR Albrekht's approximation to the quadratic-quadratic-regulator
 %   A quadratic system is provided in Kronecker product form
 %     \dot{x} = A*x + B*u + N*kron(x,x),  \ell(x,u) = x'*Q*x + u'*R*u
@@ -30,7 +30,11 @@ function [k,v] = AlbrekhtKronQQR(A,B,Q,R,N,degree,compNST)
 %
 %   Details about how to run this function, including necessary libraries
 %   and example scripts, can be found at https://github.com/jborggaard/QQR
-%%
+%
+%  Author: Jeff Borggaard, Virginia Tech
+%
+%  Part of the QQR library.
+%% -----------------------------------------------------------------------------
 
   n = size(A,1);
   m = size(B,2);
@@ -38,11 +42,6 @@ function [k,v] = AlbrekhtKronQQR(A,B,Q,R,N,degree,compNST)
   % add consistency checks here: A square, B nxm, Q nxn SPSD, R mxm SPD, N nxn^2
   if ( nargin<=5 )
     degree = 2;
-    compNST = false;
-    
-  elseif ( nargin==6 )
-    compNST = false;
-   
   end
   
   v = cell(1,degree+1);
@@ -57,11 +56,6 @@ function [k,v] = AlbrekhtKronQQR(A,B,Q,R,N,degree,compNST)
   v2 = PP(:);
   
   r2 = R(:);
-  
-  if ( compNST )
-    v2 = v2/2;
-    r2 = r2/2;
-  end
   
   v{2} = v2.';
   k{1} = K1;
@@ -94,7 +88,7 @@ function [k,v] = AlbrekhtKronQQR(A,B,Q,R,N,degree,compNST)
     end
  
     v{3} = v3.';
-    k{2} = R\res.';
+    k{2} = 0.5*(R\res.');
     K2 = k{2};
   end
   
@@ -130,7 +124,7 @@ function [k,v] = AlbrekhtKronQQR(A,B,Q,R,N,degree,compNST)
     end
     
     v{4} = v4.';
-    k{3} = R\res.'; 
+    k{3} = 0.5*(R\res.'); 
     K3 = k{3};
   end
   
@@ -171,7 +165,7 @@ function [k,v] = AlbrekhtKronQQR(A,B,Q,R,N,degree,compNST)
     end
     
     v{5} = v5.';
-    k{4} = R\res.'; 
+    k{4} = 0.5*(R\res.'); 
     K4 = k{4};
   end
   

@@ -14,6 +14,9 @@
 %  if testNST==true
 %  - solutions from NST are provided in the ka and py arrays.
 %
+%  Author: Jeff Borggaard, Virginia Tech
+%
+%  Part of the QQR library.
 %%
 %  Set up test examples, problem dimensions (order), and degree of feedback
 %  in this code block, then run the script.
@@ -29,17 +32,17 @@
 
   if ( testcase==1 )
   %%
-    example1
+    example01
   
   elseif ( testcase==2 )
   %%
     %  For the ACC submission, we chose n=6:2:20, m=1, degree=2:4
-    example2
+    example02
 
   elseif ( testcase==3 )
   %%
     %  For the ACC submission, we chose n=10:2:20, m=2, degree=2:3
-    example3
+    example03
     
   end
 
@@ -64,6 +67,7 @@ if ( testNST )
   tic
   [ka,fk,py,lk]= hjb(ff,ll,n,m,degree);
   comp=toc;
+  py = 2*py;
 
   fprintf('            NST solution required %g (%g) seconds\n',comp,comp+set_up);
 end % if testNST
@@ -71,12 +75,7 @@ end % if testNST
 %%
 if ( degree>1 )
   tic
-  if ( testNST )
-    [kk,vv] = AlbrechtQQR(A,B,Q,R,N,degree,true);
-    R = R/2;
-  else
     [kk,vv] = AlbrechtQQR(A,B,Q,R,N,degree);
-  end
   comp = toc;
 
   disp('')

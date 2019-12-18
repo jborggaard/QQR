@@ -17,6 +17,10 @@ function [Mv] = LyapProduct(M,v,d)
 %
 %   Details about how to run this function, including necessary libraries
 %   and example scripts, can be found at https://github.com/jborggaard/QQR
+%
+%  Author: Jeff Borggaard, Virginia Tech
+%
+%  Part of the QQR library.
 %%
 
   [m,n] = size(M);

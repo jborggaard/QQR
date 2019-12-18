@@ -1,8 +1,7 @@
-%EXAMPLE4 Compares feedback strategies for the Lorenz equations 
+%EXAMPLE04 Compares feedback strategies for the Lorenz equations 
 %  
   
-  degree=5;
-  fprintf('example4: setting degree to %d\n',degree);
+  fprintf('example04: setting degree to %d\n',degree);
   
   sigma = 10; rho = 28; beta = 8/3;
   

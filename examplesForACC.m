@@ -18,51 +18,50 @@
 %  - solutions from AlbrekhtKronQQR are provided in the k and v arrays.
 %  - this can require a lot of memory and CPU time, so keep n, m, and the 
 %    degree variables small.
+%
+%  Part of the QQR library.
 %%
 %  Set up test examples, problem dimensions (order), and degree of feedback
 
   addpath('./examples')  % location of example problems
   
-  testcase = 2;
+  testcase = 3;
 
   n      =  4;   % state dimension
-  m      =  1;   % control dimension
+  m      =  2;   % control dimension
   degree =  5;   % degree of optimal feedback
 
   %  Flag those methods used for the current test (NST is reqd for error tables)
-  testNST    = true;
-  testFull   = true;
+  testNST    = false;
+  testFull   = false;
 
   if ( testcase==1 )
   %%
     %  For the ACC submission, we chose n=6:2:20, m=1, degree=2:4
     %  the full Kronecker solution wasn't calculated for 16:2:20
-    example1
+    example01
 
   elseif ( testcase==2 )
   %%
     %  For the ACC submission, we chose n=10:2:20, m=2, degree=2:3
     %  the full Kronecker solution wasn't calculated for 16:2:20
-    example2
+    example02
     
   elseif ( testcase==3 )
   %%
     %  For the TAC submission, we chose n=10:2:20, m=2, degree=2:3
     %  the full Kronecker solution wasn't calculated for 16:2:20
-    example3
+    example03
     
   end
   
   tic
-  if ( testNST )
-    [k,v] = qqr(A,B,Q,R,N,degree,true);
-  else
-    [k,v] = qqr(A,B,Q,R,N,degree);
-  end
+  [k,v] = qqr(A,B,Q,R,N,degree);
   compQQR = toc;
     
   fprintf('\n');
   fprintf('    qqr solution required %g seconds\n\n',compQQR);
   
-  runComparisons
-  
+  if ( testNST )
+    runComparisons
+  end

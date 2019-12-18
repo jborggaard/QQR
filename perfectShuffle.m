@@ -1,5 +1,9 @@
 function [S] = perfectShuffle(p,q)
 %perfectShuffle  Creates the perfect shuffle matrix corresponding to (p,q)
+%
+%  Useful in some Kronecker product permutation operations.
+%
+%  Part of the QQR library.
 
   r = p*q;
   I = speye(r);

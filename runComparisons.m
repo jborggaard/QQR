@@ -1,5 +1,5 @@
 %  This is the script used to perform testcase comparisons for qqr, NST, and
-%  the full Kronecker form in AlbrekhtKronQQR that were reported in
+%  optionally, the full Kronecker form, for the QQR that were reported in
 %
 %     Borggaard and Zietsman, The Quadratic-Quadratic Regulator: 
 %       Proc. American Conference on Control, Denver, CO, 2020 (submitted).
@@ -8,46 +8,42 @@
 %     Borggaard and Zietsman, The Quadratic-Quadratic Regulator
 %       IEEE Transactions on Automatic Control (submitted).
 %
-%  if testNST==true
-%  - solutions from NST are provided in the ka and py arrays.
+%  Solutions from NST are provided in the ka and py arrays.
 %
-%  if testAlbrekhtQQR==true
-%  - solutions from qqr are provided in the kk and vv arrays.
-%
-%  if testAlbrekhtKronQQR==true
-%  - solutions from AlbrekhtKronQQR are provided in the k and v arrays.
+%  if testFull==true
+%  - solutions from AlbrekhtKronQQR are provided in the kF and vF arrays.
 %  - this can require a lot of memory and CPU time, so keep n, m, and the 
-%    degree variables small.
+%    degree variables small.  It has not yet been optimized to build an
+%    upper triangular system but primarily used for testing and debugging.
 %%
-
 %  Variables: n, m, degree,   A, B, N,   Q, R    and
 %  Flag:  testFull  must be specified
 %
-%  We assume that [k,v] = qqr(A,B,Q,R,N, degree, true) has already been called
-%                                                ^^^^
+%  We assume that [k,v] = qqr(A,B,Q,R,N, degree) has already been called 
 %  and the problem sizes are small enough so NST is feasible.
+%
+%  Author: Jeff Borggaard, Virginia Tech
+%
+%  Part of the QQR library.
 %%
-if ( testNST )
-  [ka,py] = runNST(A,B,Q,R,N,degree);
-end
+
+verbose = true;   % writes out Kron<->CT mapping times.
+
+% this script is fairly useless without the NST solution
+[ka,py] = runNST(A,B,Q,R,N,degree);
+py = 2*py;   % NST assumes an additional factor of 1/2 that we don't.
 
 %%  Calculate via the full Kronecker product formula
 if ( testFull )
   tic
-  if ( testNST )
-    [kF,vF] = AlbrekhtKronQQR(A,B,Q,R,N,min(degree,4),true);
-  else
-    [kF,vF] = AlbrekhtKronQQR(A,B,Q,R,N,min(degree,4));
-  end
+  [kF,vF] = AlbrekhtKronQQR(A,B,Q,R,N,min(degree,4));
   comp = toc;
   disp('')
   fprintf('AlbrekhtKronQQR solution required %g seconds\n',comp)
-  
 end
 
 
 if ( degree>1 )
-  
   tic;
   C2 = CT2Kron(n,2);
   S2 = Kron2CT(n,2);
@@ -56,38 +52,25 @@ if ( degree>1 )
   S3 = Kron2CT(n,3);
   CTtime = toc;
 
-%   if ( testTensor )
-%     tic
-%       if ( testNST )
-%         [kk,vv] = qqr(A,B,Q,R,N,degree,true);
-%       else
-%         [kk,vv] = qqr(A,B,Q,R,N,degree);
-%       end
-%     comp = toc;
-    
-%     disp('')
-%     fprintf('    qqr solution required %g seconds\n\n',comp)
-    k2 = k{2};
-    v3 = v{3};
-%    if ( testNST )
-      idx1 = n;
-      idx2 = idx1 + n*(n+1)/2;
-      idx3 = idx2 + n*(n+1)*(n+2)/6;
-      idx4 = idx3 + n*(n+1)*(n+2)*(n+3)/24;
-      idx5 = idx4 + n*(n+1)*(n+2)*(n+3)*(n+4)/120;
-      idx6 = idx5 + n*(n+1)*(n+2)*(n+3)*(n+4)*(n+5)/720;
-      
-      ka2  = ka(:,idx1     +1:idx2     );
-      py3  = py(  idx2-idx1+1:idx3-idx1);
+  k2 = k{2};
+  v3 = v{3};
 
-      e_k2 = norm( ka2 - k2*S2' );
-      fprintf('NST:     The norm of k^[2] is %g\n',norm(ka2));
-      fprintf('NST:     The norm of v^[3] is %g\n',norm(py3));
-      fprintf('tensor:  The relative error in k^[2] is %g\n',e_k2/norm(ka2));
-      e_p3 = norm( py3 - v3*S3' );
-      fprintf('tensor:  The relative error in v^[3] is %g\n',e_p3/norm(py3));
-%    end
-%  end
+  idx1 = n;
+  idx2 = idx1 + n*(n+1)/2;
+  idx3 = idx2 + n*(n+1)*(n+2)/6;
+  idx4 = idx3 + n*(n+1)*(n+2)*(n+3)/24;
+  idx5 = idx4 + n*(n+1)*(n+2)*(n+3)*(n+4)/120;
+  idx6 = idx5 + n*(n+1)*(n+2)*(n+3)*(n+4)*(n+5)/720;
+
+  ka2  = ka(:,idx1     +1:idx2     );
+  py3  = py(  idx2-idx1+1:idx3-idx1);
+
+  e_k2 = norm( ka2 - k2*S2' );
+  fprintf('NST:     The norm of k^[2] is %g\n',norm(ka2));
+  fprintf('NST:     The norm of v^[3] is %g\n',norm(py3));
+  fprintf('tensor:  The relative error in k^[2] is %g\n',e_k2/norm(ka2));
+  e_p3 = norm( py3 - v3*S3' );
+  fprintf('tensor:  The relative error in v^[3] is %g\n',e_p3/norm(py3));
   
   if ( testFull )
     vF2 = vF{2};
@@ -105,19 +88,22 @@ if ( degree>1 )
     fprintf('FullKr:  The relative error in v^[3] is %g\n\n',e_p3/norm(py3));
   end
   
-%  fprintf('CT to Kron mappings (2+3) required %g seconds\n',CTtime)
+  if ( verbose )
+    fprintf('CT to Kron mappings (2+3) required %g seconds\n',CTtime)
+  end
 end
 
 if ( degree>2 )
   
   tic;
-    C4 = CT2Kron(n,4);
-    S4 = Kron2CT(n,4);
+  C4 = CT2Kron(n,4);
+  S4 = Kron2CT(n,4);
   CTtime = toc;
-  % fprintf('CT to Kron mappings (4) require %g seconds\n',CTtime)
+  if ( verbose )
+    fprintf('CT to Kron mappings (4) require %g seconds\n',CTtime)
+  end
   
 %  if ( testTensor )
-    tic
     % Al{4} = ABKT;    
     % r2 = R(:)/2;
     % bb = -( kron(                 (B*kk2+N).',  eye(n^2) ) + ...
@@ -138,19 +124,20 @@ if ( degree>2 )
     %   res(:,i) = -GG*vv4(:);
     % end
     % k3 = R\res.';
-    k3 = k{3};
-    v4 = v{4};
-    
-    ka3 = ka(:,idx2     +1:idx3     );
-    py4 = py(  idx3-idx1+1:idx4-idx1);
-    fprintf('NST:     The norm of k^[3] is %g\n',norm(ka3));
-    fprintf('NST:     The norm of v^[4] is %g\n',norm(py4));
-
-    e_k3 = norm( ka3 - k3*S3' );
-    fprintf('tensor:  The relative error in k^[3] is %g\n',e_k3/norm(ka3));
-    e_p4 = norm( py4 - v4*S4' );
-    fprintf('tensor:  The relative error in v^[4] is %g\n',e_p4/norm(py4));
 %  end
+
+  k3 = k{3};
+  v4 = v{4};
+    
+  ka3 = ka(:,idx2     +1:idx3     );
+  py4 = py(  idx3-idx1+1:idx4-idx1);
+  fprintf('NST:     The norm of k^[3] is %g\n',norm(ka3));
+  fprintf('NST:     The norm of v^[4] is %g\n',norm(py4));
+
+  e_k3 = norm( ka3 - k3*S3' );
+  fprintf('tensor:  The relative error in k^[3] is %g\n',e_k3/norm(ka3));
+  e_p4 = norm( py4 - v4*S4' );
+  fprintf('tensor:  The relative error in v^[4] is %g\n',e_p4/norm(py4));
   
   
   if ( testFull )
@@ -172,51 +159,51 @@ if ( degree>3 )
   tic;
   S5 = Kron2CT(n,5);
   CTtime = toc;
+  if ( verbose )
+    fprintf('CT to Kron mappings (5) require %g seconds\n\n',CTtime)
+  end
   
 %  if ( testTensor )
-    tic
-    % Al{5} = ABKT;    
-    % bb = -( kron(                 (B*kk2+N).',   eye(n^3) ) + ...
-    %         kron( kron( eye(n  ), (B*kk2+N).' ), eye(n^2) ) + ...
-    %         kron( kron( eye(n^2), (B*kk2+N).' ), eye(n)   ) + ...
-    %         kron(       eye(n^3), (B*kk2+N).'             ) )*vv4(:) ...
-    %      -( kron(                 (B*kk3  ).',   eye(n^2) ) + ...
-    %         kron( kron( eye(n  ), (B*kk3  ).' ), eye(n  ) ) + ...
-    %         kron(       eye(n^2), (B*kk3  ).'             ) )*vv3(:) ...
-    %      -( kron(kk2.',kk3.') + kron(kk3.',kk2.') )*r2 ;
-    % vv5 = lyapunov_recursive(Al,reshape(bb,n,n,n,n,n));
-    % comp = comp+toc;
-    % fprintf('     tensorized solution required %g seconds\n',comp);
-    %   
-    % res = zeros(n*n*n,m);
-    % for i=1:m
-    %   GG = ( kron(               B(:,i).',eye(n^4)   ) + ...
-    %          kron( eye(n  ),kron(B(:,i).',eye(n^3) ) ) + ...
-    %          kron( eye(n^2),kron(B(:,i).',eye(n^2) ) ) + ...
-    %          kron( eye(n^3),kron(B(:,i).',eye(n  ) ) ) + ...
-    %          kron( eye(n^4),     B(:,i).'            ) );
-    %   GG = C4*S4*GG;
-    %   res(:,i) = -GG*v5;
-    % end
-    % kk4 = R\res.';
-    k4 = k{4};
-    v5 = v{5};
-    
- %   if ( testNST )
-      ka4 = ka(:,idx3     +1:idx4     );
-      py5 = py(  idx4-idx1+1:idx5-idx1);
-      fprintf('NST:     The norm of k^[4] is %g\n',norm(ka4));
-      fprintf('NST:     The norm of v^[5] is %g\n',norm(py5));
-      
-      e_k4 = norm( ka4 - k4*S4' );
-      fprintf('tensor:  The relative error in k^[4] is %g\n',e_k4/norm(ka4));
-      
-      e_p5 = norm( py5 - v5*S5' );
-      fprintf('tensor:  The relative error in v^[5] is %g\n',e_p5/norm(py5));
-      
-%    end
+   % Al{5} = ABKT;    
+   % bb = -( kron(                 (B*kk2+N).',   eye(n^3) ) + ...
+   %         kron( kron( eye(n  ), (B*kk2+N).' ), eye(n^2) ) + ...
+   %         kron( kron( eye(n^2), (B*kk2+N).' ), eye(n)   ) + ...
+   %         kron(       eye(n^3), (B*kk2+N).'             ) )*vv4(:) ...
+   %      -( kron(                 (B*kk3  ).',   eye(n^2) ) + ...
+   %         kron( kron( eye(n  ), (B*kk3  ).' ), eye(n  ) ) + ...
+   %         kron(       eye(n^2), (B*kk3  ).'             ) )*vv3(:) ...
+   %      -( kron(kk2.',kk3.') + kron(kk3.',kk2.') )*r2 ;
+   % vv5 = lyapunov_recursive(Al,reshape(bb,n,n,n,n,n));
+   % comp = comp+toc;
+   % fprintf('     tensorized solution required %g seconds\n',comp);
+   %   
+   % res = zeros(n*n*n,m);
+   % for i=1:m
+   %   GG = ( kron(               B(:,i).',eye(n^4)   ) + ...
+   %          kron( eye(n  ),kron(B(:,i).',eye(n^3) ) ) + ...
+   %          kron( eye(n^2),kron(B(:,i).',eye(n^2) ) ) + ...
+   %          kron( eye(n^3),kron(B(:,i).',eye(n  ) ) ) + ...
+   %          kron( eye(n^4),     B(:,i).'            ) );
+   %   GG = C4*S4*GG;
+   %   res(:,i) = -GG*v5;
+   % end
+   % kk4 = R\res.';
 %  end
-  
+
+  k4 = k{4};
+  v5 = v{5};
+    
+  ka4 = ka(:,idx3     +1:idx4     );
+  py5 = py(  idx4-idx1+1:idx5-idx1);
+  fprintf('NST:     The norm of k^[4] is %g\n',norm(ka4));
+  fprintf('NST:     The norm of v^[5] is %g\n',norm(py5));
+
+  e_k4 = norm( ka4 - k4*S4' );
+  fprintf('tensor:  The relative error in k^[4] is %g\n',e_k4/norm(ka4));
+
+  e_p5 = norm( py5 - v5*S5' );
+  fprintf('tensor:  The relative error in v^[5] is %g\n',e_p5/norm(py5));
+
   if ( testFull )
     kF4 = kF{4};
     vF5 = vF{5};
@@ -232,39 +219,31 @@ if ( degree>3 )
 end 
 
 if ( degree>4 )  
-%   tic;
-%   S6 = Kron2CT(n,6);
-%   CTtime = toc;
+  tic;
+  S6 = Kron2CT(n,6);
+  CTtime = toc;
+  if ( verbose )
+    fprintf('CT to Kron mappings (6) require %g seconds\n\n',CTtime)
+  end
   
-%  if ( testTensor )
-    tic
-    k5 = k{5};
-    v6 = v{6};
+  k5 = k{5};
+  v6 = v{6};
     
-    if ( testNST )
-      ka5 = ka(:,idx4     +1:idx5     );
-      py6 = py(  idx5-idx1+1:idx6-idx1);
-      fprintf('NST:     The norm of k^[5] is %g\n',norm(ka5));
-      fprintf('NST:     The norm of v^[6] is %g\n',norm(py6));
-      
-      e_k5 = norm( ka5 - k5*S5' );
-      fprintf('tensor:  The relative error in k^[5] is %g\n',e_k5/norm(ka5));
-      
-%       e_p5 = norm( py6 - vv6*S6' );
-%       fprintf('tensor:  The relative error in v^[6] is %g\n',e_p6/norm(py6));
-      
-    end
-%  end
+  ka5 = ka(:,idx4     +1:idx5     );
+  py6 = py(  idx5-idx1+1:idx6-idx1);
+  fprintf('NST:     The norm of k^[5] is %g\n',norm(ka5));
+  fprintf('NST:     The norm of v^[6] is %g\n',norm(py6));
+
+  e_k5 = norm( ka5 - k5*S5' );
+  fprintf('tensor:  The relative error in k^[5] is %g\n',e_k5/norm(ka5));
+
+  e_p6 = norm( py6 - v6*S6' );
+  fprintf('tensor:  The relative error in v^[6] is %g\n',e_p6/norm(py6));
 end 
 
-if ( degree>3 )
-  fprintf('\n');
-  fprintf('CT to Kron mappings (5) require %g seconds\n\n',CTtime)
-end
 
 %  sometimes these errors are high, but the relative error is then low.
 %  possibly due to factors like nearly singular R, nearly uncontrollable
 %  (or extensions of this notion to the higher degree case?)
 %  other times, we are computing a relative error for a quantity
 %  that should be zero.
-  
