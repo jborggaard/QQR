@@ -121,7 +121,7 @@
                   x(1:3).'*Q*x(1:3) + u5(x(1:3)).'*R*u5(x(1:3))];
   
   [t5,x5] = ode23s( rhs_k5, [0 T], [x0;0] );
-  figure(14); hold on
+  figure(15); hold on
   plot3(x5(1,1),x5(1,2),x5(1,3),'*')
   plot3(x5(:,1),x5(:,2),x5(:,3),'k')
   plot3(0,0,0,'o')
@@ -129,6 +129,51 @@
   
   c6 = c5 + v6*kron(x0,kron(x0,kron(x0,kron(x0,kron(x0,x0)))));
   fprintf('approx. regulator cost to v6: %g  cost to T: %g\n',c6,x5(end,4))
+  
+  
+  %  Hexic feedback
+  v7 = v{7};
+  u3_6 = @(x) k{3}*kron(kron(x,x),x) + ...
+              k{4}*kron(kron(kron(x,x),x),x) + ...
+              k{5}*kron(kron(kron(kron(x,x),x),x),x) + ...
+              k{6}*kron(kron(kron(kron(kron(x,x),x),x),x),x);
+  u6 = @(x)   k{1}*x + k{2}*kron(x,x) + u3_6(x);
+  rhs_k6 = @(t,x) [APBK*x(1:3) + NPBK2*kron(x(1:3),x(1:3)) + ...
+                   B*u3_6(x(1:3));
+                  x(1:3).'*Q*x(1:3) + u6(x(1:3)).'*R*u6(x(1:3))];
+  
+  [t6,x6] = ode23s( rhs_k6, [0 T], [x0;0] );
+  figure(16); hold on
+  plot3(x6(1,1),x6(1,2),x6(1,3),'*')
+  plot3(x6(:,1),x6(:,2),x6(:,3),'k')
+  plot3(0,0,0,'o')
+  view([1 1 1])
+  
+  c7 = c6 + v7*kron(x0,kron(x0,kron(x0,kron(x0,kron(x0,kron(x0,x0))))));
+  fprintf('approx. regulator cost to v7: %g  cost to T: %g\n',c7,x6(end,4))
+  
+  
+  %  Septic feedback
+  v8 = v{8};
+  u3_7 = @(x) k{3}*kron(kron(x,x),x) + ...
+              k{4}*kron(kron(kron(x,x),x),x) + ...
+              k{5}*kron(kron(kron(kron(x,x),x),x),x) + ...
+              k{6}*kron(kron(kron(kron(kron(x,x),x),x),x),x) + ...
+              k{7}*kron(kron(kron(kron(kron(kron(x,x),x),x),x),x),x);
+  u7 = @(x)   k{1}*x + k{2}*kron(x,x) + u3_7(x);
+  rhs_k7 = @(t,x) [APBK*x(1:3) + NPBK2*kron(x(1:3),x(1:3)) + ...
+                   B*u3_7(x(1:3));
+                  x(1:3).'*Q*x(1:3) + u7(x(1:3)).'*R*u7(x(1:3))];
+  
+  [t7,x7] = ode23s( rhs_k6, [0 T], [x0;0] );
+  figure(17); hold on
+  plot3(x7(1,1),x7(1,2),x7(1,3),'*')
+  plot3(x7(:,1),x7(:,2),x7(:,3),'k')
+  plot3(0,0,0,'o')
+  view([1 1 1])
+  
+  c8 = c7 + v8*kron(x0,kron(x0,kron(x0,kron(x0,kron(x0,kron(x0,kron(x0,x0)))))));
+  fprintf('approx. regulator cost to v8: %g  cost to T: %g\n',c8,x7(end,4))
   
   
 %   figure(31)

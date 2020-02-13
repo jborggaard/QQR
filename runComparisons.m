@@ -34,7 +34,7 @@ verbose = true;   % writes out Kron<->CT mapping times.
 py = 2*py;   % NST assumes an additional factor of 1/2 that we don't.
 
 %%  Calculate via the full Kronecker product formula
-if ( testFull )
+if ( exist('testFull','var') && testFull )
   tic
   [kF,vF] = AlbrekhtKronQQR(A,B,Q,R,N,min(degree,4));
   comp = toc;
@@ -51,6 +51,9 @@ if ( degree>1 )
   C3 = CT2Kron(n,3);
   S3 = Kron2CT(n,3);
   CTtime = toc;
+  if ( verbose )
+    fprintf('CT to Kron mappings (2+3) required %g seconds\n',CTtime)
+  end
 
   k2 = k{2};
   v3 = v{3};
@@ -61,6 +64,7 @@ if ( degree>1 )
   idx4 = idx3 + n*(n+1)*(n+2)*(n+3)/24;
   idx5 = idx4 + n*(n+1)*(n+2)*(n+3)*(n+4)/120;
   idx6 = idx5 + n*(n+1)*(n+2)*(n+3)*(n+4)*(n+5)/720;
+  idx7 = idx6 + n*(n+1)*(n+2)*(n+3)*(n+4)*(n+5)*(n+6)/5040;
 
   ka2  = ka(:,idx1     +1:idx2     );
   py3  = py(  idx2-idx1+1:idx3-idx1);
@@ -70,7 +74,7 @@ if ( degree>1 )
   fprintf('NST:     The norm of v^[3] is %g\n',norm(py3));
   fprintf('tensor:  The relative error in k^[2] is %g\n',e_k2/norm(ka2));
   e_p3 = norm( py3 - v3*S3' );
-  fprintf('tensor:  The relative error in v^[3] is %g\n',e_p3/norm(py3));
+  fprintf('tensor:  The relative error in v^[3] is %g\n\n',e_p3/norm(py3));
   
   if ( testFull )
     vF2 = vF{2};
@@ -88,9 +92,6 @@ if ( degree>1 )
     fprintf('FullKr:  The relative error in v^[3] is %g\n\n',e_p3/norm(py3));
   end
   
-  if ( verbose )
-    fprintf('CT to Kron mappings (2+3) required %g seconds\n',CTtime)
-  end
 end
 
 if ( degree>2 )
@@ -137,7 +138,7 @@ if ( degree>2 )
   e_k3 = norm( ka3 - k3*S3' );
   fprintf('tensor:  The relative error in k^[3] is %g\n',e_k3/norm(ka3));
   e_p4 = norm( py4 - v4*S4' );
-  fprintf('tensor:  The relative error in v^[4] is %g\n',e_p4/norm(py4));
+  fprintf('tensor:  The relative error in v^[4] is %g\n\n',e_p4/norm(py4));
   
   
   if ( testFull )
@@ -160,7 +161,7 @@ if ( degree>3 )
   S5 = Kron2CT(n,5);
   CTtime = toc;
   if ( verbose )
-    fprintf('CT to Kron mappings (5) require %g seconds\n\n',CTtime)
+    fprintf('CT to Kron mappings (5) require %g seconds\n',CTtime)
   end
   
 %  if ( testTensor )
@@ -202,7 +203,7 @@ if ( degree>3 )
   fprintf('tensor:  The relative error in k^[4] is %g\n',e_k4/norm(ka4));
 
   e_p5 = norm( py5 - v5*S5' );
-  fprintf('tensor:  The relative error in v^[5] is %g\n',e_p5/norm(py5));
+  fprintf('tensor:  The relative error in v^[5] is %g\n\n',e_p5/norm(py5));
 
   if ( testFull )
     kF4 = kF{4};
@@ -223,7 +224,7 @@ if ( degree>4 )
   S6 = Kron2CT(n,6);
   CTtime = toc;
   if ( verbose )
-    fprintf('CT to Kron mappings (6) require %g seconds\n\n',CTtime)
+    fprintf('CT to Kron mappings (6) require %g seconds\n',CTtime)
   end
   
   k5 = k{5};
@@ -238,7 +239,41 @@ if ( degree>4 )
   fprintf('tensor:  The relative error in k^[5] is %g\n',e_k5/norm(ka5));
 
   e_p6 = norm( py6 - v6*S6' );
-  fprintf('tensor:  The relative error in v^[6] is %g\n',e_p6/norm(py6));
+  fprintf('tensor:  The relative error in v^[6] is %g\n\n',e_p6/norm(py6));
+end 
+
+if ( degree>5 )  
+  tic;
+  S7 = Kron2CT(n,7);
+  CTtime = toc;
+  if ( verbose )
+    fprintf('CT to Kron mappings (7) require %g seconds\n',CTtime)
+  end
+  
+  k6 = k{6};
+  v7 = v{7};
+    
+  ka6 = ka(:,idx5     +1:idx6     );
+  py7 = py(  idx6-idx1+1:idx7-idx1);
+  fprintf('NST:     The norm of k^[6] is %g\n',norm(ka6));
+  fprintf('NST:     The norm of v^[7] is %g\n',norm(py7));
+
+  e_k6 = norm( ka6 - k6*S6' );
+  fprintf('tensor:  The relative error in k^[6] is %g\n',e_k6/norm(ka6));
+
+  e_p7 = norm( py7 - v7*S7' );
+  fprintf('tensor:  The relative error in v^[7] is %g\n\n',e_p7/norm(py7));
+end 
+
+if ( degree>6 )  
+  
+  k7 = k{7};
+    
+  ka7 = ka(:,idx6     +1:idx7     );
+  fprintf('NST:     The norm of k^[7] is %g\n',norm(ka7));
+
+  e_k7 = norm( ka7 - k7*S7' );
+  fprintf('tensor:  The relative error in k^[7] is %g\n\n',e_k7/norm(ka7));
 end 
 
 

@@ -7,9 +7,9 @@
 % degree is the maximum degree to be tested.
 %-------------------------------------------------------------------------------
 %%
-  n      = 16;
+  n      = 20;
   m      = 3;
-  degree = 3;
+  degree = 5;
   fprintf('example05: the maximum degree is %d\n',degree);
   
   T  = 200;    % this is T=\infty...

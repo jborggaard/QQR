@@ -177,6 +177,123 @@ function [x] = KroneckerSumSolver(A,b,degree)
       
       x = X(:);
 
+    case 6 % the degree=6 case
+
+      X = zeros(n,n^6);
+      B = reshape(b,n,n^6);
+
+      for j7=n:-1:1
+        j7Range = j7+1:n;
+        for j6=n:-1:1
+          j6Range = j6+1:n;
+          for j5=n:-1:1
+            j5Range = j5+1:n;
+            for j4=n:-1:1
+              j4Range = j4+1:n;
+              for j3=n:-1:1
+                j3Range = j3+1:n;
+                for j2=n:-1:1
+                  j2Range = j2+1:n;
+
+                  At = A{1} + (A{2}(j2,j2)+A{3}(j3,j3)+A{4}(j4,j4)+A{5}(j5,j5)+A{6}(j6,j6)+A{7}(j7,j7))*eye(n);
+                  rhs = B(:,j2+(j3-1)*n+(j4-1)*n^2+(j5-1)*n^3+(j6-1)*n^4+(j7-1)*n^5);
+
+                  if (~isempty(j2Range))
+                    rhs = rhs - X(:,j2Range+(j3-1)*n+(j4-1)*n^2+(j5-1)*n^3+(j6-1)*n^4+(j7-1)*n^5)*A{2}(j2,j2Range).';
+                  end
+
+                  if (~isempty(j3Range))
+                    rhs = rhs - X(:,j2+(j3Range-1)*n+(j4-1)*n^2+(j5-1)*n^3+(j6-1)*n^4+(j7-1)*n^5)*A{3}(j3,j3Range).';
+                  end
+
+                  if (~isempty(j4Range))
+                    rhs = rhs - X(:,j2+(j3-1)*n+(j4Range-1)*n^2+(j5-1)*n^3+(j6-1)*n^4+(j7-1)*n^5)*A{4}(j4,j4Range).';
+                  end
+
+                  if (~isempty(j5Range))
+                    rhs = rhs - X(:,j2+(j3-1)*n+(j4-1)*n^2+(j5Range-1)*n^3+(j6-1)*n^4+(j7-1)*n^5)*A{5}(j5,j5Range).';
+                  end
+
+                  if (~isempty(j6Range))
+                    rhs = rhs - X(:,j2+(j3-1)*n+(j4-1)*n^2+(j5-1)*n^3+(j6Range-1)*n^4+(j7-1)*n^5)*A{6}(j6,j6Range).';
+                  end
+
+                  if (~isempty(j7Range))
+                    rhs = rhs - X(:,j2+(j3-1)*n+(j4-1)*n^2+(j5-1)*n^3+(j6-1)*n^4+(j7Range-1)*n^5)*A{7}(j7,j7Range).';
+                  end
+
+                  X(:,j2+(j3-1)*n+(j4-1)*n^2+(j5-1)*n^3+(j6-1)*n^4+(j7-1)*n^5) = At\rhs;
+                end
+              end
+            end
+          end
+        end   
+      end
+      
+      x = X(:);
+
+    case 7 % the degree=7 case
+
+      X = zeros(n,n^7);
+      B = reshape(b,n,n^7);
+
+      for j8=n:-1:1
+        j8Range = j8+1:n;
+        for j7=n:-1:1
+          j7Range = j7+1:n;
+          for j6=n:-1:1
+            j6Range = j6+1:n;
+            for j5=n:-1:1
+              j5Range = j5+1:n;
+              for j4=n:-1:1
+                j4Range = j4+1:n;
+                for j3=n:-1:1
+                  j3Range = j3+1:n;
+                  for j2=n:-1:1
+                    j2Range = j2+1:n;
+
+                    At = A{1} + (A{2}(j2,j2)+A{3}(j3,j3)+A{4}(j4,j4)+A{5}(j5,j5)+A{6}(j6,j6)+A{7}(j7,j7)+A{8}(j8,j8))*eye(n);
+                    rhs = B(:,j2+(j3-1)*n+(j4-1)*n^2+(j5-1)*n^3+(j6-1)*n^4+(j7-1)*n^5+(j8-1)*n^6);
+
+                    if (~isempty(j2Range))
+                      rhs = rhs - X(:,j2Range+(j3-1)*n+(j4-1)*n^2+(j5-1)*n^3+(j6-1)*n^4+(j7-1)*n^5+(j8-1)*n^6)*A{2}(j2,j2Range).';
+                    end
+
+                    if (~isempty(j3Range))
+                      rhs = rhs - X(:,j2+(j3Range-1)*n+(j4-1)*n^2+(j5-1)*n^3+(j6-1)*n^4+(j7-1)*n^5+(j8-1)*n^6)*A{3}(j3,j3Range).';
+                    end
+
+                    if (~isempty(j4Range))
+                      rhs = rhs - X(:,j2+(j3-1)*n+(j4Range-1)*n^2+(j5-1)*n^3+(j6-1)*n^4+(j7-1)*n^5+(j8-1)*n^6)*A{4}(j4,j4Range).';
+                    end
+
+                    if (~isempty(j5Range))
+                      rhs = rhs - X(:,j2+(j3-1)*n+(j4-1)*n^2+(j5Range-1)*n^3+(j6-1)*n^4+(j7-1)*n^5+(j8-1)*n^6)*A{5}(j5,j5Range).';
+                    end
+
+                    if (~isempty(j6Range))
+                      rhs = rhs - X(:,j2+(j3-1)*n+(j4-1)*n^2+(j5-1)*n^3+(j6Range-1)*n^4+(j7-1)*n^5+(j8-1)*n^6)*A{6}(j6,j6Range).';
+                    end
+
+                    if (~isempty(j7Range))
+                      rhs = rhs - X(:,j2+(j3-1)*n+(j4-1)*n^2+(j5-1)*n^3+(j6-1)*n^4+(j7Range-1)*n^5+(j8-1)*n^6)*A{7}(j7,j7Range).';
+                    end
+
+                    if (~isempty(j8Range))
+                      rhs = rhs - X(:,j2+(j3-1)*n+(j4-1)*n^2+(j5-1)*n^3+(j6-1)*n^4+(j7-1)*n^5+(j8Range-1)*n^6)*A{8}(j8,j8Range).';
+                    end
+
+                    X(:,j2+(j3-1)*n+(j4-1)*n^2+(j5-1)*n^3+(j6-1)*n^4+(j7-1)*n^5+(j8-1)*n^6) = At\rhs;
+                  end
+                end
+              end
+            end
+          end   
+        end
+      end
+      
+      x = X(:);
+
     otherwise
       error('not yet implemented')
   end

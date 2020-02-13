@@ -11,7 +11,13 @@ function [ka,py] = runNST(A,B,Q,R,N,degree)
   tic
   x=sym('x',[n,1]); %  state variables 
   u=sym('u',[m,1]); %  control variables
-  f = A*x + B*u + N*kron(x,x);
+  if ( iscell(N) )
+    if ( length(N)==3 )
+      f = A*x + B*u + N{2}*kron(x,x) + N{3}*kron(kron(x,x),x);
+    end
+  else
+    f = A*x + B*u + N*kron(x,x);
+  end
   
   x0 = zeros(n,1); u0 = zeros(m,1);
   % control Lagrangian 

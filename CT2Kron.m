@@ -1556,8 +1556,14 @@ function [S] = CT2Kron(n,degree)
 
       S = sparse( II,JJ,SS,n^5,n*(n+1)*(n+2)*(n+3)*(n+4)/120 );
 
+    case 6
+      S = CT2Kron6(n,degree);
+      
+    case 7
+      S = CT2Kron7(n,degree);
+
     otherwise
-      error('degrees higher than 5 haven''t been implemented yet.')
+      error('degrees higher than 7 haven''t been implemented yet.')
       
   end % switch degree
   

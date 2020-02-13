@@ -7,7 +7,7 @@
 %  Part of the QQR library.
 
 n = 4;
-d = 6;
+d = 7;
 
 x = sym('x',[n,1]);
 kk = x;

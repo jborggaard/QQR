@@ -1560,8 +1560,11 @@ function [S] = Kron2CT(n,degree)
     case 6
       [S] = Kron2CT6(n,degree);
       
+    case 7
+      [S] = Kron2CT7(n,degree);
+      
     otherwise
-      error('degrees higher than 6 haven''t been implemented yet.')
+      error('degrees higher than 7 haven''t been implemented yet.')
     
   end % switch degree
   
