@@ -13,6 +13,8 @@
 %
 %  testcase 6 - simple first-order problem
 %
+%  testcase 8 - connected van der Pol oscillators
+%
 %  if testNST==true
 %  - solutions from NST are provided in the ka and py arrays.
 %
@@ -26,11 +28,13 @@
 %
 %  Part of the QQR library.
 %%
+  addpath('./kronecker')
+
 %  Set up test examples, problem dimensions (order), and degree of feedback
 
   addpath('./examples')
   
-  testcase = 4;
+  testcase = 8;
 
   %  Flag those methods used for the current test (NST is reqd for errors)
   testNST    = false;
@@ -122,6 +126,15 @@
     degree =  5;  % degree of optimal feedback
 
     example06
+        
+  elseif ( testcase==8 )
+    %  A ring of van der Pol oscillators to test feedback controls in a system
+    %  with a cubic nonlinearity.
+    No     =  2;  % number of van der Pol oscillators ( n=2*No )
+    m      =  2;  % control dimension
+    degree =  5;  % degree of optimal feedback
+
+    example08
         
   end
   

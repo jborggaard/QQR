@@ -18,11 +18,13 @@
 %
 %  Part of the QQR library.
 %%
+  addpath('./kronecker')
+  
 %  Set up test examples, problem dimensions (order), and degree of feedback
 
   addpath('./examples')
   
-  testcase = 5;
+  testcase = 3;
 
   %  Flag those methods used for the current test (NST is reqd for errors)
   testNST    = false;
@@ -32,9 +34,9 @@
   %%
     %  To test the code, we chose n=10:2:20, m=2, degree=2:3
     
-    n      =  8;  % state dimension
-    m      =  2;  % control dimension
-    degree =  4;  % degree of optimal feedback
+    n      =  2;  % state dimension
+    m      =  1;  % control dimension
+    degree =  5;  % degree of optimal feedback
 
     example03
   
