@@ -69,8 +69,8 @@
   end
   if ( m>2 )
     if ( No>3 )
-      B(10,3) = 1;
-      if ( m>3 )
+      B(8,3) = 1;
+      if ( m>3 && No>6)
         B(12,4) = 1;
       end
     else

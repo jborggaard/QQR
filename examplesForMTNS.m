@@ -18,7 +18,7 @@
 %
 %  Part of the QQR library.
 %%
-  addpath('./kronecker')
+  setKroneckerSumPath
   
 %  Set up test examples, problem dimensions (order), and degree of feedback
 
@@ -86,8 +86,8 @@
     %  For the MTNS submission
     %  A ring of van der Pol oscillators to test feedback controls in a system
     %  with a cubic nonlinearity.
-    No     =  8;  % number of van der Pol oscillators ( n=2*No )
-    m      =  4;  % control dimension
+    No     =  6;  % number of van der Pol oscillators ( n=2*No )
+    m      =  2;  % control dimension
     degree =  5;  % degree of optimal feedback
 
     example08

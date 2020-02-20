@@ -28,7 +28,7 @@
 %
 %  Part of the QQR library.
 %%
-  addpath('./kronecker')
+  setKroneckerSumPath
 
 %  Set up test examples, problem dimensions (order), and degree of feedback
 
@@ -130,7 +130,7 @@
   elseif ( testcase==8 )
     %  A ring of van der Pol oscillators to test feedback controls in a system
     %  with a cubic nonlinearity.
-    No     =  2;  % number of van der Pol oscillators ( n=2*No )
+    No     =  4;  % number of van der Pol oscillators ( n=2*No )
     m      =  2;  % control dimension
     degree =  5;  % degree of optimal feedback
 
