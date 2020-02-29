@@ -1,7 +1,7 @@
 function [k,v] = pqr(A,B,Q,R,N,degree,solver)
 %PQR Albrecht's approximation to the polynomial-quadratic-regulator problem
 %   A polynomial system is provided in Kronecker product form
-%     \dot{x} = A*x + B*u + N{2}*kron(x,x) + N{3}*kron(x,x,x) + ...,  
+%     \dot{x} = A*x + B*u + N{2}*kron(x,x) + N{3}*kron(kron(x,x),x) + ...,  
 %   with running cost
 %     \ell(x,u) = x'*Q*x + u'*R*u
 %
@@ -26,10 +26,45 @@ function [k,v] = pqr(A,B,Q,R,N,degree,solver)
 %   The elements of v and k are returned in a cell array:
 %    v{2} = v2, v{3} = v3, etc.   and   k{1} = k1, k{2} = k2, etc.
 %
-%   Usage:  [k,v] = pqr(A,B,Q,R,N,degree)
+%   Usage:  [k,v] = pqr(A,B,Q,R,N,degree);
 %
-%   if A is (n \times n) and B is (n \times m), then for each 1<=l<=degree
-%    v{l+1} is (1 \times n^(l+1)) and k{l} is (m \times n^l).
+%   Inputs:
+%     A  
+%        system matrix of size [n,n]
+%     B  
+%        control inputs matrix of size [n,m] (A,B) is a controllable pair
+%     Q  
+%        a symmetric, positive-semidefinite matrix of size [n,n]
+%     R  
+%        a symmetric, positive-definite matrix of size [m,m]
+%     N  
+%        a cell array of matrices that describe higher-order polynomial terms
+%        when expressed in Kronecker form 
+%        N{1} is unused
+%        N{2} is of size [n,n^2]
+%        N{3} is of size [n,n^3]
+%        etc. up to the degree of the system
+%     degree
+%        the degree of the computed control law
+%     solver
+%        (optional) an argument to override the automatic selection of 
+%        linear solvers for the Kronecker sum systems
+%        'LaplaceRecursive'
+%           use the tensor_recursive solver by Chen and Kressner if present
+%        'LyapunovRecursive'
+%           uses a modified version of the above solver if present
+%        'BartelsStewart'    (default)
+%           solve using an n-Way generalization of the Bartels-Stewart
+%           algorithm as described in the reference given below. 
+%
+%   Outputs:
+%     k
+%        a cell array of the polynomial feedback terms
+%        term k{l} is of size [m,n^l], l=1,...,degree
+%     v
+%        a cell array of the value function terms
+%        term v{l+1} is of size [1,n^(l+1)], l=1,...,degree
+%
 %
 %   The construction of the Kronecker system from Al'Brecht's expansion and 
 %   its solution is found using an N-Way version of the Bartels-Stewart alg.

@@ -1,9 +1,15 @@
 # QQR
-Software to approximately solve the quadratic-quadratic regulator problem.  The description of the algorithm is given in the paper
+Software to approximately solve the quadratic-quadratic regulator (QQR) and polynomial-quadratic regulator (PQR) problems.  The description of the algorithms are provided in the papers
 
-- *The Quadratic-Quadratic Regulator Problem: Approximating feedback controls for quadratic-in-state nonlinear systems, submitted.* 
+- *The Quadratic-Quadratic Regulator Problem: Approximating feedback controls for quadratic-in-state nonlinear systems, to appear.* 
 
-by Jeff Borggaard and Lizette Zietsman (full reference included below)
+by Jeff Borggaard and Lizette Zietsman
+
+and 
+
+- *On Approximating Polynomial-Quadratic Regulator Problems, submitted.*
+
+by Jeff Borggaard and Lizette Zietsman (full references included below).
 
 ## Installation Notes
 Clone this repository: 
@@ -44,7 +50,7 @@ The variable _v_ is a cell array with _v{2}_ being n-by-n^2 , up to _v{degree+1}
 
 For details on how to run **qqr**, type
 ```
-  help qqr
+>>  help qqr
 ```
 
 for examples how to run **qqr** see those in
@@ -56,7 +62,32 @@ as well as
   example4.m  and  example5.m
 ```
 
+## How to use pqr
+
+With the same assumptions on A,B,Q,R as in _qqr_, but we now allow for higher degree polynomial terms by defining N to be a cell array _N{2}_ is n-by-n^2, _N{3}_ is n-by n^3, etc. (the _N{1}_ term is ignored).  The controlled polynomial system is then described as
+```
+ \dot{x} = A*x + B*u + N{2}*kron(x,x) + N{3}*kron(kron(x,x),x) + ... N{p}*kron(...kron(x,x),x)
+```
+
+```
+>>  [k,v] = pqr(A,B,Q,R,N,degree);
+```
+The description of the feedback coefficients _k_ and value function coefficients _v_ are exactly as in _qqr_ above.
+
+For details on how to run **pqr**, type
+```
+>>  help pqr
+```
+
 ## Description of Files
+#### setKroneckerSumPath
+
+Defines the path where functions for working with Kronecker product expressions as well as the optional tensor_recursive solver is stored.
+
+#### setNSTpath
+
+Defines the path where the Nonlinear Systems Toolbox by Krener is located.  This is optional and only used for testing and debugging.
+
 #### AlbrechtKronQQR
 
 Builds and solves the full Kronecker product form of the polynomial approximation to the HJB equation.  Schur decomposition of A+Bk{1} should be performed to produce an upper triangular system.  This would still be an O(n^2degree ) algorithm and prohibitively expensive.
@@ -81,42 +112,48 @@ There mappings are used to balance coefficients of the feedback and value functi
 
 Efficiently computes the product of a special Kronecker sum matrix (aka an N-Way Lyapunov matrix) with a vector.  This is done by reshaping the vector, performing matrix-matrix products, then reshaping the answer.  We could also utilize the matrization of the associated tensor.
 
-#### setNSTpath
-
-Defines the path where the Nonlinear Systems Toolbox by Krener is located.  This is optional and only used for testing and debugging.
-
 ## Examples
 
-### example1.m
+### example01.m
 
 Solves the control problem for randomly generated systems.  Some systems are nearly uncontrollable, others have near zero coefficients, so relative errors could be large.
 
-### example2.m
+### example02.m
 
-Solves a control problem using a discretization of the 1-dimensional Burgers equation (found in the Burgers1DControl directory).  The control inputs are spatially distributed uniform sources.
+Solves a control problem using a discretization of the 1-dimensional Burgers equation (found in the included Burgers1DControl directory).  The control inputs are spatially distributed uniform sources.
 
-### example3.m 
+### example03.m 
 
 Similar to example1.m, except we force A to be negative-definite, symmetric.
 
-### example4.m
+### example04.m
 
 Compare feedback strategies for the Lorenz system.
 
-### example5.m
+### example05.m
 
 Similar to example2.m, except we consider a linear reaction term and use a better change-of-variables to convert the discretized system to an explicit system of controlled differential equations.
 
-### example6.m
+### example06.m
 
 A simple first-order system where we can investigate convergence of the value function (by plotting it).
+
+### example07.m
+
+A first order cubic control system introduced in Sakamoto and van der Schaft, 2007.
+
+### example08.m
+
+A ring of van der Pol oscillators.  This example can generate arbitrarily large systems of cubic equations.  The region of attraction varies with the degree of feedback control.
+
 
 ### References
 ```
   @misc{borggaard2019quadraticquadratic,
     title={The Quadratic-Quadratic Regulator Problem: 
      Approximating feedback controls for quadratic-in-state nonlinear systems},
-    author={Jeff Borggaard and Lizette Zietsman},
+    author={Jeff Borggaard and Lizette Zietsman}, 
+    note={to appear in the Proceedings of the 2020 American Conference on Control},
     year={2019},
     eprint={1910.03396},
     archivePrefix={arXiv},
@@ -124,3 +161,11 @@ A simple first-order system where we can investigate convergence of the value fu
 }
 ```
 
+```
+  @misc{borggaard2020polynomialquadratic,
+    title={On Approximating Polynomial-Quadratic Regulator Problems},
+    author={Jeff Borggaard and Lizette Zietsman},
+    year={2020},
+    note={submitted}
+}
+```

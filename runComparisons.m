@@ -29,6 +29,10 @@
 
 verbose = true;   % writes out Kron<->CT mapping times.
 
+setKroneckerSumPath
+setNSTpath
+addpath('./testScripts')
+
 % this script is fairly useless without the NST solution
 [ka,py] = runNST(A,B,Q,R,N,degree);
 py = 2*py;   % NST assumes an additional factor of 1/2 that we don't.

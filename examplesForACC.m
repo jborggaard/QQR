@@ -25,6 +25,7 @@
 
 %  Set up test examples, problem dimensions (order), and degree of feedback
   addpath('./examples')  % location of example problems
+  addpath('./testScripts')
   
   testcase = 3;
 
