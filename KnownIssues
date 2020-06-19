@@ -12,6 +12,6 @@
    for more meaningful linear system solve comparisons.  Since this was just
    a development crutch, further changes to this code aren't likely.
 
-4. 
+4. Add bilinear terms in the state and control objective
 
 
