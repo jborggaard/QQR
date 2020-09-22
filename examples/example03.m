@@ -7,7 +7,7 @@
   
   % produce a random orthogonal matrix to build an SPD matrix
   Z = rand(n,n); [Q,~] = qr(Z);
-  A = -Z*diag(rand(n,1))*Z';
+  A = -Q*diag(rand(n,1))*Q';
   
   B = rand(n,m);
   

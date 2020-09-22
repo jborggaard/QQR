@@ -24,7 +24,7 @@
 
   addpath('./examples')
   
-  testcase = 3;
+  testcase = 8;
 
   %  Flag those methods used for the current test (NST is reqd for errors)
   testNST    = false;

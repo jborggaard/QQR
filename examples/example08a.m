@@ -1,5 +1,5 @@
 %-------------------------------------------------------------------------------
-%EXAMPLE08 Compares feedback strategies for a coupled system of van der Pol
+%EXAMPLE08a Compares feedback strategies for a coupled system of van der Pol
 % oscillators.
 %
 %    \ddot{x}_i = a_i (1-x_i^2) \dot{x}_i - x_i + u_i,
@@ -7,15 +7,15 @@
 %-------------------------------------------------------------------------------
 %%
   if ( ~exist('g','var') )
-    fprintf('example08: using default values\n')
-    g      = 4;   % number of van der Pol oscillators
+    fprintf('example08a: using default values\n')
+    g      = 8;   % number of van der Pol oscillators
     Cidx   = [1 2];
     degree = 5;
   end
 
   n      = 2*g;
   m      = length(Cidx);
-  fprintf('example08: the maximum degree is %d\n',degree);
+  fprintf('example08a: the maximum degree is %d\n',degree);
 
   a  = ones(g,1);   % viscous damping parameter
   b  = ones(g,1);   % coupling parameter
@@ -74,7 +74,7 @@
   R  = eye(m);
 
   T  = 50;    % this is T=\infty...
-  x0 = [0.3*ones(g,1), zeros(g,1)].';  x0 = x0(:);
+  x0 = [0.03*ones(g,1), zeros(g,1)].';  x0 = x0(:);
 
    [k,v] = cqr(A,B,Q,R,N,degree,'LyapunovRecursive'); 
 %  [k,v] = cqr(A,B,Q,R,N,degree,'BartelsStewart'); 
