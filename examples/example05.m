@@ -7,9 +7,13 @@
 % degree is the maximum degree to be tested.
 %-------------------------------------------------------------------------------
 %%
-  n      = 20;
-  m      = 3;
-  degree = 5;
+  if (exist('setParams','var') && ~setParams)
+    n      = 20;
+    m      = 3;
+    degree = 5;
+  end
+  fprintf('example05: the order of the system is %d\n',n);
+  fprintf('example05: the number of controls inputs is %d\n',m);
   fprintf('example05: the maximum degree is %d\n',degree);
   
   T  = 200;    % this is T=\infty...
@@ -53,7 +57,7 @@
     Qc = M;  R = 10*eye(m);
   end
 
-  xNodes = linspace(0,1,n);
+  xNodes = linspace(0,1,n+1);
 
   tic
     [k,v] = qqr(Ac,Bc,Qc,R,Nc,degree,false);
@@ -86,7 +90,7 @@
   
     [t,x] = ode15s( rhs_open, [0 T], [x0;0], options );  
     figure(1); hold on
-    mesh(xNodes,t,x(:,1:end-1))
+    mesh(xNodes,t,[x(:,1:end-1), x(:,1)])
     xlabel('x'); ylabel('time')
     title('Open Loop Simulation')
     view([1 -1 1])
@@ -109,7 +113,7 @@
   
   [t1,x1] = ode23s( rhs_k1, [0 T], [x0;0], options );
   figure(10); hold on
-  mesh(xNodes,t1,x1(:,1:end-1))
+  mesh(xNodes,t1,[x1(:,1:end-1),x1(:,1)])
   xlabel('x'); ylabel('time')
   title('Closed-Loop Simulation with k^{[1]}')
   axis([0 1 -0.1 5 -.4 .6])  
@@ -133,7 +137,7 @@
     [t2,x2] = ode23s( rhs_k2, [0 T], [x0;0], options );
 
     figure(20); hold on
-    mesh(xNodes,t2,x2(:,1:end-1))
+    mesh(xNodes,t2,[x2(:,1:end-1),x2(:,1)])
     xlabel('x'); ylabel('time')
     title('Closed-Loop Simulation with k^{[2]}')
     axis([0 1 -0.1 5 -.4 .6])  
@@ -161,7 +165,7 @@
     [t3,x3] = ode23s( rhs_k3, [0 T], [x0;0], options );
 
     figure(30); hold on
-    mesh(xNodes,t3,x3(:,1:end-1))
+    mesh(xNodes,t3,[x3(:,1:end-1),x3(:,1)])
     xlabel('x'); ylabel('time')
     title('Closed-Loop Simulation with k^{[3]}')
     axis([0 1 -0.1 5 -.4 .6])  
@@ -195,7 +199,7 @@
     [t4,x4] = ode23s( rhs_k4, [0 T], [x0;0], options );
 
     figure(40); hold on
-    mesh(xNodes,t4,x4(:,1:end-1))
+    mesh(xNodes,t4,[x4(:,1:end-1),x4(:,1)])
     xlabel('x'); ylabel('time')
     title('Closed-Loop Simulation with k^{[4]}')
     axis([0 1 -0.1 5 -.4 .6])  
@@ -229,7 +233,7 @@
     [t5,x5] = ode23s( rhs_k5, [0 T], [x0;0], options );
 
     figure(50); hold on
-    mesh(xNodes,t5,x5(:,1:end-1))
+    mesh(xNodes,t5,[x5(:,1:end-1),x5(:,1)])
     xlabel('x'); ylabel('time')
     title('Closed-Loop Simulation with k^{[5]}')
     axis([0 1 -0.1 5 -.4 .6])  
@@ -240,6 +244,81 @@
     fprintf('Actual closed-loop cost (0,T) is: %g\n\n',x5(end,end));
   
   end
+  
+  if ( degree>5 )
+    %---------------------------------------------------------------------------
+    %  Hexic feedback
+    %---------------------------------------------------------------------------
+    v7 = v{7};
+    computeU6   = @(x) k{1}*x                                        + ...
+                       k{2}*kron(x,x)                                + ...
+                       k{3}*kron(kron(x,x),x)                        + ...
+                       k{4}*kron(kron(kron(x,x),x),x)                + ...
+                       k{5}*kron(kron(kron(kron(x,x),x),x),x)        + ...
+                       k{6}*kron(kron(kron(kron(kron(x,x),x),x),x),x);
+    computeU3_6 = @(x) k{3}*kron(kron(x,x),x)                        + ...
+                       k{4}*kron(kron(kron(x,x),x),x)                + ...
+                       k{5}*kron(kron(kron(kron(x,x),x),x),x)        + ...
+                       k{6}*kron(kron(kron(kron(kron(x,x),x),x),x),x);
+    rhs_k6 = @(t,x) [ APBK*x(1:end-1)                                + ...
+                      NPBK2*kron(x(1:end-1),x(1:end-1))              + ...      
+                      B*computeU3_6(x(1:end-1));                       ...
+                      x(1:end-1).'*Q*x(1:end-1)                      + ...
+                      computeU6(x(1:end-1)).'*R*computeU6(x(1:end-1)) ];
+  
+    [t6,x6] = ode23s( rhs_k6, [0 T], [x0;0], options );
+
+    figure(60); hold on
+    mesh(xNodes,t6,[x6(:,1:end-1),x6(:,1)])
+    xlabel('x'); ylabel('time')
+    title('Closed-Loop Simulation with k^{[6]}')
+    axis([0 1 -0.1 5 -.4 .6])  
+    view([1 -1 1])
+
+    c7 = c6 + v7*kron(kron(kron(kron(kron(kron(x0,x0),x0),x0),x0),x0),x0);
+    fprintf('Approx regulator cost to v^[7]:   %g\n',c7)
+    fprintf('Actual closed-loop cost (0,T) is: %g\n\n',x6(end,end));
+  
+  end
+  
+  if ( degree>6 )
+    %---------------------------------------------------------------------------
+    %  Septic feedback
+    %---------------------------------------------------------------------------
+    v8 = v{8};
+    computeU7   = @(x) k{1}*x                                        + ...
+                       k{2}*kron(x,x)                                + ...
+                       k{3}*kron(kron(x,x),x)                        + ...
+                       k{4}*kron(kron(kron(x,x),x),x)                + ...
+                       k{5}*kron(kron(kron(kron(x,x),x),x),x)        + ...
+                       k{6}*kron(kron(kron(kron(kron(x,x),x),x),x),x)+ ...
+                       k{7}*kron(kron(kron(kron(kron(kron(x,x),x),x),x),x),x);
+    computeU3_7 = @(x) k{3}*kron(kron(x,x),x)                        + ...
+                       k{4}*kron(kron(kron(x,x),x),x)                + ...
+                       k{5}*kron(kron(kron(kron(x,x),x),x),x)        + ...
+                       k{6}*kron(kron(kron(kron(kron(x,x),x),x),x),x)+ ...
+                       k{7}*kron(kron(kron(kron(kron(kron(x,x),x),x),x),x),x);
+    rhs_k7 = @(t,x) [ APBK*x(1:end-1)                                + ...
+                      NPBK2*kron(x(1:end-1),x(1:end-1))              + ...      
+                      B*computeU3_7(x(1:end-1));                       ...
+                      x(1:end-1).'*Q*x(1:end-1)                      + ...
+                      computeU7(x(1:end-1)).'*R*computeU7(x(1:end-1)) ];
+  
+    [t7,x7] = ode23s( rhs_k7, [0 T], [x0;0], options );
+
+    figure(70); hold on
+    mesh(xNodes,t7,[x7(:,1:end-1),x7(:,1)])
+    xlabel('x'); ylabel('time')
+    title('Closed-Loop Simulation with k^{[7]}')
+    axis([0 1 -0.1 5 -.4 .6])  
+    view([1 -1 1])
+
+    c8 = c7 + v8*kron(kron(kron(kron(kron(kron(kron(x0,x0),x0),x0),x0),x0),x0),x0);
+    fprintf('Approx regulator cost to v^[8]:   %g\n',c8)
+    fprintf('Actual closed-loop cost (0,T) is: %g\n\n',x7(end,end));
+  
+  end
+  
   
   
 %   

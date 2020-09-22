@@ -26,7 +26,7 @@ function [k,v] = pqr(A,B,Q,R,N,degree,solver)
 %   The elements of v and k are returned in a cell array:
 %    v{2} = v2, v{3} = v3, etc.   and   k{1} = k1, k{2} = k2, etc.
 %
-%   Usage:  [k,v] = pqr(A,B,Q,R,N,degree);
+%   Usage:  [k,v] = pqr(A,B,Q,R,N,degree,solver);
 %
 %   Inputs:
 %     A  
@@ -71,7 +71,7 @@ function [k,v] = pqr(A,B,Q,R,N,degree,solver)
 %   cf.,
 %
 %     Borggaard and Zietsman, On Approximating Polynomial-Quadratic Regulator
-%       Problems, MTNS 2020, submitted.
+%       Problems, MTNS 2020, accepted.
 %
 %   Details about how to run this function, including necessary libraries
 %   and example scripts, can be found at https://github.com/jborggaard/QQR
@@ -405,24 +405,24 @@ function [k,v] = pqr(A,B,Q,R,N,degree,solver)
   end
   
   if ( degree>5 )
-    warning('qqr: Only controls of degree <=5 have been implemented so far')
+    warning('pqr: Only controls of degree <=5 have been implemented so far')
   end
   
   if ( verbose )
     if ( degree>1 )
-      fprintf('qqr: CPU time for degree 2 controls: %g\n',comp2);
+      fprintf('pqr: CPU time for degree 2 controls: %g\n',comp2);
     end
     
     if ( degree>2 )
-      fprintf('qqr: CPU time for degree 3 controls: %g\n',comp3);
+      fprintf('pqr: CPU time for degree 3 controls: %g\n',comp3);
     end
     
     if ( degree>3 )
-      fprintf('qqr: CPU time for degree 4 controls: %g\n',comp4);
+      fprintf('pqr: CPU time for degree 4 controls: %g\n',comp4);
     end
     
     if ( degree>4 )
-      fprintf('qqr: CPU time for degree 5 controls: %g\n',comp5);
+      fprintf('pqr: CPU time for degree 5 controls: %g\n',comp5);
     end
   end
 end
@@ -441,7 +441,7 @@ function [v] = solveKroneckerSystem(Al,bb,n,degree,solver)
       case 5
         v = lyapunov_recursive(Al,reshape(bb,n,n,n,n,n,n));
       otherwise
-        warning('qqr: degree not supported')
+        warning('pqr: degree not supported')
     end
     
   elseif ( strcmp(solver,'LaplaceRecursive') )
@@ -455,7 +455,7 @@ function [v] = solveKroneckerSystem(Al,bb,n,degree,solver)
       case 5
         v = laplace_recursive(Al,reshape(bb,n,n,n,n,n,n));
       otherwise
-        warning('qqr: degree not supported')
+        warning('pqr: degree not supported')
      end
 
   else
