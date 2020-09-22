@@ -112,7 +112,9 @@ function [k,v] = qqr(A,B,Q,R,N,degree,solver)
     tic
     
     ABKT = (A+B*K1).';
-    Al{1} = ABKT; Al{2} = ABKT; Al{3} = ABKT;
+    Al{1} = ABKT; 
+    Al{2} = ABKT; 
+    Al{3} = ABKT;
     bb = -LyapProduct(N.',v2,2);
 
     v3 = solveKroneckerSystem(Al,bb,n,2,solver);
@@ -291,7 +293,9 @@ function [k,v] = qqr(A,B,Q,R,N,degree,solver)
          -LyapProduct((B*K3  ).',v4,4) ...
          -LyapProduct((B*K4  ).',v3,3) ...
          ...%-bb;%
-       -( kron(K2.',K4.') +  kron(K3.',K3.') + kron(K4.',K2.') )*r2;
+       -( kron(K2.',K4.') + ...
+          kron(K3.',K3.') + ...
+          kron(K4.',K2.') )*r2;
        
     v6 = solveKroneckerSystem(Al,bb,n,5,solver);
     v6 = real(v6(:));
@@ -362,7 +366,8 @@ function [k,v] = qqr(A,B,Q,R,N,degree,solver)
     Al{7} = ABKT;
     
     % form the Kronecker portion of the RHS
-    %    -( kron(K2.',K5.') + kron(K3.',K4.')  + kron(K4.',K3.') + kron(K5.',K2.') )*r2
+    %    -( kron(K2.',K5.') + kron(K3.',K4.') + kron(K4.',K3.') + 
+    %       kron(K5.',K2.') )*r2
 %     tmp = K2.'*R*K5;
 %     bb  = tmp(:);
 %     tmp = tmp.';
@@ -378,7 +383,10 @@ function [k,v] = qqr(A,B,Q,R,N,degree,solver)
          -LyapProduct((B*K4  ).',v4,4) ...
          -LyapProduct((B*K5  ).',v3,3) ...
          ...%-bb;%
-       -( kron(K2.',K5.') + kron(K3.',K4.') + kron(K4.',K3.') + kron(K5.',K2.') )*r2;
+       -( kron(K2.',K5.') + ...
+          kron(K3.',K4.') + ...
+          kron(K4.',K3.') + ...
+          kron(K5.',K2.') )*r2;
        
     v7 = solveKroneckerSystem(Al,bb,n,6,solver);
     v7 = real(v7(:));
@@ -455,7 +463,11 @@ function [k,v] = qqr(A,B,Q,R,N,degree,solver)
     Al{8} = ABKT;
     
     % form the Kronecker portion of the RHS
-    %    -( kron(K2.',K6.') + kron(K3.',K5.') + kron(K4.',K4.') + kron(K5.',K3.') + kron(K6.',K2.') )*r2
+    %    -( kron(K2.',K6.') + ...
+    %       kron(K3.',K5.') + ...
+    %       kron(K4.',K4.') + ...
+    %       kron(K5.',K3.') + ...
+    %       kron(K6.',K2.') )*r2
 %     tmp = K2.'*R*K6;
 %     bb  = tmp(:);
 %     tmp = tmp.';
@@ -474,7 +486,11 @@ function [k,v] = qqr(A,B,Q,R,N,degree,solver)
          -LyapProduct((B*K5  ).',v4,4) ...
          -LyapProduct((B*K6  ).',v3,3) ...
          ...%-bb;%
-       -( kron(K2.',K6.') + kron(K3.',K5.') + kron(K4.',K4.') + kron(K5.',K3.') + kron(K6.',K2.') )*r2;
+       -( kron(K2.',K6.') + ...
+          kron(K3.',K5.') + ...
+          kron(K4.',K4.') + ...
+          kron(K5.',K3.') + ...
+          kron(K6.',K2.') )*r2;
        
     v8 = solveKroneckerSystem(Al,bb,n,7,solver);
     v8 = real(v8(:));
@@ -505,7 +521,7 @@ function [k,v] = qqr(A,B,Q,R,N,degree,solver)
   end
   
   if ( degree>7 )
-    warning('qqr: Only controls of degree <=6 have been implemented so far')
+    warning('qqr: Only controls of degree <=7 have been implemented so far')
   end
   
   if ( verbose )
@@ -576,6 +592,7 @@ function [v] = solveKroneckerSystem(Al,bb,n,degree,solver)
 
   else
     v = KroneckerSumSolver(Al,bb,degree);
+
   end
   
 end % function solveKroneckerSystem

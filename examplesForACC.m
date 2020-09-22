@@ -27,11 +27,11 @@
   addpath('./examples')  % location of example problems
   addpath('./testScripts')
   
-  testcase = 3;
+  testcase = 2;
 
-  n      =  4;   % state dimension
+  n      =  12;  % state dimension
   m      =  2;   % control dimension
-  degree =  7;   % degree of optimal feedback
+  degree =  5;   % degree of optimal feedback
 
   %  Flag those methods used for the current test (NST is reqd for error tables)
   testNST    = false;
@@ -45,13 +45,15 @@
 
   elseif ( testcase==2 )
   %%
-    %  For the ACC submission, we chose n=10:2:20, m=2, degree=2:3
+    %  For the ACC submission/final, we chose n=10:2:20, m=2, degree=2:3
     %  the full Kronecker solution wasn't calculated for 16:2:20
+    setParams = true;
     example02
+    setParams = false;
     
   elseif ( testcase==3 )
   %%
-    %  For the TAC submission, we chose n=10:2:20, m=2, degree=2:3
+    %  For the ACC final version, we chose n=6:2:20, m=1, degree=2:4
     %  the full Kronecker solution wasn't calculated for 16:2:20
     example03
     

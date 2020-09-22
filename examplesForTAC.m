@@ -34,7 +34,7 @@
 
   addpath('./examples')
   
-  testcase = 8;
+  testcase = 7;
 
   %  Flag those methods used for the current test (NST is reqd for errors)
   testNST    = false;
@@ -127,6 +127,11 @@
 
     example06
         
+  elseif ( testcase==7 )
+    
+    example07
+    axis([0 1.8 -.5 1.5])
+    
   elseif ( testcase==8 )
     %  A ring of van der Pol oscillators to test feedback controls in a system
     %  with a cubic nonlinearity.
