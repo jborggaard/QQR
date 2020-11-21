@@ -24,7 +24,7 @@ function [k,v] = qqr(A,B,Q,R,N,degree,solver)
 %   The elements of v and k are returned in a cell array:
 %    v{2} = v2, v{3} = v3, etc.   and   k{1} = k1, k{2} = k2, etc.
 %
-%   Usage:  [k,v] = qqr(A,B,Q,R,N,degree)
+%   Usage:  [k,v] = qqr(A,B,Q,R,N,degree);
 %
 %   if A is (n \times n) and B is (n \times m), then for each 1<=l<=degree
 %    v{l+1} is (1 \times n^(l+1)) and k{l} is (m \times n^l).
@@ -33,7 +33,7 @@ function [k,v] = qqr(A,B,Q,R,N,degree,solver)
 %   its solution using a recursive blocked algorithm by Chen and Kressner is
 %   detailed in
 %     Borggaard and Zietsman, The Quadratic-Quadratic Regulator: 
-%       Proc. American Conference on Control, Denver, CO, 2020.
+%       Proc. American Control Conference, Denver, CO, 2020.
 %
 %   Details about how to run this function, including necessary libraries
 %   and example scripts, can be found at https://github.com/jborggaard/QQR
@@ -70,14 +70,17 @@ function [k,v] = qqr(A,B,Q,R,N,degree,solver)
   %  Define the linear solver
   %=============================================================================
   if ( ~exist('solver','var') )
-    if ( exist('./kronecker/tensor_recursive/lyapunov_recursive.m','file') && n>1 )
-      % lyapunov_recursive is defined and is applicable
+    if ( exist('./kronecker/tensor_recursive/lyapunov_recursive.m','file')   ...
+        && n>1 )
+      % lyapunov_recursive exists and is applicable
       solver = 'LyapunovRecursive';
-    elseif ( exist('./kronecker/tensor_recursive/laplace_recursive.m','file') && n>1 )
-      % laplace_recursive is defined and is applicable
+    elseif ( exist('./kronecker/tensor_recursive/laplace_recursive.m','file')...
+        && n>1 )
+      % laplace_recursive exists and is applicable
       solver = 'LaplaceRecursive';
     else
       % either n=1 (which could also be treated separately) or testing N-Way
+      % this is also the default solver.
       solver = 'BartelsStewart';
     end
   end
@@ -202,10 +205,7 @@ function [k,v] = qqr(A,B,Q,R,N,degree,solver)
     % bb =-( kron(                 (B*K2+N).',   eye(n^3) ) +    ...
     %        kron( kron( eye(n  ), (B*K2+N).' ), eye(n^2) ) +    ...
     %        kron( kron( eye(n^2), (B*K2+N).' ), eye(n  ) ) +    ...
-    %        kron(       eye(n^3), (B*K2+N).'             ) )*v5 ...
-    %     -( kron(                 (B*K3  ).',   eye(n^2) ) +    ...
-    %        kron( kron( eye(n  ), (B*K3  ).' ), eye(n  ) ) +    ...
-    %        kron(       eye(n^2), (B*K3  ).'             ) )*v4 ...
+    %        kron(       eye(n^3), (B*K2+N).'             ) )*v4 ...
     %     -( kron(                 (B*K3  ).',   eye(n^2) ) +    ...
     %        kron( kron( eye(n  ), (B*K3  ).' ), eye(n  ) ) +    ...
     %        kron(       eye(n^2), (B*K3  ).'             ) )*v3 ...
@@ -590,6 +590,9 @@ function [v] = solveKroneckerSystem(Al,bb,n,degree,solver)
         warning('qqr: degree not supported')
      end
 
+  elseif ( strcmp(solver,'test') )
+    v = KroneckerSumSolverTest(Al,bb,degree);
+    
   else
     v = KroneckerSumSolver(Al,bb,degree);
 

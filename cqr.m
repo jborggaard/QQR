@@ -1,7 +1,7 @@
 function [k,v] = cqr(A,B,Q,R,N,degree,solver)
 %CQR Albrecht's approximation to the cubic-quadratic-regulator problem
 %   A cubic system is provided in Kronecker product form
-%     \dot{x} = A*x + B*u + N{2}*kron(x,x) + N{3}*kron(x,x,x),  
+%     \dot{x} = A*x + B*u + N{2}*kron(x,x) + N{3}*kron(x,kron(x,x)),  
 %   with running cost
 %     \ell(x,u) = x'*Q*x + u'*R*u
 %

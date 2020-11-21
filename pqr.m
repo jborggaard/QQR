@@ -85,16 +85,16 @@ function [k,v] = pqr(A,B,Q,R,N,degree,solver)
     
   verbose = true;   % a flag for more detailed output
   
-  % some input consistency checks: A nxn, B nxm, Q nxn SPSD, R mxm SPD, N nxn^2
+  % some input consistency checks: A nxn, B nxm, Q nxn SPSD, R mxm SPD
   n = size(A,1);
   m = size(B,2);
   
   if ( nargin>=6 )
-    classes      = {'numeric'};
-    attributesA  = {'size',[n,n]};  validateattributes(A ,classes,attributesA );
-    attributesB  = {'size',[n,m]};  validateattributes(B ,classes,attributesB );
-    attributesQ  = {'size',[n,n]};  validateattributes(Q ,classes,attributesQ );
-    attributesR  = {'size',[m,m]};  validateattributes(R ,classes,attributesR );
+    classes     = {'numeric'};
+    attributesA = {'size',[n,n]};     validateattributes(A,classes,attributesA);
+    attributesB = {'size',[n,m]};     validateattributes(B,classes,attributesB);
+    attributesQ = {'size',[n,n]};     validateattributes(Q,classes,attributesQ);
+    attributesR = {'size',[m,m]};     validateattributes(R,classes,attributesR);
   else
     error('pqr: expects at least 6 inputs');
   end
@@ -103,6 +103,7 @@ function [k,v] = pqr(A,B,Q,R,N,degree,solver)
     degree = 2;
   end
   
+  % input consistency check on dimensions of entries of the cell array N
   degN = length(N);
   if ( degN<2 )
     error('pqr: assumes at least quadratic nonlinearities')
@@ -121,7 +122,7 @@ function [k,v] = pqr(A,B,Q,R,N,degree,solver)
       solver = 'LyapunovRecursive';
     elseif ( exist('./kronecker/tensor_recursive/laplace_recursive.m','file')...
         && n>1 )
-      % laplace_recursive is defined and is applicable
+      % laplace_recursive exists and is applicable
       solver = 'LaplaceRecursive';
     else
       % either n=1 (which could also be treated separately) or testing N-Way
@@ -258,13 +259,12 @@ function [k,v] = pqr(A,B,Q,R,N,degree,solver)
     % bb =-( kron(                 (B*K2+N{2}).',   eye(n^3) ) +    ...
     %        kron( kron( eye(n  ), (B*K2+N{2}).' ), eye(n^2) ) +    ...
     %        kron( kron( eye(n^2), (B*K2+N{2}).' ), eye(n  ) ) +    ...
-    %        kron(       eye(n^3), (B*K2+N{2}).'             ) )*v5 ...
+    %        kron(       eye(n^3), (B*K2+N{2}).'             ) )*v4 ...
     %     -( kron(                 (B*K3+N{3}).',   eye(n^2) ) +    ...
     %        kron( kron( eye(n  ), (B*K3+N{3}).' ), eye(n  ) ) +    ...
-    %        kron(       eye(n^2), (B*K3+N{3}).'             ) )*v4 ...
-    %     -( kron(                 (B*K4+N{4}).',   eye(n^2) ) +    ...
-    %        kron( kron( eye(n  ), (B*K4+N{4}).' ), eye(n  ) ) +    ...
-    %        kron(       eye(n^2), (B*K4+N{4}).'             ) )*v3 ...
+    %        kron(       eye(n^2), (B*K3+N{3}).'             ) )*v3 ...
+    %     -( kron(                 (     N{4}).',   eye(n  ) ) +    ...
+    %        kron(       eye(n  ), (     N{4}).'             ) )*v2 ...
     %     -( kron(K2.',K3.') + kron(K3.',K2.') )*r2 ; 
     % v5 = AA\bb;
     

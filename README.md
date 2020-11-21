@@ -1,18 +1,19 @@
-# QQR
+# QQR  [![DOI](https://zenodo.org/badge/211403941.svg)](https://zenodo.org/badge/latestdoi/211403941)
 Software to approximately solve the quadratic-quadratic regulator (QQR) and polynomial-quadratic regulator (PQR) problems.  The description of the algorithms are provided in the papers
 
-- *The Quadratic-Quadratic Regulator Problem: Approximating feedback controls for quadratic-in-state nonlinear systems, to appear.* 
+- *The Quadratic-Quadratic Regulator Problem: Approximating feedback controls for quadratic-in-state nonlinear systems, American Control Conference, 2020.
+https://arxiv.org/abs/1910.03396* 
 
 by Jeff Borggaard and Lizette Zietsman
 
 and 
 
-- *On Approximating Polynomial-Quadratic Regulator Problems, submitted.*
+- *On Approximating Polynomial-Quadratic Regulator Problems, Mathematical Theory of Networks and Systems, 2020 (accepted). https://arxiv.org/abs/2009.11068*
 
-by Jeff Borggaard and Lizette Zietsman (full references included below).
+by Jeff Borggaard and Lizette Zietsman.
 
 ## Installation Notes
-Clone this repository: 
+Download and untar, or clone this repository: 
 ```
   git clone https://www.github.com/jborggaard/QQR
 ```
@@ -61,10 +62,18 @@ as well as
 ```
   example4.m  and  example5.m
 ```
+in the examples directory.
 
-## How to use pqr
+## How to use cqr and pqr
 
-With the same assumptions on A,B,Q,R as in _qqr_, but we now allow for higher degree polynomial terms by defining N to be a cell array _N{2}_ is n-by-n^2, _N{3}_ is n-by n^3, etc. (the _N{1}_ term is ignored).  The controlled polynomial system is then described as
+With the same assumptions on A,B,Q,R as in _qqr_, but we now allow for higher degree polynomial terms by defining N to be a cell array _N{2}_ is n-by-n^2, _N{3}_ is n-by n^3, etc. (the _N{1}_ term is ignored).  The controlled polynomial system is then described as either
+```
+ \dot{x} = A*x + B*u + N{2}*kron(x,x) + N{3}*kron(kron(x,x),x)
+```
+
+```
+>>  [k,v] = cqr(A,B,Q,R,N,degree);
+```
 ```
  \dot{x} = A*x + B*u + N{2}*kron(x,x) + N{3}*kron(kron(x,x),x) + ... N{p}*kron(...kron(x,x),x)
 ```
@@ -74,15 +83,16 @@ With the same assumptions on A,B,Q,R as in _qqr_, but we now allow for higher de
 ```
 The description of the feedback coefficients _k_ and value function coefficients _v_ are exactly as in _qqr_ above.
 
-For details on how to run **pqr**, type
+For details on how to run **cqr** or **pqr**, type
 ```
+>>  help cqr
 >>  help pqr
 ```
 
 ## Description of Files
 #### setKroneckerSumPath
 
-Defines the path where functions for working with Kronecker product expressions as well as the optional tensor_recursive solver is stored.
+Defines the path where functions for working with Kronecker product expressions as well as the optional tensor_recursive solver is stored.  The default settings should work but can be changed if the solver directories are located elsewhere.
 
 #### setNSTpath
 
@@ -166,6 +176,8 @@ A ring of van der Pol oscillators.  This example can generate arbitrarily large 
     title={On Approximating Polynomial-Quadratic Regulator Problems},
     author={Jeff Borggaard and Lizette Zietsman},
     year={2020},
-    note={submitted}
+    eprint={2009.11068},
+    archivePrefix={arXiv},
+    primaryClass{math.OC}
 }
 ```
