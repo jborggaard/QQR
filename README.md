@@ -163,8 +163,8 @@ A ring of van der Pol oscillators.  This example can generate arbitrarily large 
     title={The Quadratic-Quadratic Regulator Problem: 
      Approximating feedback controls for quadratic-in-state nonlinear systems},
     author={Jeff Borggaard and Lizette Zietsman}, 
-    note={to appear in the Proceedings of the 2020 American Conference on Control},
-    year={2019},
+    booktitle={Proceedings of the 2020 American Control Conference},
+    year={2020},
     eprint={1910.03396},
     archivePrefix={arXiv},
     primaryClass={math.OC}
