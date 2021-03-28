@@ -27,7 +27,7 @@ function [M,A,B,N,zInit] = BurgersFEMControl(n,m)
   n_triplets = 0;
 
   NN_loc = zeros(nel_dof,nel_dof,nel_dof);
-  b_loc = zeros(n_gauss,m);
+  b_loc = zeros(nel_dof,m);
   for n_el=1:n_elements
     % compute value of each test function and spatial derivatives
     % at the integration points (x_g - Gauss points, wt_g - Gauss weights)
@@ -42,7 +42,7 @@ function [M,A,B,N,zInit] = BurgersFEMControl(n,m)
     end
     
     for mm = 1:m
-      b_loc(:,mm) = chi(x_g,mm,m);
+      b_loc(:,mm) = oned_f_int(chi(x_g,mm,m),phi,wt_g);
     end
     
     z_loc  = zZero(x_g);

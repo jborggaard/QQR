@@ -163,8 +163,12 @@ function [k,v] = qqr(A,B,Q,R,N,degree,solver)
     tic
     
     Al{4} = ABKT;
-    bb = -LyapProduct((B*K2+N).',v3,3) ...
-         -kron(K2.',K2.')*r2;
+
+    %  compute terms involving r2
+    tmp =-K2.'*R*K2;
+    bb  = tmp(:);
+
+    bb = bb - LyapProduct((B*K2+N).',v3,3);
        
     v4 = solveKroneckerSystem(Al,bb,n,3,solver);
     v4 = real(v4(:));
@@ -215,9 +219,15 @@ function [k,v] = qqr(A,B,Q,R,N,degree,solver)
     tic
     
     Al{5} = ABKT;
-    bb = -LyapProduct((B*K2+N).',v4,4) ...
-         -LyapProduct((B*K3  ).',v3,3) ...
-         -( kron(K2.',K3.') + kron(K3.',K2.') )*r2;
+
+    %  Compute terms involving r2
+    tmp =-K3.'*R*K2;
+    bb  = tmp(:);
+    tmp = tmp.';
+    bb  = bb + tmp(:);
+
+    bb = bb - LyapProduct((B*K2+N).',v4,4) ...
+            - LyapProduct((B*K3  ).',v3,3);
        
     v5 = solveKroneckerSystem(Al,bb,n,4,solver);
     v5 = real(v5(:));
@@ -281,21 +291,17 @@ function [k,v] = qqr(A,B,Q,R,N,degree,solver)
     
     % form the Kronecker portion of the RHS
     %    -( kron(K2.',K4.') +  kron(K3.',K3.') + kron(K4.',K2.') )*r2
-%     tmp = K2.'*R*K4;
-%     bb  = tmp(:);
-%     tmp = tmp.';
-%     bb  = bb + tmp(:);
-%     tmp = K3.'*R*K3;
-%     bb  = bb + tmp(:);
+    tmp =-K2.'*R*K4;
+    bb  = tmp(:);
+    tmp = tmp.';
+    bb  = bb + tmp(:);
+    tmp =-K3.'*R*K3;
+    bb  = bb + tmp(:);
     
     % augment with the Kronecker sum products
-    bb = -LyapProduct((B*K2+N).',v5,5) ...
-         -LyapProduct((B*K3  ).',v4,4) ...
-         -LyapProduct((B*K4  ).',v3,3) ...
-         ...%-bb;%
-       -( kron(K2.',K4.') + ...
-          kron(K3.',K3.') + ...
-          kron(K4.',K2.') )*r2;
+    bb = bb - LyapProduct((B*K2+N).',v5,5) ...
+            - LyapProduct((B*K3  ).',v4,4) ...
+            - LyapProduct((B*K4  ).',v3,3);
        
     v6 = solveKroneckerSystem(Al,bb,n,5,solver);
     v6 = real(v6(:));
@@ -368,25 +374,20 @@ function [k,v] = qqr(A,B,Q,R,N,degree,solver)
     % form the Kronecker portion of the RHS
     %    -( kron(K2.',K5.') + kron(K3.',K4.') + kron(K4.',K3.') + 
     %       kron(K5.',K2.') )*r2
-%     tmp = K2.'*R*K5;
-%     bb  = tmp(:);
-%     tmp = tmp.';
-%     bb  = bb + tmp(:);
-%     tmp = K3.'*R*K4;
-%     bb  = bb + tmp(:);
-%     tmp = tmp.';
-%     bb  = bb + tmp(:);
+    tmp =-K5.'*R*K2;
+    bb  = tmp(:);
+    tmp = tmp.';
+    bb  = bb + tmp(:);
+    tmp =-K4.'*R*K3;
+    bb  = bb + tmp(:);
+    tmp = tmp.';
+    bb  = bb + tmp(:);
     
     % augment with the Kronecker sum products
-    bb = -LyapProduct((B*K2+N).',v6,6) ...
-         -LyapProduct((B*K3  ).',v5,5) ...
-         -LyapProduct((B*K4  ).',v4,4) ...
-         -LyapProduct((B*K5  ).',v3,3) ...
-         ...%-bb;%
-       -( kron(K2.',K5.') + ...
-          kron(K3.',K4.') + ...
-          kron(K4.',K3.') + ...
-          kron(K5.',K2.') )*r2;
+    bb = bb - LyapProduct((B*K2+N).',v6,6) ...
+            - LyapProduct((B*K3  ).',v5,5) ...
+            - LyapProduct((B*K4  ).',v4,4) ...
+            - LyapProduct((B*K5  ).',v3,3) ...
        
     v7 = solveKroneckerSystem(Al,bb,n,6,solver);
     v7 = real(v7(:));
@@ -468,29 +469,23 @@ function [k,v] = qqr(A,B,Q,R,N,degree,solver)
     %       kron(K4.',K4.') + ...
     %       kron(K5.',K3.') + ...
     %       kron(K6.',K2.') )*r2
-%     tmp = K2.'*R*K6;
-%     bb  = tmp(:);
-%     tmp = tmp.';
-%     bb  = bb + tmp(:);
-%     tmp = K3.'*R*K5;
-%     bb  = bb + tmp(:);
-%     tmp = tmp.';
-%     bb  = bb + tmp(:);
-%     tmp = K4.'*R*K4;
-%     bb  = bb + tmp(:);
+    tmp =-K6.'*R*K2;
+    bb  = tmp(:);
+    tmp = tmp.';
+    bb  = bb + tmp(:);
+    tmp =-K5.'*R*K3;
+    bb  = bb + tmp(:);
+    tmp = tmp.';
+    bb  = bb + tmp(:);
+    tmp =-K4.'*R*K4;
+    bb  = bb + tmp(:);
     
     % augment with the Kronecker sum products
-    bb = -LyapProduct((B*K2+N).',v7,7) ...
-         -LyapProduct((B*K3  ).',v6,6) ...
-         -LyapProduct((B*K4  ).',v5,5) ...
-         -LyapProduct((B*K5  ).',v4,4) ...
-         -LyapProduct((B*K6  ).',v3,3) ...
-         ...%-bb;%
-       -( kron(K2.',K6.') + ...
-          kron(K3.',K5.') + ...
-          kron(K4.',K4.') + ...
-          kron(K5.',K3.') + ...
-          kron(K6.',K2.') )*r2;
+    bb = bb - LyapProduct((B*K2+N).',v7,7) ...
+            - LyapProduct((B*K3  ).',v6,6) ...
+            - LyapProduct((B*K4  ).',v5,5) ...
+            - LyapProduct((B*K5  ).',v4,4) ...
+            - LyapProduct((B*K6  ).',v3,3);
        
     v8 = solveKroneckerSystem(Al,bb,n,7,solver);
     v8 = real(v8(:));

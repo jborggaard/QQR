@@ -17,7 +17,7 @@
   Q  = 0.5;
   R  = 0.5;
   
-  T  = 2;    % this is T=\infty...
+  T  = 5;    % this is T=\infty...
   x0 = 0.25;   % the original value, not significant improvement in performance
   x0 = 1.25;   % about a 17% improvement in closed-loop performance using 
   %x0 = 1.00;
@@ -48,7 +48,9 @@
   
   figure
   plot(x,v2,x,v4,x,v6,x,v8)
-  legend('v_2','v_4','v_6','v_8')
+  legend('degree 2','degree 4','degree 6','degree 8','Location','NorthWest')
+  xlabel('z_0')
+  ylabel('Value Function Approximation')
   
   options = odeset('AbsTol',1e-7);
   
@@ -65,7 +67,7 @@
     [t,x] = ode15s( rhs_open, [0 T], [x0;0], options );  
     figure; hold on
     plot(t,x(:,1))
-    xlabel('time'); ylabel('x')
+    xlabel('time'); ylabel('z')
     title('Open Loop Simulation')
   
     fprintf('Open Loop Cost (0,T) is %g\n\n',x(end,end));
@@ -88,7 +90,7 @@
   [t1,x1] = ode23s( rhs_k1, [0 T], [x0;0], options );
   figure(10); hold on
   plot(t1,x1(:,1))
-  xlabel('x'); ylabel('time')
+  xlabel('time'); ylabel('z')
   title('Closed-Loop Simulation with k^{[1]}')
   
   c2 = v2*kron(x0,x0);
@@ -111,7 +113,7 @@
 
     figure(20); hold on
     plot(t2,x2(:,1:end-1))
-    xlabel('x'); ylabel('time')
+    xlabel('time'); ylabel('z')
     title('Closed-Loop Simulation with k^{[2]}')
 
     c3 = c2 + v3*kron(x0,kron(x0,x0));
@@ -138,7 +140,7 @@
 
     figure(30); hold on
     plot(t3,x3(:,1:end-1))
-    xlabel('x'); ylabel('time')
+    xlabel('time'); ylabel('z')
     title('Closed-Loop Simulation with k^{[3]}')
 
     c4 = c3 + v4*kron(kron(kron(x0,x0),x0),x0);
@@ -170,7 +172,7 @@
 
     figure(40); hold on
     plot(t4,x4(:,1:end-1))
-    xlabel('x'); ylabel('time')
+    xlabel('time'); ylabel('z')
     title('Closed-Loop Simulation with k^{[4]}')
 
     c5 = c4 + v5*kron(kron(kron(kron(x0,x0),x0),x0),x0);
@@ -202,7 +204,7 @@
 
     figure(50); hold on
     plot(t5,x5(:,1:end-1))
-    xlabel('x'); ylabel('time')
+    xlabel('time'); ylabel('z')
     title('Closed-Loop Simulation with k^{[5]}')
 
     c6 = c5 + v6*kron(kron(kron(kron(kron(x0,x0),x0),x0),x0),x0);
@@ -239,7 +241,7 @@
 
     figure(70); hold on
     plot(t7,x7(:,1:end-1))
-    xlabel('x'); ylabel('time')
+    xlabel('time'); ylabel('z')
     title('Closed-Loop Simulation with k^{[7]}')
 
     c8 = c6 + v7*kron(kron(kron(kron(kron(kron(x0,x0),x0),x0),x0),x0),x0) + ...
