@@ -89,6 +89,13 @@ For details on how to run **cqr** or **pqr**, type
 >>  help pqr
 ```
 
+A special version of cqr is available when N{2}=0 (in this case, the feedback
+terms are all odd.  This version, cqrOdd is called with N{3} (not the cell array).
+```
+>>  [k,v] = cqrOdd(A,B,Q,R,N{3},degree)
+```
+(degree should be odd in this case).
+
 ## Description of Files
 #### setKroneckerSumPath
 
