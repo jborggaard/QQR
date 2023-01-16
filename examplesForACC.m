@@ -21,7 +21,7 @@
 %
 %  Part of the QQR library.
 %%
-  setKroneckerSumPath
+  setKroneckerToolsPath
 
 %  Set up test examples, problem dimensions (order), and degree of feedback
   addpath('./examples')  % location of example problems
@@ -67,5 +67,5 @@
   fprintf('    qqr solution required %g seconds\n\n',compQQR);
   
   if ( testNST )
-    runComparisons
+    runNSTcomparisons
   end

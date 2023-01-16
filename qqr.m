@@ -1,4 +1,4 @@
-function [k,v] = qqr(A,B,Q,R,N,degree,solver)
+function [k,v] = qqr(A,B,Q,R,N,degree,verbose,solver)
 %QQR Albrecht's approximation to the quadratic-quadratic-regulator problem
 %   A quadratic system is provided in Kronecker product form
 %     \dot{x} = A*x + B*u + N*kron(x,x),  \ell(x,u) = x'*Q*x + u'*R*u
@@ -32,6 +32,7 @@ function [k,v] = qqr(A,B,Q,R,N,degree,solver)
 %   The construction of the Kronecker system from Al'Brecht's expansion and 
 %   its solution using a recursive blocked algorithm by Chen and Kressner is
 %   detailed in
+%
 %     Borggaard and Zietsman, The Quadratic-Quadratic Regulator: 
 %       Proc. American Control Conference, Denver, CO, 2020.
 %
@@ -43,10 +44,12 @@ function [k,v] = qqr(A,B,Q,R,N,degree,solver)
 %  Part of the QQR library.
 %%
 
-  setKroneckerSumPath
+  setKroneckerToolsPath
     
-  verbose = true;   % a flag for more detailed output
-  
+  if ( ~exist('verbose','var') )
+    verbose = false;   % an internal flag for more detailed output
+  end
+
   % some input consistency checks: A nxn, B nxm, Q nxn SPSD, R mxm SPD, N nxn^2
   n = size(A,1);
   m = size(B,2);
@@ -70,11 +73,11 @@ function [k,v] = qqr(A,B,Q,R,N,degree,solver)
   %  Define the linear solver
   %=============================================================================
   if ( ~exist('solver','var') )
-    if ( exist('./kronecker/tensor_recursive/lyapunov_recursive.m','file')   ...
+    if ( exist([KroneckerToolsPath,'/tensor_recursive/lyapunov_recursive.m'],'file')   ...
         && n>1 )
       % lyapunov_recursive exists and is applicable
       solver = 'LyapunovRecursive';
-    elseif ( exist('./kronecker/tensor_recursive/laplace_recursive.m','file')...
+    elseif ( exist([KroneckerToolsPath,'/tensor_recursive/laplace_recursive.m'],'file')...
         && n>1 )
       % laplace_recursive exists and is applicable
       solver = 'LaplaceRecursive';
@@ -93,13 +96,11 @@ function [k,v] = qqr(A,B,Q,R,N,degree,solver)
   %=============================================================================
   [KK,PP] = lqr(full(A),full(B),full(Q),full(R));
   
-  K1 =-KK;
-  v2 = PP(:);
+  k{1} =-KK;
+  v{2} = PP(:);   % we compute everything as a column vector and transpose
+                  % the entire cell array at the end.
   
   r2 = R(:);
-  
-  v{2} = v2.';
-  k{1} = K1;
     
   if ( degree>1 )
     %===========================================================================
@@ -114,17 +115,16 @@ function [k,v] = qqr(A,B,Q,R,N,degree,solver)
     
     tic
     
-    ABKT = (A+B*K1).';
+    ABKT = (A+B*k{1}).';
     Al{1} = ABKT; 
     Al{2} = ABKT; 
     Al{3} = ABKT;
-    bb = -LyapProduct(N.',v2,2);
+    bb = -LyapProduct(N.',v{2},2);
 
-    v3 = solveKroneckerSystem(Al,bb,n,2,solver);
-    v3 = real(v3(:));
-       
-    S = Kron2CT(n,2);
-    C = CT2Kron(n,2);
+    v{3} = solveKroneckerSystem(Al,bb,n,3,solver);
+    v{3} = real(v{3}(:));
+    
+    v{3} = kronMonomialSymmetrize(v{3},n,3);
     
     res = zeros(n*n,m);
     for i=1:m
@@ -132,15 +132,11 @@ function [k,v] = qqr(A,B,Q,R,N,degree,solver)
       % GG = ( kron(                B(:,i).',eye(n^2) )   + ...
       %        kron( eye(n  ), kron(B(:,i).',eye(n  ) ) ) + ...
       %        kron( eye(n^2),      B(:,i).'          )   );
-      % GG = C*S*GG;
       % res(:,i) = -GG*v3;
-      GGv3 = LyapProduct(B(:,i).',v3,3);
-      res(:,i) = -C*S*GGv3;
+      res(:,i) = -LyapProduct(B(:,i).',v{3},3);
     end
 
-    v{3} = v3.';
     k{2} = 0.5*(R\res.');
-    K2   = k{2};
     
     comp2 = toc;
   end
@@ -165,17 +161,16 @@ function [k,v] = qqr(A,B,Q,R,N,degree,solver)
     Al{4} = ABKT;
 
     %  compute terms involving r2
-    tmp =-K2.'*R*K2;
+    tmp =-k{2}.'*R*k{2};
     bb  = tmp(:);
 
-    bb = bb - LyapProduct((B*K2+N).',v3,3);
+    bb = bb - LyapProduct((B*k{2}+N).',v{3},3);
        
-    v4 = solveKroneckerSystem(Al,bb,n,3,solver);
-    v4 = real(v4(:));
-      
-    S = Kron2CT(n,3);
-    C = CT2Kron(n,3);
+    v{4} = solveKroneckerSystem(Al,bb,n,4,solver);
+    v{4} = real(v{4}(:));
 
+    v{4} = kronMonomialSymmetrize(v{4},n,4);
+      
     res = zeros(n*n*n,m);
     for i=1:m
       %  Efficiently build the following products
@@ -183,15 +178,11 @@ function [k,v] = qqr(A,B,Q,R,N,degree,solver)
       %        kron( eye(n  ), kron(B(:,i).', eye(n^2) ) ) + ...
       %        kron( eye(n^2), kron(B(:,i).', eye(n  ) ) ) + ...
       %        kron( eye(n^3),      B(:,i).'             ) );
-      % GG = C*S*GG;
       % res(:,i) = -GG*v4;
-      GGv4 = LyapProduct(B(:,i).',v4,4);
-      res(:,i) = -C*S*GGv4;
+      res(:,i) = -LyapProduct(B(:,i).',v{4},4);
     end
     
-    v{4} = v4.';
-    k{3} = 0.5*(R\res.'); 
-    K3   = k{3};
+    k{3} = 0.5*(R\res.');
     
     comp3 = toc;
   end
@@ -221,19 +212,18 @@ function [k,v] = qqr(A,B,Q,R,N,degree,solver)
     Al{5} = ABKT;
 
     %  Compute terms involving r2
-    tmp =-K3.'*R*K2;
+    tmp =-k{3}.'*R*k{2};
     bb  = tmp(:);
     tmp = tmp.';
     bb  = bb + tmp(:);
 
-    bb = bb - LyapProduct((B*K2+N).',v4,4) ...
-            - LyapProduct((B*K3  ).',v3,3);
+    bb = bb - LyapProduct((B*k{2}+N).',v{4},4) ...
+            - LyapProduct((B*k{3}  ).',v{3},3);
        
-    v5 = solveKroneckerSystem(Al,bb,n,4,solver);
-    v5 = real(v5(:));
+    v{5} = solveKroneckerSystem(Al,bb,n,5,solver);
+    v{5} = real(v{5}(:));
     
-    S = Kron2CT(n,4);
-    C = CT2Kron(n,4);
+    v{5} = kronMonomialSymmetrize(v{5},n,5);
 
     res = zeros(n*n*n*n,m);
     for i=1:m
@@ -243,16 +233,12 @@ function [k,v] = qqr(A,B,Q,R,N,degree,solver)
       %        kron( eye(n^2),kron(B(:,i).',eye(n^2) ) ) + ...
       %        kron( eye(n^3),kron(B(:,i).',eye(n  ) ) ) + ...
       %        kron( eye(n^4),     B(:,i).'            ) );
-      % GG = C*S*GG;
       % res(:,i) = -GG*v5;
-      GGv5 = LyapProduct(B(:,i).',v5,5);
-      res(:,i) = -C*S*GGv5;
+      res(:,i) = -LyapProduct(B(:,i).',v{5},5);
       
     end
     
-    v{5} = v5.';
-    k{4} = 0.5*(R\res.'); 
-    K4   = k{4};
+    k{4} = 0.5*(R\res.');
     
     comp4 = toc;    
   end
@@ -291,23 +277,22 @@ function [k,v] = qqr(A,B,Q,R,N,degree,solver)
     
     % form the Kronecker portion of the RHS
     %    -( kron(K2.',K4.') +  kron(K3.',K3.') + kron(K4.',K2.') )*r2
-    tmp =-K2.'*R*K4;
+    tmp =-k{2}.'*R*k{4};
     bb  = tmp(:);
     tmp = tmp.';
     bb  = bb + tmp(:);
-    tmp =-K3.'*R*K3;
+    tmp =-k{3}.'*R*k{3};
     bb  = bb + tmp(:);
     
     % augment with the Kronecker sum products
-    bb = bb - LyapProduct((B*K2+N).',v5,5) ...
-            - LyapProduct((B*K3  ).',v4,4) ...
-            - LyapProduct((B*K4  ).',v3,3);
+    bb = bb - LyapProduct((B*k{2}+N).',v{5},5) ...
+            - LyapProduct((B*k{3}  ).',v{4},4) ...
+            - LyapProduct((B*k{4}  ).',v{3},3);
        
-    v6 = solveKroneckerSystem(Al,bb,n,5,solver);
-    v6 = real(v6(:));
+    v{6} = solveKroneckerSystem(Al,bb,n,6,solver);
+    v{6} = real(v{6}(:));
     
-    S = Kron2CT(n,5);
-    C = CT2Kron(n,5);
+    v{6} = kronMonomialSymmetrize(v{6},n,6);
 
     res = zeros(n*n*n*n*n,m);
     for i=1:m
@@ -317,16 +302,12 @@ function [k,v] = qqr(A,B,Q,R,N,degree,solver)
       %        kron( eye(n^2),kron(B(:,i).',eye(n^2) ) ) + ...
       %        kron( eye(n^3),kron(B(:,i).',eye(n  ) ) ) + ...
       %        kron( eye(n^4),     B(:,i).'            ) );
-      % GG = C*S*GG;
       % res(:,i) = -GG*v5;
-      GGv6 = LyapProduct(B(:,i).',v6,6);
-      res(:,i) = -C*S*GGv6;
+      res(:,i) = -LyapProduct(B(:,i).',v{6},6);
       
     end
     
-    v{6} = v6.';
-    k{5} = 0.5*(R\res.'); 
-    K5 = k{5};
+    k{5} = 0.5*(R\res.');
     
     comp5 = toc;
   end
@@ -374,26 +355,25 @@ function [k,v] = qqr(A,B,Q,R,N,degree,solver)
     % form the Kronecker portion of the RHS
     %    -( kron(K2.',K5.') + kron(K3.',K4.') + kron(K4.',K3.') + 
     %       kron(K5.',K2.') )*r2
-    tmp =-K5.'*R*K2;
+    tmp =-k{5}.'*R*k{2};
     bb  = tmp(:);
     tmp = tmp.';
     bb  = bb + tmp(:);
-    tmp =-K4.'*R*K3;
+    tmp =-k{4}.'*R*k{3};
     bb  = bb + tmp(:);
     tmp = tmp.';
     bb  = bb + tmp(:);
     
     % augment with the Kronecker sum products
-    bb = bb - LyapProduct((B*K2+N).',v6,6) ...
-            - LyapProduct((B*K3  ).',v5,5) ...
-            - LyapProduct((B*K4  ).',v4,4) ...
-            - LyapProduct((B*K5  ).',v3,3) ...
+    bb = bb - LyapProduct((B*k{2}+N).',v{6},6) ...
+            - LyapProduct((B*k{3}  ).',v{5},5) ...
+            - LyapProduct((B*k{4}  ).',v{4},4) ...
+            - LyapProduct((B*k{5}  ).',v{3},3);
        
-    v7 = solveKroneckerSystem(Al,bb,n,6,solver);
-    v7 = real(v7(:));
+    v{7} = solveKroneckerSystem(Al,bb,n,7,solver);
+    v{7} = real(v{7}(:));
     
-    S = Kron2CT(n,6);
-    C = CT2Kron(n,6);
+    v{7} = kronMonomialSymmetrize(v{7},n,7);
 
     res = zeros(n*n*n*n*n*n,m);
     for i=1:m
@@ -403,16 +383,12 @@ function [k,v] = qqr(A,B,Q,R,N,degree,solver)
       %        kron( eye(n^2),kron(B(:,i).',eye(n^2) ) ) + ...
       %        kron( eye(n^3),kron(B(:,i).',eye(n  ) ) ) + ...
       %        kron( eye(n^4),     B(:,i).'            ) );
-      % GG = C*S*GG;
       % res(:,i) = -GG*v5;
-      GGv7 = LyapProduct(B(:,i).',v7,7);
-      res(:,i) = -C*S*GGv7;
+      res(:,i) = -LyapProduct(B(:,i).',v{7},7);
       
     end
     
-    v{7} = v7.';
     k{6} = 0.5*(R\res.'); 
-    K6   = k{6};
     
     comp6 = toc;
   end
@@ -469,29 +445,28 @@ function [k,v] = qqr(A,B,Q,R,N,degree,solver)
     %       kron(K4.',K4.') + ...
     %       kron(K5.',K3.') + ...
     %       kron(K6.',K2.') )*r2
-    tmp =-K6.'*R*K2;
+    tmp =-k{6}.'*R*k{2};
     bb  = tmp(:);
     tmp = tmp.';
     bb  = bb + tmp(:);
-    tmp =-K5.'*R*K3;
+    tmp =-k{5}.'*R*k{3};
     bb  = bb + tmp(:);
     tmp = tmp.';
     bb  = bb + tmp(:);
-    tmp =-K4.'*R*K4;
+    tmp =-k{4}.'*R*k{4};
     bb  = bb + tmp(:);
     
     % augment with the Kronecker sum products
-    bb = bb - LyapProduct((B*K2+N).',v7,7) ...
-            - LyapProduct((B*K3  ).',v6,6) ...
-            - LyapProduct((B*K4  ).',v5,5) ...
-            - LyapProduct((B*K5  ).',v4,4) ...
-            - LyapProduct((B*K6  ).',v3,3);
+    bb = bb - LyapProduct((B*k{2}+N).',v{7},7) ...
+            - LyapProduct((B*k{3}  ).',v{6},6) ...
+            - LyapProduct((B*k{4}  ).',v{5},5) ...
+            - LyapProduct((B*k{5}  ).',v{4},4) ...
+            - LyapProduct((B*k{6}  ).',v{3},3);
        
-    v8 = solveKroneckerSystem(Al,bb,n,7,solver);
-    v8 = real(v8(:));
+    v{8} = solveKroneckerSystem(Al,bb,n,8,solver);
+    v{8} = real(v{8}(:));
     
-    S = Kron2CT(n,7);
-    C = CT2Kron(n,7);
+    v{8} = kronMonomialSymmetrize(v{8},n,8);
 
     res = zeros(n*n*n*n*n*n*n,m);
     for i=1:m
@@ -501,16 +476,12 @@ function [k,v] = qqr(A,B,Q,R,N,degree,solver)
       %        kron( eye(n^2),kron(B(:,i).',eye(n^2) ) ) + ...
       %        kron( eye(n^3),kron(B(:,i).',eye(n  ) ) ) + ...
       %        kron( eye(n^4),     B(:,i).'            ) );
-      % GG = C*S*GG;
       % res(:,i) = -GG*v5;
-      GGv8 = LyapProduct(B(:,i).',v8,8);
-      res(:,i) = -C*S*GGv8;
+      res(:,i) = -LyapProduct(B(:,i).',v{8},8);
       
     end
     
-    v{8} = v8.';
-    k{7} = 0.5*(R\res.'); 
-    % K7 = k{7};
+    k{7} = 0.5*(R\res.');
     
     comp7 = toc;
   end
@@ -544,6 +515,11 @@ function [k,v] = qqr(A,B,Q,R,N,degree,solver)
       fprintf('qqr: CPU time for degree 7 controls: %g\n',comp7);
     end
   end
+
+  % transpose the coefficients of v
+  for d=2:degree+1
+    v{d} = v{d}.';
+  end
 end
 
 
@@ -551,17 +527,17 @@ function [v] = solveKroneckerSystem(Al,bb,n,degree,solver)
 
   if ( strcmp(solver,'LyapunovRecursive') )
     switch degree
-      case 2
-        v = lyapunov_recursive(Al,reshape(bb,n,n,n));
       case 3
-        v = lyapunov_recursive(Al,reshape(bb,n,n,n,n));
+        v = lyapunov_recursive(Al,reshape(bb,n,n,n));
       case 4
-        v = lyapunov_recursive(Al,reshape(bb,n,n,n,n,n));
+        v = lyapunov_recursive(Al,reshape(bb,n,n,n,n));
       case 5
-        v = lyapunov_recursive(Al,reshape(bb,n,n,n,n,n,n));
+        v = lyapunov_recursive(Al,reshape(bb,n,n,n,n,n));
       case 6
-        v = lyapunov_recursive(Al,reshape(bb,n,n,n,n,n,n,n));
+        v = lyapunov_recursive(Al,reshape(bb,n,n,n,n,n,n));
       case 7
+        v = lyapunov_recursive(Al,reshape(bb,n,n,n,n,n,n,n));
+      case 8
         v = lyapunov_recursive(Al,reshape(bb,n,n,n,n,n,n,n,n));
       otherwise
         warning('qqr: degree not supported')
@@ -569,17 +545,17 @@ function [v] = solveKroneckerSystem(Al,bb,n,degree,solver)
     
   elseif ( strcmp(solver,'LaplaceRecursive') )
      switch degree
-      case 2
-        v = laplace_recursive(Al,reshape(bb,n,n,n));
       case 3
-        v = laplace_recursive(Al,reshape(bb,n,n,n,n));
+        v = laplace_recursive(Al,reshape(bb,n,n,n));
       case 4
-        v = laplace_recursive(Al,reshape(bb,n,n,n,n,n));
+        v = laplace_recursive(Al,reshape(bb,n,n,n,n));
       case 5
-        v = laplace_recursive(Al,reshape(bb,n,n,n,n,n,n));
+        v = laplace_recursive(Al,reshape(bb,n,n,n,n,n));
       case 6
-        v = laplace_recursive(Al,reshape(bb,n,n,n,n,n,n,n));
+        v = laplace_recursive(Al,reshape(bb,n,n,n,n,n,n));
       case 7
+        v = laplace_recursive(Al,reshape(bb,n,n,n,n,n,n,n));
+      case 8
         v = laplace_recursive(Al,reshape(bb,n,n,n,n,n,n,n,n));
       otherwise
         warning('qqr: degree not supported')

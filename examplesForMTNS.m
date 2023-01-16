@@ -22,7 +22,7 @@
 %
 %  Part of the QQR library @  https://github.com/jborggaard/QQR
 %%
-  setKroneckerSumPath
+  setKroneckerToolsPath
   
 %  Set up test examples, problem dimensions (order), and degree of feedback
 
@@ -59,7 +59,7 @@
     %  Test the QQR algorithm on a well-known low-dimensional problem (Lorenz)
     % 
     %  This example calls qqr internally and n=3,m=1 must be specified as the
-    %  problem dimensions for the runComparisons script.
+    %  problem dimensions for the runNSTcomparisons script.
     
     n      =  3;  % state dimension
     m      =  1;  % control dimension
@@ -118,8 +118,8 @@
 
     %%
     g      = 8;
-    Cidx   = [1 2 3 4];  % run this section over all the cases below
-%    Cidx   = [1 2 3 5];
+%    Cidx   = [1 2 3 4];  % run this section over all the cases below
+    Cidx   = [1 2 3 5];
 %    Cidx   = [1 2 3 6];
 %    Cidx   = [1 2 4 5];
 %    Cidx   = [1 2 4 6];
@@ -133,5 +133,5 @@
   
 
   if ( testNST )
-    runComparisons
+    runNSTcomparisons
   end

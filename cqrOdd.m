@@ -1,4 +1,4 @@
-function [k,v] = cqrOdd(A,B,Q,R,N,degree,solver)
+function [k,v] = cqrOdd(A,B,Q,R,N,degree,solver,verbose)
 %CQRodd Albrecht's approximation to the cubic-quadratic-regulator problem
 %
 %   A special cubic system is provided in Kronecker product form
@@ -49,9 +49,11 @@ function [k,v] = cqrOdd(A,B,Q,R,N,degree,solver)
 %  Part of the QQR library.
 %%
 
-  setKroneckerSumPath
+  setKroneckerToolsPath
     
-  verbose = true;   % a flag for more detailed output
+  if ( nargin<8 )
+    verbose = true;   % a flag for more detailed output
+  end
   
   % some input consistency checks: A nxn, B nxm, Q nxn SPSD, R mxm SPD, N nxn^2
   n = size(A,1);
@@ -132,11 +134,10 @@ function [k,v] = cqrOdd(A,B,Q,R,N,degree,solver)
     Al{4} = ABKT;
     bb = -LyapProduct(N.',v2,2);
 
-    v4 = solveKroneckerSystem(Al,bb,n,3,solver);
+    v4 = solveKroneckerSystem(Al,bb,n,4,solver);
     v4 = real(v4(:));
 
-    S = Kron2CT(n,3);
-    C = CT2Kron(n,3);
+    v4 = kronMonomialSymmetrize(v4,n,4);
 
     res = zeros(n*n*n,m);
     for i=1:m
@@ -148,7 +149,7 @@ function [k,v] = cqrOdd(A,B,Q,R,N,degree,solver)
       % GG = C*S*GG;
       % res(:,i) = -GG*v4;
       GGv4 = LyapProduct(B(:,i).',v4,4);
-      res(:,i) = -C*S*GGv4;
+      res(:,i) = -GGv4;
     end
 
     v{4} = v4.';
@@ -195,11 +196,10 @@ function [k,v] = cqrOdd(A,B,Q,R,N,degree,solver)
     bb = bb - LyapProduct((B*K3+N).',v4,4);
 
        
-    v6 = solveKroneckerSystem(Al,bb,n,5,solver);
+    v6 = solveKroneckerSystem(Al,bb,n,6,solver);
     v6 = real(v6(:));
     
-    S = Kron2CT(n,5);
-    C = CT2Kron(n,5);
+    v6 = kronMonomialSymmetrize(v6,n,6);
 
     res = zeros(n*n*n*n*n,m);
     for i=1:m
@@ -212,7 +212,7 @@ function [k,v] = cqrOdd(A,B,Q,R,N,degree,solver)
       % GG = C*S*GG;
       % res(:,i) = -GG*v5;
       GGv6 = LyapProduct(B(:,i).',v6,6);
-      res(:,i) = -C*S*GGv6;
+      res(:,i) = -GGv6;
       
     end
     
@@ -261,11 +261,10 @@ function [k,v] = cqrOdd(A,B,Q,R,N,degree,solver)
     bb = bb -LyapProduct((B*K3+N).',v6,6) ...
             -LyapProduct((B*K5  ).',v4,4);
        
-    v8 = solveKroneckerSystem(Al,bb,n,7,solver);
+    v8 = solveKroneckerSystem(Al,bb,n,8,solver);
     v8 = real(v8(:));
     
-    S = Kron2CT(n,7);
-    C = CT2Kron(n,7);
+    v8 = kronMonomialSymmetrize(v8,n,8);
 
     res = zeros(n*n*n*n*n*n*n,m);
     for i=1:m
@@ -277,8 +276,7 @@ function [k,v] = cqrOdd(A,B,Q,R,N,degree,solver)
       %        kron( eye(n^4),     B(:,i).'            ) );
       % GG = C*S*GG;
       % res(:,i) = -GG*v5;
-      GGv8 = LyapProduct(B(:,i).',v8,8);
-      res(:,i) = -C*S*GGv8;
+      res(:,i) = -LyapProduct(B(:,i).',v8,8);
       
     end
     

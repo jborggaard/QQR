@@ -1,4 +1,4 @@
-function [ka,py] = runNST(A,B,Q,R,N,degree,Nxu)
+function [ka,py] = runNST3(A,B,Q,R,N2,N3,degree,Nxu)
 %runNST Solves the QQR problem within the Nonlinear Systems Toolbox for
 %       development and comparisons.  This is set up for either quadratic
 %       or cubic nonlinearities and also handles the bilinear case if
@@ -13,19 +13,10 @@ function [ka,py] = runNST(A,B,Q,R,N,degree,Nxu)
   tic
   x=sym('x',[n,1]); %  state variables 
   u=sym('u',[m,1]); %  control variables
-  if ( iscell(N) )
-    if ( length(N)==3 )
-      f = A*x + B*u + N{2}*kron(x,x) + N{3}*kron(kron(x,x),x);
-    elseif ( length(N)==4 )
-      f = A*x + B*u + N{2}*kron(x,x) + N{3}*kron(kron(x,x),x) + ...
-          N{4}*kron(kron(kron(x,x),x),x);
-    end
-  else
-    f = A*x + B*u + N*kron(x,x);
-  end
+  f = A*x + B*u + N2*kron(x,x) + N3*kron(kron(x,x),x);
   
   % check for the bilinear case
-  if ( nargin==7 )
+  if ( nargin==8 )
     f = f + Nxu*kron(x,u);
   end
   
