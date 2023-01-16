@@ -1,4 +1,4 @@
-function [M,A,B1,B2,N,Q,zInit] = ChafeeInfanteFEMControl(n,m,alpha,nu)
+function [M,A,B1,B2,N,Q,zInit] = ChafeeInfanteFEMControl(n,m,alpha,nu,alpha3)
 %CHAFFEE_INFANTE  A control problem for the Chafee-Infante equations.
 %
 %  A Chafee-Infante control problem is to find u that minimizes
@@ -7,7 +7,7 @@ function [M,A,B1,B2,N,Q,zInit] = ChafeeInfanteFEMControl(n,m,alpha,nu)
 %
 %  subject to
 %
-%      z_t = \nu z_xx + \alpha z - z^3 + \sum_{i=1}^m \chi_i(x) u_i(t)
+%      z_t = \nu z_xx + \alpha z - \alpha_3 z^3 + \sum_{i=1}^m \chi_i(x) u_i(t)
 %
 %  and 
 %
@@ -25,13 +25,12 @@ function [M,A,B1,B2,N,Q,zInit] = ChafeeInfanteFEMControl(n,m,alpha,nu)
 %  so that the mass matrix does not appear in the final discretized equation.
 %
 %  Usage:
-%         [M,A,B,N3,Q,z0] = ChafeeInfante(n,m,a,alpha,nu)
+%         [M,A,B,N3,Q,z0] = ChafeeInfante(n,m,a,alpha,nu,alpha3)
 %
-%  Default values:  m=1, a=1, alpha=100, nu=1.
+%  Default values:  m=1, a=1, alpha=100, nu=1, alpha3=1.
 %                   (see Lunasin and Titi, 2017)
 %
 %%
-  addpath('/Volumes/borggaard/Software/FEM/fem_functions')
   
   idx3 = @(j,k,l) (j-1)*n^2 + (k-1)*n + l;
   
@@ -42,6 +41,7 @@ function [M,A,B1,B2,N,Q,zInit] = ChafeeInfanteFEMControl(n,m,alpha,nu)
   if ( nargin<3 )
     alpha = 100;
     nu = 1;
+    alpha3 = 1;
   end
 %  a = 1;
   
@@ -125,7 +125,7 @@ function [M,A,B1,B2,N,Q,zInit] = ChafeeInfanteFEMControl(n,m,alpha,nu)
           for nl=1:nel_dof
             l = ide(nodes_local(nl));
 %            tmp = -sum(phi(:,n_t).*phi(:,nj).*phi(:,nk).*phi(:,nl).*wt_g(:))/6;
-            tmp = -sum(phi(:,n_t).*phi(:,nj).*phi(:,nk).*phi(:,nl).*wt_g(:));
+            tmp = -alpha3*sum(phi(:,n_t).*phi(:,nj).*phi(:,nk).*phi(:,nl).*wt_g(:));
             
             n_tripletsn = n_tripletsn+1;
             IIn(n_tripletsn) = n_test;
@@ -167,7 +167,8 @@ function [M,A,B1,B2,N,Q,zInit] = ChafeeInfanteFEMControl(n,m,alpha,nu)
   A = sparse( II, JJ, AA(1:n_triplets), n_equations, n_equations );
   M = sparse( II, JJ, MM(1:n_triplets), n_equations, n_equations );
   
-  N = sparse( IIn(1:n_tripletsn), JJn(1:n_tripletsn), NN(1:n_tripletsn), n_equations, n_equations^3 );
+  N = sparse( IIn(1:n_tripletsn), JJn(1:n_tripletsn), NN(1:n_tripletsn), ...
+              n_equations, n_equations^3 );
 
   Q = M;
   
@@ -197,7 +198,8 @@ function [z0] = zZero(x)
 %  meshes.
   
   z0 = cos(3*pi*x);
-  %z0 = 1.25*ones(size(x));  % for the validation example
+  %z0 = 1.25*ones(size(x));  % uncomment for the validation example
+  %z0 = sin(2*pi*x);
   
 end
 

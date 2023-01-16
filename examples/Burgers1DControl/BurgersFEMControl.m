@@ -1,4 +1,4 @@
-function [M,A,B,N,zInit] = BurgersFEMControl(n,m)
+function [M,A,B,C,N,zInit] = BurgersFEMControl(n,m,p)
 %  addpath('/Volumes/borggaard/Software/FEM/fem_functions')
   
   [x,e_conn] = oned_mesh([0; 1],[1 2],n);
@@ -20,6 +20,7 @@ function [M,A,B,N,zInit] = BurgersFEMControl(n,m)
   AA = zeros(n_elements*nel_dof^2,1);
   MM = zeros(n_elements*nel_dof^2,1);
   B  = zeros(n_equations,m);
+  C  = zeros(p,n_equations);
   z0 = zeros(n_equations,1);
 
   NN = zeros(n_equations,n_equations,n_equations);
@@ -43,6 +44,10 @@ function [M,A,B,N,zInit] = BurgersFEMControl(n,m)
     
     for mm = 1:m
       b_loc(:,mm) = oned_f_int(chi(x_g,mm,m),phi,wt_g);
+    end
+
+    for pp = 1:p
+      c_loc(pp,:) = oned_f_int(chi(x_g,pp,p),phi,wt_g);
     end
     
     z_loc  = zZero(x_g);
@@ -72,6 +77,10 @@ function [M,A,B,N,zInit] = BurgersFEMControl(n,m)
         B(n_test,mm) = B(n_test,mm) + b_loc(n_t,mm);
       end
       
+      for pp=1:p
+        C(pp,n_test) = C(pp,n_test) + c_loc(pp,n_t);
+      end
+
       z0(n_test) = z0(n_test) + z0_loc(n_t);
     end
   end

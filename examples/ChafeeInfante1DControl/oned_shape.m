@@ -117,3 +117,5 @@ function [x_g,w_g,phi,p_x,p_xx] = oned_shape(x,r,w)
     error('Elements higher than cubic not currently supported')
     keyboard
   end
+
+end

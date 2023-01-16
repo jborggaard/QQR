@@ -48,4 +48,6 @@ function M = oned_bilinear( kernel, phi, test, w_g )
 % M = test' * ( phi .* kernel .* w_g );
 
 %  Vectorized version is more efficient (even for small vector lengths)
- M = test'*diag(kernel.*w_g)*phi;
+  M = test'*diag(kernel.*w_g)*phi;
+
+end

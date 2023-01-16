@@ -2,6 +2,7 @@
 %  Kuramoto-Sivashinsky equations using distributed control.
 %
 
+r0 = 1.0;
 
 [E,A,B,N2,Q,zInit] = KuramotoSivashinskyFEMControl(n,m,1/L^2);
   
@@ -90,7 +91,7 @@ if ( runClosed )
   
   Zz = z1(:,1:end-1)*sqMinv;   %#ok
   Zval = Zz(:,1:2:end-1);  Zval(:,end+1) = Zval(:,1);
-  surf(xNodes,t1,Zval)
+  mesh(xNodes,t1,Zval)
   xlabel('z'); ylabel('time')
   title('Closed-Loop Simulation with k^{[1]}')
 

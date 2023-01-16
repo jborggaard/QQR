@@ -13,8 +13,9 @@ and
 by Jeff Borggaard and Lizette Zietsman.
 
 ## Installation Notes
-Download and untar, or clone this repository: 
+Download and untar, or clone this and the KroneckerTools repositories: 
 ```
+  git clone https://www.github.com/jborggaard/KroneckerTools
   git clone https://www.github.com/jborggaard/QQR
 ```
 
@@ -32,6 +33,10 @@ The installation can be tested in Matlab (we used R2019b) by typing
 A stand-alone test (setting testNST=false) can be found in the examples directory
 The details of some of our functions and test examples are provided below.  
 
+## Quickstart
+
+For a quickstart, open the live script example10.mlx in the examples directory
+using Matlab2022b or later.
 
 ## How to use qqr
 
@@ -49,7 +54,7 @@ The variable _v_ is a cell array with _v{2}_ being n-by-n^2 , up to _v{degree+1}
 ```
 
 
-For details on how to run **qqr**, type
+For details on how to run **qqr**, one can also type
 ```
 >>  help qqr
 ```
@@ -83,7 +88,7 @@ With the same assumptions on A,B,Q,R as in _qqr_, but we now allow for higher de
 ```
 The description of the feedback coefficients _k_ and value function coefficients _v_ are exactly as in _qqr_ above.
 
-For details on how to run **cqr** or **pqr**, type
+For details on how to run **cqr** or **pqr**, one can also type
 ```
 >>  help cqr
 >>  help pqr
@@ -107,7 +112,7 @@ Defines the path where the Nonlinear Systems Toolbox by Krener is located.  This
 
 #### AlbrechtKronQQR
 
-Builds and solves the full Kronecker product form of the polynomial approximation to the HJB equation.  Schur decomposition of A+Bk{1} should be performed to produce an upper triangular system.  This would still be an O(n^2degree ) algorithm and prohibitively expensive.
+Builds and solves the full Kronecker product form of the polynomial approximation to the HJB equation.  Schur decomposition of A+Bk{1} should be performed to produce an upper triangular system.  This would still be an O(n^2degree ) algorithm and prohibitively expensive.  This file is only included for archival reasons.
 
 #### CT2Kron and Kron2CT
 

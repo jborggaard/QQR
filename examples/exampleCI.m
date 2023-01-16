@@ -3,7 +3,7 @@
 %
 
 
-[E,A,B1,B2,N3,Q,zInit] = ChafeeInfanteFEMControl(n,m,alpha,nu);
+[E,A,B1,B2,N3,Q,zInit] = ChafeeInfanteFEMControl(n,m,alpha,nu,alpha3);
 
 zInit = a*zInit;
 
@@ -60,7 +60,7 @@ if ( runOpen )
    rhs_open = @(t,x) [ Ac*x(1:end-1) + Nc*kron(kron(x(1:end-1),x(1:end-1)),x(1:end-1));...
                           x(1:end-1).'*Qc*x(1:end-1) ];
 
-  [T,Z] = ode15s(rhs_open,[0 tInfinity],[x0;0],options);
+  [T,Z] = ode15s(rhs_open,linspace(0,tInfinity,101),[x0;0],options);
   figure(10)
   openLoopCost = Z(end,end);
   
@@ -84,7 +84,7 @@ if ( runClosed )
                     x(1:end-1).'*Qc*x(1:end-1)                      +...
                     computeU1(x(1:end-1)).'*R*computeU1(x(1:end-1)) );
 
-  [t1,z1] = ode15s( rhs_k1, [0 tInfinity], [x0;0], options );
+  [t1,z1] = ode15s( rhs_k1, linspace(0,tInfinity,101), [x0;0], options );
   figure(11)
   closedLoopCost1 = z1(end,end);
   
@@ -111,7 +111,7 @@ if ( runClosed )
                       x(1:end-1).'*Qc*x(1:end-1)                        + ...
                       computeU3(x(1:end-1)).'*R*computeU3(x(1:end-1)) );
 
-    [t3,z3] = ode15s( rhs_k3, [0 tInfinity], [x0;0], options );
+    [t3,z3] = ode15s( rhs_k3, linspace(0,tInfinity,101), [x0;0], options );
 
     figure(13)
     closedLoopCost3 = z3(end,end);
@@ -143,7 +143,7 @@ if ( runClosed )
                       x(1:end-1).'*Qc*x(1:end-1)                         + ...
                       computeU5(x(1:end-1)).'*R*computeU5(x(1:end-1)) ];
 
-    [t5,z5] = ode15s( rhs_k5, [0 tInfinity], [x0;0], options );
+    [t5,z5] = ode15s( rhs_k5, linspace(0,tInfinity,101), [x0;0], options );
 
     figure(15)
     closedLoopCost5 = z5(end,end);
@@ -160,7 +160,7 @@ if ( runClosed )
   
   if ( degree>6 )
     %-----------------------------------------------------------------------------
-    %  Quintic feedback
+    %  Septic feedback
     %-----------------------------------------------------------------------------
     computeU7   = @(x) k{1}*x                                        + ...
                        k{2}*kron(x,x)                                + ...
@@ -180,7 +180,7 @@ if ( runClosed )
                       x(1:end-1).'*Qc*x(1:end-1)                         + ...
                       computeU7(x(1:end-1)).'*R*computeU7(x(1:end-1)) ];
 
-    [t7,z7] = ode15s( rhs_k7, [0 tInfinity], [x0;0], options );
+    [t7,z7] = ode15s( rhs_k7, linspace(0,tInfinity,101), [x0;0], options );
 
     figure(15)
     closedLoopCost7 = z7(end,end);

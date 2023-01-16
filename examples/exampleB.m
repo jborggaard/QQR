@@ -29,7 +29,7 @@
   
   % x0 = zeros(n,1);   u0 = zeros(m,1);
 
-  [M,A,B,N,zInit] = BurgersFEMControl(n,m);
+  [M,A,B,C,N,zInit] = BurgersFEMControl(n,m,1);
     
   % add linear reaction term
   A = epsilon*A + alpha*M;

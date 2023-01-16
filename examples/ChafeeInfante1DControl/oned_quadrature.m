@@ -172,8 +172,9 @@ function [r,w] = oned_quadrature(rule)
     w(10) = w(2);
     w(11) = w(1);
 
-else
+  else
     error('Quadrature rule not supported')
     keyboard
   end
 
+end

@@ -28,7 +28,7 @@
 %
 %  Part of the QQR library.
 %%
-  setKroneckerSumPath
+  setKroneckerToolsPath
 
 %  Set up test examples, problem dimensions (order), and degree of feedback
 
@@ -99,7 +99,7 @@
     %  Test the QQR algorithm on a well-known low-dimensional problem (Lorenz)
     % 
     %  This example calls qqr internally and n=3,m=1 must be specified as the
-    %  problem dimensions for the runComparisons script.
+    %  problem dimensions for the runNSTcomparisons script.
     
     n      =  3;  % state dimension
     m      =  1;  % control dimension
@@ -130,7 +130,6 @@
   elseif ( testcase==7 )
     
     example07
-    axis([0 1.8 -.5 1.5])
     
   elseif ( testcase==8 )
     %  A ring of van der Pol oscillators to test feedback controls in a system
@@ -141,9 +140,14 @@
 
     example08
         
+  elseif ( testcase==9 )
+    %  Comparison to a published example.
+
+    example09
+
   end
   
 
   if ( testNST )
-    runComparisons
+    runNSTcomparisons
   end

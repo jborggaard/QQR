@@ -26,4 +26,6 @@ function F = oned_f_int( Ff, test, w_g )
 % end
 
 %  Vectorized version is more efficient (even for small vector lengths)
-F = test'*(w_g.*Ff);
+  F = test'*(w_g.*Ff);
+  
+end
