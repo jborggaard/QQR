@@ -114,6 +114,9 @@ function [k,v] = pqr(A,B,Q,R,N,degree,solver,verbose)
     attributesN = {'size',[n,n^p]};validateattributes(N{p},classes,attributesN);
   end
   
+  % define the vec function for readability
+  vec = @(X) X(:);
+
   %=============================================================================
   %  Define the linear solver
   %=============================================================================
@@ -136,294 +139,99 @@ function [k,v] = pqr(A,B,Q,R,N,degree,solver,verbose)
   v = cell(1,degree+1);
   k = cell(1,degree);
   
+
+  comp = zeros(1,degree);  % store computational times
   %=============================================================================
   %  Compute the degree=1 feedback solution
   %=============================================================================
+  tic
   [KK,PP] = lqr(full(A),full(B),full(Q),full(R));
   
-  K1 =-KK;
-  v2 = PP(:);
+  k{1} =-KK;
+  v{2} = vec(PP);
   
-  r2 = R(:);
-  
-  v{2} = v2.';
-  k{1} = K1;
+  comp(1) = toc;
+
+  % Define the required n-Way Lyapunov matrices for all solvers
+  ABKT = (A+B*k{1}).';
+  Al = cell(1,degree);
+  for d=1:degree+1
+    Al{d} = ABKT;
+  end
+
+  %=============================================================================
+  %  Compute the degree=2 feedback solution
+  %=============================================================================
+  bb = -LyapProduct(N{2}.',v{2},2);
+
+  v{3} = solveKroneckerSystem(Al,bb,n,3,solver);
+  v{3} = real(v{3}(:));
+
+  v{3} = kronMonomialSymmetrize(v{3},n,3);
+
+  res = zeros(n*n,m);
+  for i=1:m
+    res(:,i) = -LyapProduct(B(:,i).',v{3},3);
+  end
+
+  k{2} = 0.5*(R\res.');
     
-  if ( degree>1 )
+  comp(2) = toc;
+
+  %=============================================================================
+  %  Compute higher degree feedback terms
+  %=============================================================================
+  BKN = cell(1,degree);
+  for d=3:degree
     %===========================================================================
-    %  Compute the degree=2 feedback solution
+    %  Compute the degree d feedback solution
     %===========================================================================
-    %  Efficiently solve the following (Kronecker) linear system
-    % AA = ( kron(                 ABKT, eye(n^2) )   + ...
-    %        kron( eye(n  ), kron( ABKT, eye(n  ) ) ) + ...
-    %        kron( eye(n^2),       ABKT           )   );
-    % bb =-( kron( N{2}, eye(n) ) + kron( eye(n),N{2} ) ).'*v2;
-    % v3 = AA\bb;
-    
     tic
     
-    ABKT = (A+B*K1).';
-    Al{1} = ABKT; 
-    Al{2} = ABKT; 
-    Al{3} = ABKT;
-    bb = -LyapProduct(N{2}.',v2,2);
+    bb = -LyapProduct(N{d}.',v{2},2);
 
-    v3 = solveKroneckerSystem(Al,bb,n,3,solver);
-    v3 = real(v3(:));
+    if (degN>d-2)
+      BKN{d-1} = B*k{d-1}+N{d-1};
+    else
+      BKN{d-1} = B*k{d-1};
+    end
+
+    for i=3:d
+      bb = bb - LyapProduct(BKN{d+2-i}.',v{i},i);
+    end
+
+    for i=2:(d/2)
+      tmp = k{i}.'*R*k{d+1-i};
+      bb  = bb - vec(tmp) - vec(tmp.');
+    end
+
+    if (mod(d,2)) % d is odd
+      tmp = k{(d+1)/2}.'*R*k{(d+1)/2};
+      bb  = bb - vec(tmp);
+    end
+
+    v{d+1} = solveKroneckerSystem(Al,bb,n,d+1,solver);
+    v{d+1} = real(v{d+1}(:));
        
-    v3 = kronMonomialSymmetrize(v3,n,3);
+    v{d+1} = kronMonomialSymmetrize(v{d+1},n,d+1);
 
-    res = zeros(n*n,m);
+    res = zeros(n^d,m);
     for i=1:m
-      %  Efficiently build the following products
-      % GG = ( kron(                B(:,i).',eye(n^2) )   + ...
-      %        kron( eye(n  ), kron(B(:,i).',eye(n  ) ) ) + ...
-      %        kron( eye(n^2),      B(:,i).'          )   );
-      % GG = C*S*GG;
-      % res(:,i) = -GG*v3;
-      GGv3 = LyapProduct(B(:,i).',v3,3);
-      res(:,i) = -GGv3;
+      res(:,i) = -LyapProduct(B(:,i).',v{d+1},d+1);
     end
 
-    v{3} = v3.';
-    k{2} = 0.5*(R\res.');
-    K2   = k{2};
+    k{d} = 0.5*(R\res.');
     
-    comp2 = toc;
+    comp(d) = toc;
   end
   
-  if ( degree>2 )
-    %===========================================================================
-    %  Compute the degree=3 feedback solution
-    %===========================================================================
-    %  Efficiently solve the following (Kronecker) linear system
-    % AA = ( kron(                 ABKT, eye(n^3) )   + ...
-    %        kron( eye(n  ), kron( ABKT, eye(n^2) ) ) + ...
-    %        kron( eye(n^2), kron( ABKT, eye(n  ) ) ) + ...
-    %        kron( eye(n^3),       ABKT           )   );
-    % bb =-( kron(                 (B*K2+N{2}).',  eye(n^2) ) +    ...
-    %        kron( kron( eye(n  ), (B*K2+N{2}).'), eye(n  ) ) +    ...
-    %        kron(       eye(n^2), (B*K2+N{2}).'            ) )*v3 ...
-    %     -( kron( N{3}, eye(n) ) + kron( eye(n),N{3} ) ).'*v2;
-    %     -  kron(K2.',K2.')*r2 ;
-    % v4 = AA\bb;
-    
-    tic
-    
-    Al{4} = ABKT;
-    BK2N2 = B*K2+N{2};
-
-    tmp   =-K2.'*R*K2;
-    bb    = tmp(:);
-
-    if (degN>2)
-      bb = bb - LyapProduct(BK2N2.',v3,3) ...
-              - LyapProduct( N{3}.',v2,2);
-    else
-      bb = bb - LyapProduct(BK2N2.',v3,3);
-    end
-    
-    v4 = solveKroneckerSystem(Al,bb,n,4,solver);
-    v4 = real(v4(:));
-      
-    v4 = kronMonomialSymmetrize(v4,n,4);
-
-    res = zeros(n*n*n,m);
-    for i=1:m
-      %  Efficiently build the following products
-      % GG = ( kron(                B(:,i).', eye(n^3)   ) + ...
-      %        kron( eye(n  ), kron(B(:,i).', eye(n^2) ) ) + ...
-      %        kron( eye(n^2), kron(B(:,i).', eye(n  ) ) ) + ...
-      %        kron( eye(n^3),      B(:,i).'             ) );
-      % GG = C*S*GG;
-      % res(:,i) = -GG*v4;
-      GGv4 = LyapProduct(B(:,i).',v4,4);
-      res(:,i) = -GGv4;
-    end
-    
-    v{4} = v4.';
-    k{3} = 0.5*(R\res.'); 
-    K3   = k{3};
-    
-    comp3 = toc;
+  for d=2:degree+1
+    v{d} = v{d}.';
   end
-  
-  if ( degree>3 )
-    %===========================================================================
-    %  Compute the degree=4 feedback solution
-    %===========================================================================
-    %  Efficiently solve the following (Kronecker) linear system
-    % AA = ( kron(                 ABKT, eye(n^4)   ) + ...
-    %        kron( eye(n  ), kron( ABKT, eye(n^3) ) ) + ...
-    %        kron( eye(n^2), kron( ABKT, eye(n^2) ) ) + ...
-    %        kron( eye(n^3), kron( ABKT, eye(n  ) ) ) + ...
-    %        kron( eye(n^4),       ABKT             ) );
-    % bb =-( kron(                 (B*K2+N{2}).',   eye(n^3) ) +    ...
-    %        kron( kron( eye(n  ), (B*K2+N{2}).' ), eye(n^2) ) +    ...
-    %        kron( kron( eye(n^2), (B*K2+N{2}).' ), eye(n  ) ) +    ...
-    %        kron(       eye(n^3), (B*K2+N{2}).'             ) )*v4 ...
-    %     -( kron(                 (B*K3+N{3}).',   eye(n^2) ) +    ...
-    %        kron( kron( eye(n  ), (B*K3+N{3}).' ), eye(n  ) ) +    ...
-    %        kron(       eye(n^2), (B*K3+N{3}).'             ) )*v3 ...
-    %     -( kron(                 (     N{4}).',   eye(n  ) ) +    ...
-    %        kron(       eye(n  ), (     N{4}).'             ) )*v2 ...
-    %     -( kron(K2.',K3.') + kron(K3.',K2.') )*r2 ; 
-    % v5 = AA\bb;
     
-    tic
-    
-    Al{5} = ABKT;
-    if (degN>2)
-      BK3N3 = B*K3+N{3};
-    else
-      BK3N3 = B*K3;
-    end
-    
-    tmp =-K3.'*R*K2;
-    bb  = tmp(:);
-    tmp = tmp.';
-    bb  = bb + tmp(:);
-
-    if (degN>3)
-      bb = bb - LyapProduct(BK2N2.',v4,4) ...
-              - LyapProduct(BK3N3.',v3,3) ...
-              - LyapProduct( N{4}.',v2,2);
-    else
-      bb = bb - LyapProduct(BK2N2.',v4,4) ...
-              - LyapProduct(BK3N3.',v3,3);
-    end
-      
-    v5 = solveKroneckerSystem(Al,bb,n,5,solver);
-    v5 = real(v5(:));
-    
-    v5 = kronMonomialSymmetrize(v5,n,5);
-
-    res = zeros(n*n*n*n,m);
-    for i=1:m
-      %  Efficiently build the following products
-      % GG = ( kron(               B(:,i).',eye(n^4)   ) + ...
-      %        kron( eye(n  ),kron(B(:,i).',eye(n^3) ) ) + ...
-      %        kron( eye(n^2),kron(B(:,i).',eye(n^2) ) ) + ...
-      %        kron( eye(n^3),kron(B(:,i).',eye(n  ) ) ) + ...
-      %        kron( eye(n^4),     B(:,i).'            ) );
-      % GG = C*S*GG;
-      % res(:,i) = -GG*v5;
-      GGv5 = LyapProduct(B(:,i).',v5,5);
-      res(:,i) = -GGv5;
-      
-    end
-    
-    v{5} = v5.';
-    k{4} = 0.5*(R\res.'); 
-    K4   = k{4};
-    
-    comp4 = toc;    
-  end
-  
-  if ( degree>4 )
-    %===========================================================================
-    %  Compute the degree=5 feedback solution
-    %===========================================================================
-    %  Efficiently solve the following (Kronecker) linear system
-    % AA = ( kron(                 ABKT, eye(n^5)   ) + ...
-    %        kron( eye(n  ), kron( ABKT, eye(n^4) ) ) + ...
-    %        kron( eye(n^2), kron( ABKT, eye(n^3) ) ) + ...
-    %        kron( eye(n^3), kron( ABKT, eye(n^2) ) ) + ...
-    %        kron( eye(n^4), kron( ABKT, eye(n  ) ) ) + ...
-    %        kron( eye(n^5),       ABKT             ) );
-    % bb =-( kron(                 (B*K2+N{2}).',   eye(n^4) ) +    ...
-    %        kron( kron( eye(n  ), (B*K2+N{2}).' ), eye(n^3) ) +    ...
-    %        kron( kron( eye(n^2), (B*K2+N{2}).' ), eye(n^2) ) +    ...
-    %        kron( kron( eye(n^3), (B*K2+N{2}).' ), eye(n  ) ) +    ...
-    %        kron(       eye(n^4), (B*K2+N{2}).'             ) )*v5 ...
-    %     -( kron(                 (B*K3+N{3}).',   eye(n^3) ) +    ...
-    %        kron( kron( eye(n  ), (B*K3+N{3}).' ), eye(n^2) ) +    ...
-    %        kron( kron( eye(n^2), (B*K3+N{3}).' ), eye(n  ) ) +    ...
-    %        kron(       eye(n^3), (B*K3+N{3}).'             ) )*v4 ...
-    %     -( kron(                 (B*K4+N{4}).',   eye(n^2) ) +    ...
-    %        kron( kron( eye(n  ), (B*K4+N{4}).' ), eye(n  ) ) +    ...
-    %        kron(       eye(n^2), (B*K4+N{4}).'             ) )*v3 ...
-    %     -( kron(K2.',K4.') + ...
-    %        kron(K3.',K3.') + ...
-    %        kron(K4.',K2.') )*r2 ; 
-    % v6 = AA\bb;
-    
-    tic
-    
-    Al{6} = ABKT;
-    if (degN>3)
-      BK4N4 = B*K4+N{4};
-    else
-      BK4N4 = B*K4;
-    end
-    
-    % form the Kronecker portion of the RHS
-    %    -( kron(K2.',K4.') +  kron(K3.',K3.') + kron(K4.',K2.') )*r2
-    tmp =-K4.'*R*K2;
-    bb  = tmp(:);
-    tmp = tmp.';
-    bb  = bb + tmp(:);
-    tmp =-K3.'*R*K3;
-    bb  = bb + tmp(:);
-    
-    % augment with the Kronecker sum products
-    if (degN>4)
-      bb = bb - LyapProduct(BK2N2.',v5,5) ...
-              - LyapProduct(BK3N3.',v4,4) ...
-              - LyapProduct(BK4N4.',v3,3) ...
-              - LyapProduct( N{5}.',v2,2);
-    else
-      bb = bb - LyapProduct(BK2N2.',v5,5) ...
-              - LyapProduct(BK3N3.',v4,4) ...
-              - LyapProduct(BK4N4.',v3,3);
-    end
-    
-    v6 = solveKroneckerSystem(Al,bb,n,6,solver);
-    v6 = real(v6(:));
-    
-    v6 = kronMonomialSymmetrize(v6,n,6);
-
-    res = zeros(n*n*n*n*n,m);
-    for i=1:m
-      %  Efficiently build the following products
-      % GG = ( kron(               B(:,i).',eye(n^4)   ) + ...
-      %        kron( eye(n  ),kron(B(:,i).',eye(n^3) ) ) + ...
-      %        kron( eye(n^2),kron(B(:,i).',eye(n^2) ) ) + ...
-      %        kron( eye(n^3),kron(B(:,i).',eye(n  ) ) ) + ...
-      %        kron( eye(n^4),     B(:,i).'            ) );
-      % GG = GG;
-      % res(:,i) = -GG*v5;
-      GGv6 = LyapProduct(B(:,i).',v6,6);
-      res(:,i) = -GGv6;
-      
-    end
-    
-    v{6} = v6.';
-    k{5} = 0.5*(R\res.'); 
-    % K5 = k{5};
-    
-    comp5 = toc;
-  end
-  
-  if ( degree>5 )
-    warning('pqr: Only controls of degree <=5 have been implemented so far')
-  end
-  
   if ( verbose )
-    if ( degree>1 )
-      fprintf('pqr: CPU time for degree 2 controls: %g\n',comp2);
-    end
-    
-    if ( degree>2 )
-      fprintf('pqr: CPU time for degree 3 controls: %g\n',comp3);
-    end
-    
-    if ( degree>3 )
-      fprintf('pqr: CPU time for degree 4 controls: %g\n',comp4);
-    end
-    
-    if ( degree>4 )
-      fprintf('pqr: CPU time for degree 5 controls: %g\n',comp5);
+    for i=1:degree
+      fprintf('pqr: CPU time for degree %d controls: %g\n',i,comp(i));
     end
   end
 end
@@ -441,6 +249,18 @@ function [v] = solveKroneckerSystem(Al,bb,n,degree,solver)
         v = lyapunov_recursive(Al,reshape(bb,n,n,n,n,n));
       case 6
         v = lyapunov_recursive(Al,reshape(bb,n,n,n,n,n,n));
+      case 7
+        v = lyapunov_recursive(Al,reshape(bb,n,n,n,n,n,n,n));
+      case 8
+        v = lyapunov_recursive(Al,reshape(bb,n,n,n,n,n,n,n,n));
+      case 9
+        v = lyapunov_recursive(Al,reshape(bb,n,n,n,n,n,n,n,n,n));
+      case 10
+        v = lyapunov_recursive(Al,reshape(bb,n,n,n,n,n,n,n,n,n,n));
+      case 11
+        v = lyapunov_recursive(Al,reshape(bb,n,n,n,n,n,n,n,n,n,n,n));
+      case 12
+        v = lyapunov_recursive(Al,reshape(bb,n,n,n,n,n,n,n,n,n,n,n,n));
       otherwise
         warning('pqr: degree not supported')
     end
@@ -455,6 +275,18 @@ function [v] = solveKroneckerSystem(Al,bb,n,degree,solver)
         v = laplace_recursive(Al,reshape(bb,n,n,n,n,n));
       case 6
         v = laplace_recursive(Al,reshape(bb,n,n,n,n,n,n));
+      case 7
+        v = laplace_recursive(Al,reshape(bb,n,n,n,n,n,n,n));
+      case 8
+        v = laplace_recursive(Al,reshape(bb,n,n,n,n,n,n,n,n));
+      case 9
+        v = laplace_recursive(Al,reshape(bb,n,n,n,n,n,n,n,n,n));
+      case 10
+        v = laplace_recursive(Al,reshape(bb,n,n,n,n,n,n,n,n,n,n));
+      case 11
+        v = laplace_recursive(Al,reshape(bb,n,n,n,n,n,n,n,n,n,n,n));
+      case 12
+        v = laplace_recursive(Al,reshape(bb,n,n,n,n,n,n,n,n,n,n,n,n));
       otherwise
         warning('pqr: degree not supported')
      end
