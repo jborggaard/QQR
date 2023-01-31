@@ -33,11 +33,13 @@ setNSTpath
 addpath('./testScripts')
 
 % this script is fairly useless without the NST solution
-if ( exist('Nxu','var') )
+if ( exist('Nxu','var') ) % the qbqr case
   [ka,py] = runNST(A,B,Q,R,N,degree,Nxu);
-elseif (exist('N2','var') && exist('N3','var'))
+elseif (exist('N2','var') && exist('N3','var')) % the cqr case
   [ka,py] = runNST3(A,B,Q,R,N2,N3,degree);
-else
+elseif (iscell(N)) % the pqr case
+  [ka,py] = runNSTl(A,B,Q,R,N,degree);
+else % the qqr case
   [ka,py] = runNST(A,B,Q,R,N,degree);
 end
 
