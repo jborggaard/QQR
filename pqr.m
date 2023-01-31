@@ -188,7 +188,11 @@ function [k,v] = pqr(A,B,Q,R,N,degree,solver,verbose)
     %===========================================================================
     tic
     
-    bb = -LyapProduct(N{d}.',v{2},2);
+    if (degN>d-1)
+      bb = -LyapProduct(N{d}.',v{2},2);
+    else
+      bb = zeros(n^(d+1),1);
+    end
 
     if (degN>d-2)
       BKN{d-1} = B*k{d-1}+N{d-1};
