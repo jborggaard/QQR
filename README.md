@@ -8,7 +8,7 @@ by Jeff Borggaard and Lizette Zietsman
 
 and 
 
-- *On Approximating Polynomial-Quadratic Regulator Problems, Mathematical Theory of Networks and Systems, 2020 (accepted). https://arxiv.org/abs/2009.11068*
+- *On Approximating Polynomial-Quadratic Regulator Problems, Mathematical Theory of Networks and Systems, 2020 (accepted). https://arxiv.org/abs/2009.11068* and appeared in IFAC-PapersOnLine, 54(9), 329-334, 2021.
 
 by Jeff Borggaard and Lizette Zietsman.
 
@@ -48,20 +48,26 @@ The variable _k_ is a cell array with _k{1}_ being m-by-n and is the usual first
 ```
 >>  u = k{1}*x + k{2}*kron(x,x) + ... + k{degree}*kron(kron(... ,x),x);
 ```
+This can be simplified using the function **kronPolyEval.m** from the KroneckerTools repository as
+```
+>>  u = kronPolyEval(k,x,degree);
+```
+
 The variable _v_ is a cell array with _v{2}_ being n-by-n^2 , up to _v{degree+1}_ which is n-by-n^degree+1 .  These are coefficients of the polynomial approximation to the value function.  From an initial _x0_, we can compute the approximation to the value function as
 ```
 >>  J = v{2}*kron(x0,x0) + ... + v{degree+1}*kron(kron(... ,x0),x0);
 ```
-
+or _J = kronPolyEval(v,x0,degree+1);_ (kronPolyEval skips the empty matrix v{1}=[]).
 
 For details on how to run **qqr**, one can also type
 ```
 >>  help qqr
 ```
 
-for examples how to run **qqr** see those in
+for examples how to run **qqr** see the live script
 ```
->> examplesForACC
+>> addpath('examples')
+>> open example10.mlx
 ```
 as well as 
 ```
@@ -79,6 +85,7 @@ With the same assumptions on A,B,Q,R as in _qqr_, but we now allow for higher de
 ```
 >>  [k,v] = cqr(A,B,Q,R,N,degree);
 ```
+or
 ```
  \dot{x} = A*x + B*u + N{2}*kron(x,x) + N{3}*kron(kron(x,x),x) + ... N{p}*kron(...kron(x,x),x)
 ```
@@ -102,9 +109,9 @@ terms are all odd.  This version, cqrOdd is called with N{3} (not the cell array
 (degree should be odd in this case).
 
 ## Description of Files
-#### setKroneckerSumPath
+#### setKroneckerToolsPath
 
-Defines the path where functions for working with Kronecker product expressions as well as the optional tensor_recursive solver is stored.  The default settings should work but can be changed if the solver directories are located elsewhere.
+Defines the path where functions for working with Kronecker product expressions as well as the optional tensor_recursive solver is stored.  The default settings may work but can be changed if the solver directories are located elsewhere.
 
 #### setNSTpath
 
@@ -114,27 +121,26 @@ Defines the path where the Nonlinear Systems Toolbox by Krener is located.  This
 
 Builds and solves the full Kronecker product form of the polynomial approximation to the HJB equation.  Schur decomposition of A+Bk{1} should be performed to produce an upper triangular system.  This would still be an O(n^2degree ) algorithm and prohibitively expensive.  This file is only included for archival reasons.
 
-#### CT2Kron and Kron2CT
+#### pqr
 
-These compute mappings between coefficients of a multidimensional polynomial in compact Taylor series format and those in a Kronecker product format.  As a simple example, if p(x) = c1 x1^2 + c2 x1 x2 + c3 x2^2 , then n=2, degree=2.  We have
+Solves the polynomial-quadratic regulator problem.
 
-p(x) = [c1 c2 c3] * [x1^2 x1x2 x2^2 ].' written as
+#### cqr
 
-p(x) = ( CT2Kron(n,degree)*[c1 c2 c3].' ).' * kron([x1;x2],[x1;x2])
+Solves the cubic-quadratic regulator problem (a front end to pqr).
 
-or
+#### qqr
 
-p(x) = [c1 c2/2 c2/2 c3] * kron([x1;x2],[x1;x2]) written as
+Solves the quadratic-quadratic regulator problem (a front end to pqr).
 
-p(x) = ( Kron2CT(n,degree) * [c1 c2/2 c2/2 c3].' ).' * [x1^2 x1x2 x2^2 ].'
+#### cqrOdd
 
-There mappings are used to balance coefficients of the feedback and value functions.  (e.g., in the Kronecker form, we seek the same coefficient for x1 x2 and x2 x1).
+A special case that exploits computation when the right-hand-size polynomial only includes odd degree terms.
 
-#### LyapProduct
-
-Efficiently computes the product of a special Kronecker sum matrix (aka an N-Way Lyapunov matrix) with a vector.  This is done by reshaping the vector, performing matrix-matrix products, then reshaping the answer.  We could also utilize the matrization of the associated tensor.
 
 ## Examples
+
+A number of examples can be found in the _examples_ directory.  More are available in the **PolynomialSystems** repository.
 
 ### example01.m
 
