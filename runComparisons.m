@@ -29,7 +29,7 @@
 
 verbose = true;   % writes out Kron<->CT mapping times.
 
-setKroneckerSumPath
+setKroneckerToolsPath
 setNSTpath
 addpath('./testScripts')
 
