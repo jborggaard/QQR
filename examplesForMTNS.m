@@ -42,7 +42,7 @@
     m      =  1;  % control dimension
     degree =  5;  % degree of optimal feedback
 
-    example03
+    [A,B,Q,R,N] = example03(n,m);
   
     tic
       [k,v] = qqr(A,B,Q,R,N,degree);

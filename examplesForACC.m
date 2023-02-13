@@ -41,21 +41,19 @@
   %%
     %  For the ACC submission, we chose n=6:2:20, m=1, degree=2:4
     %  the full Kronecker solution wasn't calculated for 16:2:20
-    example01
+    [A,B,Q,R,N] = example01(n,m);
 
   elseif ( testcase==2 )
   %%
     %  For the ACC submission/final, we chose n=10:2:20, m=2, degree=2:3
     %  the full Kronecker solution wasn't calculated for 16:2:20
-    setParams = true;
-    example02
-    setParams = false;
+    [A,B,Q,R,N,zInit] = example02(n,m);
     
   elseif ( testcase==3 )
   %%
     %  For the ACC final version, we chose n=6:2:20, m=1, degree=2:4
     %  the full Kronecker solution wasn't calculated for 16:2:20
-    example03
+    [A,B,Q,R,N] = example03(n,m);
     
   end
   

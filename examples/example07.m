@@ -46,9 +46,12 @@
   v7 = v6 + v{7}*x.*x.*x.*x.*x.*x.*x;
   v8 = v7 + v{8}*x.*x.*x.*x.*x.*x.*x.*x;
   
+  rhs = @(t,x) t-t^3 + sqrt((t-t^3)^2+t^2);
+  [T,V] = ode23(rhs,[0 1.8],0);
+
   figure
-  plot(x,v2,x,v4,x,v6,x,v8)
-  legend('degree 2','degree 4','degree 6','degree 8','Location','NorthWest')
+  plot(x,v2,x,v4,x,v6,x,v8,T,V)
+  legend('degree 2','degree 4','degree 6','degree 8','analytic','Location','NorthWest')
   xlabel('z_0')
   ylabel('Value Function Approximation')
   

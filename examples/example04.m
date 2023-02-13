@@ -1,3 +1,4 @@
+%function [A,B,Q,R,N] = example04()
 %EXAMPLE04 Compares feedback strategies for the Lorenz equations 
 %  
   
@@ -20,7 +21,7 @@
   v2 = v{2};
 %  x0 = [1;1;1];
   x0 = [10;10;10];
-  T  = 50;
+  T  = 500;
   %  Open loop
   rhs_open = @(t,x) [A*x(1:3) + N*kron(x(1:3),x(1:3)); ...
                      x(1:3).'*Q*x(1:3)];

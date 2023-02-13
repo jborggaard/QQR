@@ -2,7 +2,6 @@
 %  using a distributed (B1) or Neumann boundary control (B2).
 %
 
-
 [E,A,B1,B2,N3,Q,zInit] = ChafeeInfanteFEMControl(n,m,alpha,nu,alpha3);
 
 zInit = a*zInit;
