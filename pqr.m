@@ -101,7 +101,7 @@ function [k,v] = pqr(A,B,Q,R,N,degree,solver,verbose)
     error('pqr: expects at least 6 inputs');
   end
 
-  if ( nargin==7 )
+  if ( nargin==5 )
     degree = 2;
   end
   
@@ -209,7 +209,7 @@ function [k,v] = pqr(A,B,Q,R,N,degree,solver,verbose)
       bb  = bb - vec(tmp) - vec(tmp.');
     end
 
-    if (mod(d,2)) % d is odd
+    if (mod(d,2)) % if d is odd
       tmp = k{(d+1)/2}.'*R*k{(d+1)/2};
       bb  = bb - vec(tmp);
     end
