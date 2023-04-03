@@ -14,7 +14,7 @@ B = rand(n,m);
 Q = sprandsym(n,0.5,0.1,1);
 R = sprandsym(m,0.5,0.5,1);
 
-Ndeg = 4;  % number between 2 and degree
+Ndeg = 5;  % number between 2 and degree
 N = cell(1,Ndeg);
 for d=2:Ndeg
   N{d} = rand(n,n^d);
@@ -27,11 +27,11 @@ runNSTcomparisons
 
 %
 %% Compare the new version of pqr with the previous version
-degree = min(degree,5);  % older versions of pqr are limited to degree=5
-
-[kOld,vOld] = pqrOld(A,B,Q,R,N,degree);
-
-for d=1:degree
-  fprintf('Degree %d: kError=%g, vError=%g\n',...
-           d,norm(k{d}-kOld{d}),norm(v{d+1}-vOld{d+1}));
-end
+% degree = min(degree,5);  % older versions of pqr are limited to degree=5
+% 
+% [kOld,vOld] = pqrOld(A,B,Q,R,N,degree);
+% 
+% for d=1:degree
+%   fprintf('Degree %d: kError=%g, vError=%g\n',...
+%            d,norm(k{d}-kOld{d}),norm(v{d+1}-vOld{d+1}));
+% end
