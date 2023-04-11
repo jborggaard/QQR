@@ -21,6 +21,9 @@ function [ka,py] = runNST(A,B,Q,R,N,degree,Nxu,Nuu)
     elseif ( length(N)==4 )
       f = A*x + B*u + N{2}*kron(x,x) + N{3}*kron(kron(x,x),x) + ...
           N{4}*kron(kron(kron(x,x),x),x);
+    elseif ( length(N)==5 )
+      f = A*x + B*u + N{2}*kron(x,x) + N{3}*kron(kron(x,x),x) + ...
+          N{4}*kron(kron(kron(x,x),x),x) + N{5}*kron(kron(kron(kron(x,x),x),x),x);
     end
   else
     f = A*x + B*u + N*kron(x,x);
