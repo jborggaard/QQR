@@ -40,7 +40,8 @@
       Nxx{3} = rand(n,n^3);    Nxx{3} = kronMatrixSymmetrize(Nxx{3},n,3);
       Nxu{1} = rand(n,n  *m);
       Nxu{2} = rand(n,n^2*m);  Nxu{2} = kronNxuSymmetrize(Nxu{2},n,2);
-%      Nxu{3} = rand(n,n^3*m);  Nxu{3} = kronNxuSymmetrize(Nxu{3},n,3);
+      Nxu{3} = rand(n,n^3*m);  Nxu{3} = kronNxuSymmetrize(Nxu{3},n,3);
+      Nxu{4} = rand(n,n^4*m);  Nxu{4} = kronNxuSymmetrize(Nxu{4},n,3);
       Nuu = rand(n,m*m);  Nuu = kronMatrixSymmetrize(Nuu,m,2);
 
       Q = full( sprandsym(n,0.5,rand(n,1)) );
@@ -51,8 +52,10 @@
 
   %
   %% Solve the current example using qqrBilinear
+  tic
   [k,v] = pqrBilinear(A,B,Q,R,Nxx,Nxu,Nuu,degree);
-
+  toc
+  
   %
   %% Compare the solutions
   %  Solve for the feedback and value function approximations with NST,
