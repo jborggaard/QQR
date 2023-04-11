@@ -14,7 +14,9 @@ function [ka,py] = runNST(A,B,Q,R,N,degree,Nxu,Nuu)
   x=sym('x',[n,1]); %  state variables 
   u=sym('u',[m,1]); %  control variables
   if ( iscell(N) )
-    if ( length(N)==3 )
+    if ( length(N)==2 )
+      f = A*x + B*u + N{2}*kron(x,x);
+    elseif ( length(N)==3 )
       f = A*x + B*u + N{2}*kron(x,x) + N{3}*kron(kron(x,x),x);
     elseif ( length(N)==4 )
       f = A*x + B*u + N{2}*kron(x,x) + N{3}*kron(kron(x,x),x) + ...
@@ -26,7 +28,16 @@ function [ka,py] = runNST(A,B,Q,R,N,degree,Nxu,Nuu)
   
   % check for the bilinear case
   if ( nargin>6 )
-    f = f + Nxu*kron(x,u) + Nuu*kron(u,u);
+    if (iscell(Nxu))
+      xu = u;
+      for i=1:length(Nxu)
+        xu = kron(x,xu);
+        f = f + Nxu{i}*xu;
+      end
+      f = f + Nuu*kron(u,u);
+    else
+      f = f + Nxu*kron(x,u) + Nuu*kron(u,u);
+    end
   end
   
   x0 = zeros(n,1); u0 = zeros(m,1);
