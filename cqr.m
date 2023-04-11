@@ -68,7 +68,7 @@ function [k,v] = cqr(A,B,Q,R,N,degree,solver,verbose)
     error('cqr: expects at least 6 inputs');
   end
 
-  if ( nargin==6 )
+  if ( nargin==5 )
     degree = 2;
   end
   
@@ -507,8 +507,107 @@ function [k,v] = cqr(A,B,Q,R,N,degree,solver,verbose)
     comp7 = toc;
   end
   
-  if ( degree>7 )
-    warning('cqr: Only controls of degree <=7 have been implemented so far')
+  if (degree>7)
+    %===========================================================================
+    %  Compute the degree=8 feedback solution
+    %===========================================================================    
+    tic
+    
+    Al{9} = ABKT;
+    
+    bb  = zeros(n^9,1);
+    for i=2:4
+      tmp = -k{9-i}.'*R*k{i};
+      bb  = bb + tmp(:);
+      tmp = tmp.';
+      bb  = bb + tmp(:);
+    end
+
+    clear tmp
+    
+    % augment with the Kronecker sum products
+    bb = bb - LyapProduct((B*k{2}+N{2}).',v8,8) ...
+            - LyapProduct((B*k{3}+N{3}).',v7,7) ...
+            - LyapProduct((B*k{4}     ).',v6,6) ...
+            - LyapProduct((B*k{5}     ).',v5,5) ...
+            - LyapProduct((B*k{6}     ).',v4,4) ...
+            - LyapProduct((B*k{7}     ).',v3,3);
+       
+    v9 = solveKroneckerSystem(Al,bb,n,9,solver);
+    v9 = real(v9(:));
+    
+    v9 = kronMonomialSymmetrize(v9,n,9);
+
+    res = zeros(n^8,m);
+    for i=1:m
+      %  Efficiently build the following products
+      % GG = ( kron(               B(:,i).',eye(n^4)   ) + ...
+      %        kron( eye(n  ),kron(B(:,i).',eye(n^3) ) ) + ...
+      %        kron( eye(n^2),kron(B(:,i).',eye(n^2) ) ) + ...
+      %        kron( eye(n^3),kron(B(:,i).',eye(n  ) ) ) + ...
+      %        kron( eye(n^4),     B(:,i).'            ) );
+      % GG = C*S*GG;
+      % res(:,i) = -GG*v5;
+      GGv9 = LyapProduct(B(:,i).',v9,9);
+      res(:,i) = -GGv9;
+      
+    end
+    
+    v{9} = v9.';
+    k{8} = 0.5*(R\res.'); 
+    
+    comp8 = toc;
+  end
+
+  if (degree>8)
+    %===========================================================================
+    %  Compute the degree=9 feedback solution
+    %===========================================================================    
+    tic
+    
+    Al{10} = ABKT;
+    
+    bb  = zeros(n^10,1);
+    for i=2:4
+      tmp = -k{10-i}.'*R*k{i};
+      bb  = bb + tmp(:);
+      tmp = tmp.';
+      bb  = bb + tmp(:);
+    end
+    tmp = -k{5}.'*R*k{5};
+    bb  = bb + tmp(:);
+
+    clear tmp
+    
+    % augment with the Kronecker sum products
+    bb = bb - LyapProduct((B*k{2}+N{2}).',v9,9) ...
+            - LyapProduct((B*k{3}+N{3}).',v8,8) ...
+            - LyapProduct((B*k{4}     ).',v7,7) ...
+            - LyapProduct((B*k{5}     ).',v6,6) ...
+            - LyapProduct((B*k{6}     ).',v5,5) ...
+            - LyapProduct((B*k{7}     ).',v4,4) ...
+            - LyapProduct((B*k{8}     ).',v3,3);
+       
+    v10 = solveKroneckerSystem(Al,bb,n,10,solver);
+    v10 = real(v10(:));
+    
+    v10 = kronMonomialSymmetrize(v10,n,10);
+
+    res = zeros(n^9,m);
+    for i=1:m
+      GGv10 = LyapProduct(B(:,i).',v10,10);
+      res(:,i) = -GGv10;
+      
+    end
+    
+    v{10} = v10.';
+    k{9} = 0.5*(R\res.'); 
+    
+    comp9 = toc;
+  end
+
+  if ( degree>9 )
+    warning('cqr: Only controls of degree <=9 have been implemented so far')
   end
   
   if ( verbose )
@@ -535,6 +634,14 @@ function [k,v] = cqr(A,B,Q,R,N,degree,solver,verbose)
     if ( degree>6 )
       fprintf('cqr: CPU time for degree 7 controls: %g\n',comp7);
     end
+    
+    if ( degree>7 )
+      fprintf('cqr: CPU time for degree 8 controls: %g\n',comp8);
+    end
+    
+    if ( degree>8 )
+      fprintf('cqr: CPU time for degree 9 controls: %g\n',comp9);
+    end
   end
 end
 
@@ -555,6 +662,10 @@ function [v] = solveKroneckerSystem(Al,bb,n,degree,solver)
         v = lyapunov_recursive(Al,reshape(bb,n,n,n,n,n,n,n));
       case 8
         v = lyapunov_recursive(Al,reshape(bb,n,n,n,n,n,n,n,n));
+      case 9
+        v = lyapunov_recursive(Al,reshape(bb,n,n,n,n,n,n,n,n,n));
+      case 10
+        v = lyapunov_recursive(Al,reshape(bb,n,n,n,n,n,n,n,n,n,n));
       otherwise
         warning('cqr: degree not supported')
     end
@@ -573,6 +684,10 @@ function [v] = solveKroneckerSystem(Al,bb,n,degree,solver)
         v = laplace_recursive(Al,reshape(bb,n,n,n,n,n,n,n));
       case 8
         v = laplace_recursive(Al,reshape(bb,n,n,n,n,n,n,n,n));
+      case 9
+        v = laplace_recursive(Al,reshape(bb,n,n,n,n,n,n,n,n,n));
+      case 10
+        v = laplace_recursive(Al,reshape(bb,n,n,n,n,n,n,n,n,n,n));
       otherwise
         warning('cqr: degree not supported')
      end
