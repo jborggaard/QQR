@@ -54,7 +54,8 @@
   %% Solve the current example using qqrBilinear
   tic
   [k,v] = pqrBilinear(A,B,Q,R,Nxx,Nxu,Nuu,degree);
-  toc
+  tpqr = toc;
+  fprintf('The time required for pqrBilinear is: %g\n',tpqr)
   
   %
   %% Compare the solutions
@@ -63,32 +64,3 @@
   %  to represent everything on the same monomial terms, then report
   %  differences in the solutions.
   runNSTcomparisons
-
-  
-  %   S2 = Kron2CT(n,2);
-%   S3 = Kron2CT(n,3);
-% 
-%   if ( n<5 )
-%     fprintf('QQR solution:\n')
-%     disp([k{1}, k{2}*S2.'])
-%     disp([v{2}*S2.', v{3}*S3.'])
-%   end
-% 
-%   errorK = norm( ka(:,1:n+n*(n+1)/2)-[k{1}, k{2}*S2.']);
-%   fprintf('The absolute error in [k1 k2] coefficients is: %g\n',errorK)
-% 
-%   errorV = norm( py(1,1:n*(n+1)/2+n*(n+1)*(n+2)/6)-[v{2}*S2.', v{3}*S3.']);
-%   fprintf('The absolute error in v(x) coefficients is: %g\n',errorV)
-% 
-%   if degree==3
-%     S4 = Kron2CT(n,4);
-%     errorK = norm(ka(:,n+n*(n+1)/2+1:end)-k{3}*S3.');
-%     errorV = norm(py(n*(n+1)/2+n*(n+1)*(n+2)/6+1:end)-v{4}*S4.');
-%     fprintf('The absolute error in k3 is: %g\n',errorK)
-%     fprintf('The absolute error in v4 is: %g\n',errorV)
-%   end
-% 
-%   if degree==4
-%     S5 = Kron2CT(n,5);
-% 
-%   end

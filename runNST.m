@@ -13,17 +13,12 @@ function [ka,py] = runNST(A,B,Q,R,N,degree,Nxu,Nuu)
   tic
   x=sym('x',[n,1]); %  state variables 
   u=sym('u',[m,1]); %  control variables
+  f = A*x + B*u;
   if ( iscell(N) )
-    if ( length(N)==2 )
-      f = A*x + B*u + N{2}*kron(x,x);
-    elseif ( length(N)==3 )
-      f = A*x + B*u + N{2}*kron(x,x) + N{3}*kron(kron(x,x),x);
-    elseif ( length(N)==4 )
-      f = A*x + B*u + N{2}*kron(x,x) + N{3}*kron(kron(x,x),x) + ...
-          N{4}*kron(kron(kron(x,x),x),x);
-    elseif ( length(N)==5 )
-      f = A*x + B*u + N{2}*kron(x,x) + N{3}*kron(kron(x,x),x) + ...
-          N{4}*kron(kron(kron(x,x),x),x) + N{5}*kron(kron(kron(kron(x,x),x),x),x);
+    xx = x;
+    for j=2:length(N)
+      xx = kron(xx,x);
+      f = f + N{j}*xx;
     end
   else
     f = A*x + B*u + N*kron(x,x);
@@ -37,12 +32,15 @@ function [ka,py] = runNST(A,B,Q,R,N,degree,Nxu,Nuu)
         xu = kron(x,xu);
         f = f + Nxu{i}*xu;
       end
-      f = f + Nuu*kron(u,u);
     else
-      f = f + Nxu*kron(x,u) + Nuu*kron(u,u);
+      f = f + Nxu*kron(x,u);
     end
   end
   
+  if ( nargin>7 )
+    f = f + Nuu*kron(u,u);
+  end
+
   x0 = zeros(n,1); u0 = zeros(m,1);
   % control Lagrangian 
   l=0.5*( x.'*Q*x + u.'*R*u );  % this must be scaled by 0.5 to compensate

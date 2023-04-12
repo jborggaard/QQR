@@ -1,6 +1,6 @@
 function [k,v] = pqrBilinear(A,B,Q,R,NxxIn,NxuIn,Nuu,degree,solver,verbose)
-%pqrBilinear Approximation to the polynomial-quadratic-regulator problem.
-%   A quadratic-bilinear system is provided in Kronecker product form
+%pqrBilinear Approximation to the polynomial-quadratic-regulator (PQR) problem.
+%   A polynomial-bilinear system is provided in Kronecker product form
 %
 %     \dot{x} = A*x + B*u + Nxx{2}*kron(x,x) + Nxx{3}*kron(kron(x,x),x) + ...
 %                         + Nxu{1}*kron(x,u) + Nxu{2}*kron(kron(x,x),u) + ...
@@ -10,8 +10,9 @@ function [k,v] = pqrBilinear(A,B,Q,R,NxxIn,NxuIn,Nuu,degree,solver,verbose)
 %
 %     \ell(x,u) = x'*Q*x + u'*R*u
 %
-%   note:  the N terms here are the polynomial nonlinearities, NOT the bilinear
-%          term sometimes found in the running cost of the lqr problem!
+%   note:  the Nxu terms represent higher than bilinear terms, but we limit
+%          those terms to the linear-in-control case.  A separate term: Nuu
+%          is used for a quadratic-in-control term. 
 %
 %   This function returns an approximation to the HJB equations for computing
 %   the optimal feedback control up to "degree".  
@@ -34,7 +35,8 @@ function [k,v] = pqrBilinear(A,B,Q,R,NxxIn,NxuIn,Nuu,degree,solver,verbose)
 %   Usage:  [k,v] = pqrBilinear(A,B,Q,R,Nxx,Nxu,Nuu,degree,solver);
 %
 %   if A is (n \times n) and B is (n \times m), then for each 1<=l<=degree
-%    v{l+1} is (1 \times n^(l+1)) and k{l} is (m \times n^l).
+%    v{l+1} is (1 \times n^(l+1)) and k{l} is (m \times n^l).  It is necessary
+%   that the lqr problem for the linear problem A,B,Q,R have a solution.
 %
 %   The construction of the Kronecker system from Al'Brecht's expansion and 
 %   its solution using a recursive blocked algorithm by Chen and Kressner is
