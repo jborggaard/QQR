@@ -2,7 +2,7 @@
 %       https://github.com/jborggaard/KroneckerTools
 %
 %  Download KroneckerTools, then adjust the path variable below if needed.
-KroneckerToolsPath = '../KroneckerTools';
+KroneckerToolsPath = '/Volumes/borggaard/Software/MyPublicSoftware/KroneckerTools';
 
 addpath([KroneckerToolsPath,'/src'])
 addpath([KroneckerToolsPath,'/util'])

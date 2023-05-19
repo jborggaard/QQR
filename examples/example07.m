@@ -28,34 +28,37 @@
   N = 401;
   x = linspace(0,1.8,N);
   
-  u1 = k{1}*x;
+  u1 =      k{1}*x;
   u2 = u1 + k{2}*x.*x;
-  u3 = u2 + k{3}*x.*x.*x;
-  u4 = u3 + k{4}*x.*x.*x.*x;
-  u5 = u4 + k{5}*x.*x.*x.*x.*x;
-  u6 = u5 + k{6}*x.*x.*x.*x.*x.*x;
-  u7 = u6 + k{7}*x.*x.*x.*x.*x.*x.*x;
-  u8 = u7 + k{8}*x.*x.*x.*x.*x.*x.*x.*x;
-  u9 = u8 + k{9}*x.*x.*x.*x.*x.*x.*x.*x.*x;
+  u3 = u2 + k{3}*x.^3;
+  u4 = u3 + k{4}*x.^4;
+  u5 = u4 + k{5}*x.^5;
+  u6 = u5 + k{6}*x.^6;
+  u7 = u6 + k{7}*x.^7;
+  u8 = u7 + k{8}*x.^8;
+  u9 = u8 + k{9}*x.^9;
   
-  plot(x,-u1,x,-u3,x,-u5,x,-u7,x,-u9)
-  legend('u_1','u_3','u_5','u_7','u_9')
-  
+  Ka = x.^3-x-sqrt((x-x.^3).^2+x.^2);
+  plot(x,u1,x,u3,x,u5,x,u7,x,u9,x,Ka,'LineWidth',2)
+  legend('u_1','u_3','u_5','u_7','u_9','analytic','Location','NorthWest')
+  xlabel('z')
+  ylabel('Feedback K(z)')
+
   v2  =      v{ 2}*x.*x;
-  v3  = v2 + v{ 3}*x.*x.*x;
-  v4  = v3 + v{ 4}*x.*x.*x.*x;
-  v5  = v4 + v{ 5}*x.*x.*x.*x.*x;
-  v6  = v5 + v{ 6}*x.*x.*x.*x.*x.*x;
-  v7  = v6 + v{ 7}*x.*x.*x.*x.*x.*x.*x;
-  v8  = v7 + v{ 8}*x.*x.*x.*x.*x.*x.*x.*x;
-  v9  = v8 + v{ 9}*x.*x.*x.*x.*x.*x.*x.*x.*x;
-  v10 = v9 + v{10}*x.*x.*x.*x.*x.*x.*x.*x.*x.*x;
+  v3  = v2 + v{ 3}*x.^3;
+  v4  = v3 + v{ 4}*x.^4;
+  v5  = v4 + v{ 5}*x.^5;
+  v6  = v5 + v{ 6}*x.^6;
+  v7  = v6 + v{ 7}*x.^7;
+  v8  = v7 + v{ 8}*x.^8;
+  v9  = v8 + v{ 9}*x.^9;
+  v10 = v9 + v{10}*x.^10;
   
   rhs = @(t,x) t-t^3 + sqrt((t-t^3)^2+t^2);
   [T,V] = ode23(rhs,[0 1.8],0);
 
   figure
-  plot(x,v2,x,v4,x,v6,x,v8,x,v10,T,V)
+  plot(x,v2,x,v4,x,v6,x,v8,x,v10,T,V,'LineWidth',2)
   legend('degree 2','degree 4','degree 6','degree 8','degree 10','analytic','Location','NorthWest')
   xlabel('z_0')
   ylabel('Value Function Approximation')

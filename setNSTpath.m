@@ -1,1 +1,1 @@
-addpath('/Volumes/borggaardT7/Research/PDE_Control/NonlinearControl/NonlinearControlExamples/nst15')
+addpath('/Volumes/borggaard/Research/PDE_Control/NonlinearControl/NonlinearControlExamples/nst15')

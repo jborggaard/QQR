@@ -244,56 +244,10 @@ end
 function [v] = solveKroneckerSystem(Al,bb,n,degree,solver)
 
   if ( strcmp(solver,'LyapunovRecursive') )
-    switch degree
-      case 3
-        v = lyapunov_recursive(Al,reshape(bb,n,n,n));
-      case 4
-        v = lyapunov_recursive(Al,reshape(bb,n,n,n,n));
-      case 5
-        v = lyapunov_recursive(Al,reshape(bb,n,n,n,n,n));
-      case 6
-        v = lyapunov_recursive(Al,reshape(bb,n,n,n,n,n,n));
-      case 7
-        v = lyapunov_recursive(Al,reshape(bb,n,n,n,n,n,n,n));
-      case 8
-        v = lyapunov_recursive(Al,reshape(bb,n,n,n,n,n,n,n,n));
-      case 9
-        v = lyapunov_recursive(Al,reshape(bb,n,n,n,n,n,n,n,n,n));
-      case 10
-        v = lyapunov_recursive(Al,reshape(bb,n,n,n,n,n,n,n,n,n,n));
-      case 11
-        v = lyapunov_recursive(Al,reshape(bb,n,n,n,n,n,n,n,n,n,n,n));
-      case 12
-        v = lyapunov_recursive(Al,reshape(bb,n,n,n,n,n,n,n,n,n,n,n,n));
-      otherwise
-        warning('pqr: degree not supported')
-    end
+    v = lyapunov_recursive(Al,reshape(bb,n*ones(1,degree)));
     
   elseif ( strcmp(solver,'LaplaceRecursive') )
-     switch degree
-      case 3
-        v = laplace_recursive(Al,reshape(bb,n,n,n));
-      case 4
-        v = laplace_recursive(Al,reshape(bb,n,n,n,n));
-      case 5
-        v = laplace_recursive(Al,reshape(bb,n,n,n,n,n));
-      case 6
-        v = laplace_recursive(Al,reshape(bb,n,n,n,n,n,n));
-      case 7
-        v = laplace_recursive(Al,reshape(bb,n,n,n,n,n,n,n));
-      case 8
-        v = laplace_recursive(Al,reshape(bb,n,n,n,n,n,n,n,n));
-      case 9
-        v = laplace_recursive(Al,reshape(bb,n,n,n,n,n,n,n,n,n));
-      case 10
-        v = laplace_recursive(Al,reshape(bb,n,n,n,n,n,n,n,n,n,n));
-      case 11
-        v = laplace_recursive(Al,reshape(bb,n,n,n,n,n,n,n,n,n,n,n));
-      case 12
-        v = laplace_recursive(Al,reshape(bb,n,n,n,n,n,n,n,n,n,n,n,n));
-      otherwise
-        warning('pqr: degree not supported')
-     end
+    v = laplace_recursive(Al,reshape(bb,n*ones(1,degree)));
 
   else
     v = KroneckerSumSolver(Al,bb,degree);

@@ -2,8 +2,6 @@
 %  Kuramoto-Sivashinsky equations using distributed control.
 %
 
-r0 = 1.0;
-
 [E,A,B,N2,Q,zInit] = KuramotoSivashinskyFEMControl(n,m,1/L^2);
   
 xNodes = linspace(0,1,n+1);

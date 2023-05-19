@@ -29,19 +29,19 @@ tic
 toc
 
 c2 = v{2}*kron(x0,x0);
-fprintf('linear    feedback cost: %g\n',c2)
+fprintf('linear  feedback cost: %g\n',c2)
 
 if (degree>2)
-  c4 = c2 + v{4}*kron(kron(kron(x0,x0),x0),x0);
-  fprintf('cubic     feedback cost: %g\n',c4)
+  c4 = c2 + v{4}*KroneckerPower(x0,4);
+  fprintf('cubic   feedback cost: %g\n',c4)
 end
 if (degree>4)
-  c6 = c4 + v{6}*kron(kron(kron(kron(kron(x0,x0),x0),x0),x0),x0);
-  fprintf('quintic   feedback cost: %g\n',c6)
+  c6 = c4 + v{6}*KroneckerPower(x0,6);
+  fprintf('quintic feedback cost: %g\n',c6)
 end
 if (degree>6)
-  c8 = c6 + v{8}*kron(kron(kron(kron(kron(kron(kron(x0,x0),x0),x0),x0),x0),x0),x0);
-  fprintf('quintic   feedback cost: %g\n',c6)
+  c8 = c6 + v{8}*KroneckerPower(x0,8);
+  fprintf('septic  feedback cost: %g\n',c8)
 end
 fprintf('\n')
 
@@ -102,7 +102,7 @@ if ( runClosed )
     %---------------------------------------------------------------------------
     NPBK2 = Bc*k{2};
     NPBK3 = Nc + Bc*k{3};
-    computeU3 = @(x) k{1}*x + k{2}*kron(x,x) + k{3}*kron(kron(x,x),x);
+    computeU3 = @(x) kronPolyEval(k,x,3);%k{1}*x + k{2}*kron(x,x) + k{3}*kron(kron(x,x),x);
 
     rhs_k3 = @(t,x) vertcat( APBK*x(1:end-1)                    + ...
                       NPBK2*kron(x(1:end-1),x(1:end-1))  + ...
