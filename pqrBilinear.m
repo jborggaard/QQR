@@ -505,28 +505,48 @@ function [k,v] = pqrBilinear(A,B,Q,R,NxxIn,NxuIn,Nuu,degree,solver,verbose)
     %        kron(K4.',K3.') + ...
     %        kron(K5.',K2.') )*r2 ; 
     % v7 = AA\bb;
-    
+    warning('pqrBilinear: feedback degrees higher than 5 are not implemented yet')
     tic
     
     Al{7} = ABKT;
     
-    % form the Kronecker portion of the RHS
-    %    -( kron(K2.',K5.') + kron(K3.',K4.') + kron(K4.',K3.') + 
-    %       kron(K5.',K2.') )*r2
-    tmp =-k{5}.'*R*k{2};
-    bb  = tmp(:);
-    tmp = tmp.';
-    bb  = bb + tmp(:);
-    tmp =-k{4}.'*R*k{3};
-    bb  = bb + tmp(:);
-    tmp = tmp.';
-    bb  = bb + tmp(:);
-    
-    % augment with the Kronecker sum products
-    bb = bb - LyapProduct((B*k{2}+N).',v{6},6) ...
-            - LyapProduct((B*k{3}  ).',v{5},5) ...
-            - LyapProduct((B*k{4}  ).',v{4},4) ...
-            - LyapProduct((B*k{5}  ).',v{3},3) ...
+    t{4} = B*k{5} + t{4};
+    if (NxxDegree>5)
+      t{5} = Nxx{6} + Nxu{1}*kron(eye(n),k{5}) + ...
+             Nuu*( kron(k{1},k{5})+kron(k{2},k{4})+kron(k{3},k{3})+kron(k{4},k{2})+kron(k{5},k{1}) );
+    else
+      t{5} = Nxu{1}*kron(eye(n),k{5}) + ...
+             Nuu*( kron(k{1},k{5})+kron(k{2},k{4})+kron(k{3},k{3})+kron(k{4},k{2})+kron(k{5},k{1}) );
+    end
+
+    for j=2:NxuDegree
+      t{5} = t{5} + Nxu{j}*kron(eye(n^j),k{6-j});
+    end
+
+    bb = -LyapProduct(t{1}.',v{6},6) ...
+         -LyapProduct(t{2}.',v{5},5) ...
+         -LyapProduct(t{3}.',v{4},4) ...
+         -LyapProduct(t{4}.',v{3},3) ...
+         -LyapProduct(t{5}.',v{2},2) ...
+         - (kron(k{5}.',k{2}.')+kron(k{4}.',k{3}.')+kron(k{3}.',k{4}.')+kron(k{2}.',k{5}.'))*r2;
+
+%     % form the Kronecker portion of the RHS
+%     %    -( kron(K2.',K5.') + kron(K3.',K4.') + kron(K4.',K3.') + 
+%     %       kron(K5.',K2.') )*r2
+%     tmp =-k{5}.'*R*k{2};
+%     bb  = tmp(:);
+%     tmp = tmp.';
+%     bb  = bb + tmp(:);
+%     tmp =-k{4}.'*R*k{3};
+%     bb  = bb + tmp(:);
+%     tmp = tmp.';
+%     bb  = bb + tmp(:);
+%     
+%     % augment with the Kronecker sum products
+%     bb = bb - LyapProduct((B*k{2}+Nxx{2}).',v{6},6) ...
+%             - LyapProduct((B*k{3}+Nxx{3}).',v{5},5) ...
+%             - LyapProduct((B*k{4}+Nxx{4}).',v{4},4) ...
+%             - LyapProduct((B*k{5}+Nxx{5}).',v{3},3); ...
        
     v{7} = solveKroneckerSystem(Al,bb,n,7,solver);
     v{7} = real(v{7}(:));
