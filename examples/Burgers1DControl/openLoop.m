@@ -2,11 +2,12 @@
 
   n = 41;
   m = 1;   % a control input that we won't use
+  p = 2;   % a controlled output that we also don't use
   
   epsilon = 0.005;
   tInfinity = 15;
   
-  [E,A,B,N,zInit] = BurgersFEMControl(n,m);
+  [E,A,B,C,N,zInit] = BurgersFEMControl(n,m,p);
   xNodes = linspace(0,1,n);
 
 %   A = epsilon*(E\A);
